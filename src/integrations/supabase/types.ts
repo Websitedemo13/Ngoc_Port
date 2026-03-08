@@ -405,6 +405,39 @@ export type Database = {
         }
         Relationships: []
       }
+      media_library: {
+        Row: {
+          alt_text_en: string | null
+          alt_text_vi: string | null
+          created_at: string
+          file_size: number | null
+          file_type: string | null
+          filename: string
+          id: string
+          url: string
+        }
+        Insert: {
+          alt_text_en?: string | null
+          alt_text_vi?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_type?: string | null
+          filename: string
+          id?: string
+          url: string
+        }
+        Update: {
+          alt_text_en?: string | null
+          alt_text_vi?: string | null
+          created_at?: string
+          file_size?: number | null
+          file_type?: string | null
+          filename?: string
+          id?: string
+          url?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string | null
