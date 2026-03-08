@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -91,12 +91,10 @@ export default function SettingsManager() {
 
             <div>
               <Label htmlFor="footer_text">Footer Description</Label>
-              <Textarea
-                id="footer_text"
-                value={settings.footer_text}
-                onChange={(e) => setSettings(prev => ({ ...prev, footer_text: e.target.value }))}
+              <RichTextEditor
+                content={settings.footer_text}
+                onChange={(html) => setSettings(prev => ({ ...prev, footer_text: html }))}
                 placeholder="Mô tả ngắn gọn cho footer"
-                rows={3}
               />
             </div>
           </div>

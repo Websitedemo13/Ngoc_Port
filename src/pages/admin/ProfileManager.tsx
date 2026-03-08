@@ -4,7 +4,7 @@ import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
@@ -92,7 +92,7 @@ export default function ProfileManager() {
 
             <div>
               <Label htmlFor="quote">Câu trích dẫn / Quote</Label>
-              <Textarea id="quote" value={formData.quote} onChange={(e) => handleInputChange('quote', e.target.value)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" rows={3} />
+              <RichTextEditor content={formData.quote} onChange={(html) => handleInputChange('quote', html)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" />
             </div>
           </div>
 
