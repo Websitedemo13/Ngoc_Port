@@ -24,6 +24,7 @@ import ExperiencesManager from "./pages/admin/ExperiencesManager";
 import BlogManager from "./pages/admin/BlogManager";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
 import ChatbotWidget from "./components/ChatbotWidget";
 
@@ -47,14 +48,16 @@ const App = () => (
           <Route path="/contact" element={<Contact />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminLogin />} />
-          <Route path="/admin/dashboard" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
-          <Route path="/admin/profile" element={<ProtectedRoute><ProfileManager /></ProtectedRoute>} />
-          <Route path="/admin/projects" element={<ProtectedRoute><ProjectsManager /></ProtectedRoute>} />
-          <Route path="/admin/settings" element={<ProtectedRoute><SettingsManager /></ProtectedRoute>} />
-          <Route path="/admin/activities" element={<ProtectedRoute><ActivitiesManager /></ProtectedRoute>} />
-          <Route path="/admin/experiences" element={<ProtectedRoute><ExperiencesManager /></ProtectedRoute>} />
-          <Route path="/admin/blog" element={<ProtectedRoute><BlogManager /></ProtectedRoute>} />
-          <Route path="/admin/media" element={<ProtectedRoute><MediaLibrary /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
+            <Route path="dashboard" element={<AdminDashboard />} />
+            <Route path="profile" element={<ProfileManager />} />
+            <Route path="projects" element={<ProjectsManager />} />
+            <Route path="settings" element={<SettingsManager />} />
+            <Route path="activities" element={<ActivitiesManager />} />
+            <Route path="experiences" element={<ExperiencesManager />} />
+            <Route path="blog" element={<BlogManager />} />
+            <Route path="media" element={<MediaLibrary />} />
+          </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
         <BackToTop />

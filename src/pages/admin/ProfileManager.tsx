@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -8,10 +7,9 @@ import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
-import { ArrowLeft, Save } from 'lucide-react';
+import { Save, Loader2 } from 'lucide-react';
 
 export default function ProfileManager() {
-  const navigate = useNavigate();
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
 
@@ -55,54 +53,45 @@ export default function ProfileManager() {
   };
 
   if (isLoading) {
-    return <div className="flex items-center justify-center min-h-screen">Đang tải...</div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')}>
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-            <h1 className="font-display text-2xl font-bold text-foreground">Quản lý hồ sơ / Profile</h1>
-          </div>
-          <Button onClick={handleSubmit}>
-            <Save className="h-4 w-4 mr-2" />
-            Lưu / Save
-          </Button>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Quản lý hồ sơ</h1>
+          <p className="text-sm text-muted-foreground">Cập nhật thông tin cá nhân hiển thị trên trang chủ</p>
         </div>
-      </header>
+        <Button onClick={handleSubmit}>
+          <Save className="h-4 w-4 mr-2" />
+          Lưu
+        </Button>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
-        <form onSubmit={handleSubmit} className="max-w-4xl mx-auto space-y-8">
-          <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-            <h2 className="font-display text-xl font-semibold">Thông tin cơ bản / Basic Info</h2>
-
-            <div>
-              <Label htmlFor="name">Họ tên / Full Name</Label>
-              <Input id="name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Trịnh Bá Lâm" />
-            </div>
-
-            <div>
-              <Label htmlFor="title">Chức danh / Title</Label>
-              <Input id="title" value={formData.title} onChange={(e) => handleInputChange('title', e.target.value)} placeholder="Sales & Business Development Expert" />
-            </div>
-
-            <div>
-              <Label htmlFor="quote">Câu trích dẫn / Quote</Label>
-              <RichTextEditor content={formData.quote} onChange={(html) => handleInputChange('quote', html)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" />
-            </div>
+      <form onSubmit={handleSubmit} className="max-w-4xl space-y-6">
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-lg">Thông tin cơ bản</h2>
+          <div>
+            <Label htmlFor="name">Họ tên</Label>
+            <Input id="name" value={formData.name} onChange={(e) => handleInputChange('name', e.target.value)} placeholder="Trịnh Bá Lâm" />
           </div>
-
-          <div className="bg-card border border-border rounded-lg p-6 space-y-4">
-            <h2 className="font-display text-xl font-semibold">Hình ảnh / Images</h2>
-            <MediaUpload label="Ảnh đại diện / Profile Image" value={formData.profile_image_url} onChange={(url) => handleInputChange('profile_image_url', url)} accept="image/*" />
-            <MediaUpload label="Ảnh nền / Background Image" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+          <div>
+            <Label htmlFor="title">Chức danh</Label>
+            <Input id="title" value={formData.title} onChange={(e) => handleInputChange('title', e.target.value)} placeholder="Sales & Business Development Expert" />
           </div>
-        </form>
-      </main>
+          <div>
+            <Label htmlFor="quote">Câu trích dẫn</Label>
+            <RichTextEditor content={formData.quote} onChange={(html) => handleInputChange('quote', html)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" />
+          </div>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-lg">Hình ảnh</h2>
+          <MediaUpload label="Ảnh đại diện" value={formData.profile_image_url} onChange={(url) => handleInputChange('profile_image_url', url)} accept="image/*" />
+          <MediaUpload label="Ảnh nền" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+        </div>
+      </form>
     </div>
   );
 }
