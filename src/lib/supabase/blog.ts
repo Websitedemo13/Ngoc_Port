@@ -1,26 +1,24 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
 
-export type BlogPost = Tables<'blog_posts'>;
-export type BlogPostInsert = TablesInsert<'blog_posts'>;
-export type BlogPostUpdate = TablesUpdate<'blog_posts'>;
+export type BlogPost = Tables<'blogs'>;
+export type BlogPostInsert = TablesInsert<'blogs'>;
+export type BlogPostUpdate = TablesUpdate<'blogs'>;
 
-export type BlogTag = Tables<'blog_tags'>;
-export type BlogTagInsert = TablesInsert<'blog_tags'>;
+export type BlogCategory = Tables<'blog_categories'>;
+export type BlogCategoryInsert = TablesInsert<'blog_categories'>;
 
 export const blogAPI = {
-  // === Blog Posts ===
-  
   // Get all published posts with pagination
   async getPublishedPosts(page: number = 1, limit: number = 10) {
     const from = (page - 1) * limit;
     const to = from + limit - 1;
 
     const { data, error, count } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .select('*', { count: 'exact' })
       .eq('published', true)
-      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .range(from, to);
     
     if (error) throw error;
@@ -30,11 +28,11 @@ export const blogAPI = {
   // Get featured posts
   async getFeaturedPosts(limit: number = 3) {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .select('*')
       .eq('published', true)
       .eq('featured', true)
-      .order('published_at', { ascending: false })
+      .order('created_at', { ascending: false })
       .limit(limit);
     
     if (error) throw error;
@@ -44,48 +42,24 @@ export const blogAPI = {
   // Get post by slug
   async getPostBySlug(slug: string) {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .select('*')
       .eq('slug', slug)
       .eq('published', true)
       .single();
     
     if (error) throw error;
-    
-    // Increment views
-    if (data) {
-      await supabase
-        .from('blog_posts')
-        .update({ views: (data.views || 0) + 1 })
-        .eq('id', data.id);
-    }
-    
     return data;
   },
 
   // Search posts
   async searchPosts(query: string) {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .select('*')
       .eq('published', true)
-      .or(`title_en.ilike.%${query}%,title_vi.ilike.%${query}%,excerpt_en.ilike.%${query}%,excerpt_vi.ilike.%${query}%`)
-      .order('published_at', { ascending: false });
-    
-    if (error) throw error;
-    return data;
-  },
-
-  // Get posts by category
-  async getPostsByCategory(category: string, language: 'en' | 'vi') {
-    const column = language === 'en' ? 'category_en' : 'category_vi';
-    
-    const { data, error } = await supabase
-      .from('blog_posts')
-      .select('*')
-      .eq('published', true)
-      .eq(column, category)
-      .order('published_at', { ascending: false });
+      .or(`title.ilike.%${query}%,excerpt.ilike.%${query}%`)
+      .order('created_at', { ascending: false });
     
     if (error) throw error;
     return data;
@@ -94,7 +68,7 @@ export const blogAPI = {
   // Get all posts (admin)
   async getAllPosts() {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .select('*')
       .order('created_at', { ascending: false });
     
@@ -105,7 +79,7 @@ export const blogAPI = {
   // Create post
   async createPost(post: BlogPostInsert) {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .insert(post)
       .select()
       .single();
@@ -117,7 +91,7 @@ export const blogAPI = {
   // Update post
   async updatePost(id: string, updates: BlogPostUpdate) {
     const { data, error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .update(updates)
       .eq('id', id)
       .select()
@@ -130,7 +104,7 @@ export const blogAPI = {
   // Delete post
   async deletePost(id: string) {
     const { error } = await supabase
-      .from('blog_posts')
+      .from('blogs')
       .delete()
       .eq('id', id);
     
@@ -139,30 +113,25 @@ export const blogAPI = {
 
   // Toggle published
   async togglePublished(id: string, published: boolean) {
-    return this.updatePost(id, { 
-      published, 
-      published_at: published ? new Date().toISOString() : null 
-    });
+    return this.updatePost(id, { published });
   },
 
-  // === Blog Tags ===
-  
-  // Get all tags
-  async getAllTags() {
+  // Get all categories
+  async getAllCategories() {
     const { data, error } = await supabase
-      .from('blog_tags')
+      .from('blog_categories')
       .select('*')
-      .order('name_en');
+      .order('sort_order');
     
     if (error) throw error;
     return data;
   },
 
-  // Create tag
-  async createTag(tag: BlogTagInsert) {
+  // Create category
+  async createCategory(category: BlogCategoryInsert) {
     const { data, error } = await supabase
-      .from('blog_tags')
-      .insert(tag)
+      .from('blog_categories')
+      .insert(category)
       .select()
       .single();
     
@@ -170,45 +139,12 @@ export const blogAPI = {
     return data;
   },
 
-  // Delete tag
-  async deleteTag(id: string) {
+  // Delete category
+  async deleteCategory(id: string) {
     const { error } = await supabase
-      .from('blog_tags')
+      .from('blog_categories')
       .delete()
       .eq('id', id);
-    
-    if (error) throw error;
-  },
-
-  // Get posts by tag
-  async getPostsByTag(tagId: string) {
-    const { data, error } = await supabase
-      .from('blog_post_tags')
-      .select('post_id, blog_posts(*)')
-      .eq('tag_id', tagId);
-    
-    if (error) throw error;
-    return data.map(item => item.blog_posts).filter(Boolean);
-  },
-
-  // Link post to tags
-  async linkPostToTags(postId: string, tagIds: string[]) {
-    const links = tagIds.map(tagId => ({ post_id: postId, tag_id: tagId }));
-    
-    const { error } = await supabase
-      .from('blog_post_tags')
-      .insert(links);
-    
-    if (error) throw error;
-  },
-
-  // Unlink post from tag
-  async unlinkPostFromTag(postId: string, tagId: string) {
-    const { error } = await supabase
-      .from('blog_post_tags')
-      .delete()
-      .eq('post_id', postId)
-      .eq('tag_id', tagId);
     
     if (error) throw error;
   },

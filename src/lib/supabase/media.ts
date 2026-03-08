@@ -1,62 +1,73 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
-export type MediaItem = Tables<'media_library'>;
-export type MediaItemInsert = TablesInsert<'media_library'>;
+export interface MediaItem {
+  id: string;
+  filename: string;
+  url: string;
+  file_type: string | null;
+  file_size: number | null;
+  alt_text_en: string | null;
+  alt_text_vi: string | null;
+  created_at: string;
+}
+
+export type MediaItemInsert = {
+  filename: string;
+  url: string;
+  file_type?: string | null;
+  file_size?: number | null;
+  alt_text_en?: string | null;
+  alt_text_vi?: string | null;
+};
 
 export const mediaAPI = {
-  // Get all media
-  async getAllMedia() {
+  async getAllMedia(): Promise<MediaItem[]> {
     const { data, error } = await supabase
-      .from('media_library')
+      .from('media_library' as any)
       .select('*')
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data;
+    return (data as unknown as MediaItem[]) || [];
   },
 
-  // Get media by type
-  async getMediaByType(fileType: string) {
+  async getMediaByType(fileType: string): Promise<MediaItem[]> {
     const { data, error } = await supabase
-      .from('media_library')
+      .from('media_library' as any)
       .select('*')
       .eq('file_type', fileType)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
-    return data;
+    return (data as unknown as MediaItem[]) || [];
   },
 
-  // Create media item
-  async createMediaItem(media: MediaItemInsert) {
+  async createMediaItem(media: MediaItemInsert): Promise<MediaItem> {
     const { data, error } = await supabase
-      .from('media_library')
-      .insert(media)
+      .from('media_library' as any)
+      .insert(media as any)
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return data as unknown as MediaItem;
   },
 
-  // Update media item
-  async updateMediaItem(id: string, updates: Partial<MediaItemInsert>) {
+  async updateMediaItem(id: string, updates: Partial<MediaItemInsert>): Promise<MediaItem> {
     const { data, error } = await supabase
-      .from('media_library')
-      .update(updates)
+      .from('media_library' as any)
+      .update(updates as any)
       .eq('id', id)
       .select()
       .single();
     
     if (error) throw error;
-    return data;
+    return data as unknown as MediaItem;
   },
 
-  // Delete media item
-  async deleteMediaItem(id: string) {
+  async deleteMediaItem(id: string): Promise<void> {
     const { error } = await supabase
-      .from('media_library')
+      .from('media_library' as any)
       .delete()
       .eq('id', id);
     

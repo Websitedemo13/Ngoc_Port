@@ -1,15 +1,13 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Tables, TablesInsert, TablesUpdate } from '@/integrations/supabase/types';
+import type { Tables, TablesUpdate } from '@/integrations/supabase/types';
 
-export type Profile = Tables<'profile'>;
-export type ProfileInsert = TablesInsert<'profile'>;
-export type ProfileUpdate = TablesUpdate<'profile'>;
+export type HeroSection = Tables<'hero_section'>;
+export type HeroSectionUpdate = TablesUpdate<'hero_section'>;
 
 export const profileAPI = {
-  // Get the single profile
   async getProfile() {
     const { data, error } = await supabase
-      .from('profile')
+      .from('hero_section')
       .select('*')
       .maybeSingle();
     
@@ -17,22 +15,9 @@ export const profileAPI = {
     return data;
   },
 
-  // Create profile
-  async createProfile(profile: ProfileInsert) {
+  async updateProfile(id: string, updates: HeroSectionUpdate) {
     const { data, error } = await supabase
-      .from('profile')
-      .insert(profile)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  // Update profile
-  async updateProfile(id: string, updates: ProfileUpdate) {
-    const { data, error } = await supabase
-      .from('profile')
+      .from('hero_section')
       .update(updates)
       .eq('id', id)
       .select()
@@ -40,15 +25,5 @@ export const profileAPI = {
     
     if (error) throw error;
     return data;
-  },
-
-  // Delete profile
-  async deleteProfile(id: string) {
-    const { error } = await supabase
-      .from('profile')
-      .delete()
-      .eq('id', id);
-    
-    if (error) throw error;
   },
 };

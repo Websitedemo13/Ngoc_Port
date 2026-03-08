@@ -1,8 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { blogAPI, type BlogPostInsert, type BlogPostUpdate, type BlogTagInsert } from '@/lib/supabase/blog';
+import { blogAPI, type BlogPostInsert, type BlogPostUpdate, type BlogCategoryInsert } from '@/lib/supabase/blog';
 import { toast } from 'sonner';
-
-// === Blog Posts Hooks ===
 
 export const usePublishedPosts = (page: number = 1, limit: number = 10) => {
   return useQuery({
@@ -31,14 +29,6 @@ export const useSearchPosts = (query: string) => {
     queryKey: ['blog-posts', 'search', query],
     queryFn: () => blogAPI.searchPosts(query),
     enabled: query.length > 2,
-  });
-};
-
-export const usePostsByCategory = (category: string, language: 'en' | 'vi') => {
-  return useQuery({
-    queryKey: ['blog-posts', 'category', category, language],
-    queryFn: () => blogAPI.getPostsByCategory(category, language),
-    enabled: !!category,
   });
 };
 
@@ -111,49 +101,39 @@ export const useTogglePostPublished = () => {
   });
 };
 
-// === Blog Tags Hooks ===
-
-export const useAllTags = () => {
+export const useAllCategories = () => {
   return useQuery({
-    queryKey: ['blog-tags'],
-    queryFn: () => blogAPI.getAllTags(),
+    queryKey: ['blog-categories'],
+    queryFn: () => blogAPI.getAllCategories(),
   });
 };
 
-export const useCreateTag = () => {
+export const useCreateCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (tag: BlogTagInsert) => blogAPI.createTag(tag),
+    mutationFn: (category: BlogCategoryInsert) => blogAPI.createCategory(category),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blog-tags'] });
-      toast.success('Tag created successfully');
+      queryClient.invalidateQueries({ queryKey: ['blog-categories'] });
+      toast.success('Category created successfully');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to create tag: ${error.message}`);
+      toast.error(`Failed to create category: ${error.message}`);
     },
   });
 };
 
-export const useDeleteTag = () => {
+export const useDeleteCategory = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => blogAPI.deleteTag(id),
+    mutationFn: (id: string) => blogAPI.deleteCategory(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['blog-tags'] });
-      toast.success('Tag deleted successfully');
+      queryClient.invalidateQueries({ queryKey: ['blog-categories'] });
+      toast.success('Category deleted successfully');
     },
     onError: (error: Error) => {
-      toast.error(`Failed to delete tag: ${error.message}`);
+      toast.error(`Failed to delete category: ${error.message}`);
     },
-  });
-};
-
-export const usePostsByTag = (tagId: string) => {
-  return useQuery({
-    queryKey: ['blog-posts', 'tag', tagId],
-    queryFn: () => blogAPI.getPostsByTag(tagId),
-    enabled: !!tagId,
   });
 };

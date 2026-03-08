@@ -85,22 +85,6 @@ export const useDeleteProject = () => {
   });
 };
 
-export const useToggleProjectPublished = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, published }: { id: string; published: boolean }) =>
-      projectsAPI.togglePublished(id, published),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      toast.success('Project status updated');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update status: ${error.message}`);
-    },
-  });
-};
-
 export const useToggleProjectFeatured = () => {
   const queryClient = useQueryClient();
 

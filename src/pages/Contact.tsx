@@ -1,5 +1,7 @@
-import { useLanguage, getBilingualContent } from '@/lib/i18n';
+import { useLanguage } from '@/lib/i18n';
 import { useProfile } from '@/hooks/useProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,11 +11,32 @@ const Contact = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
 
+  const { data: contact } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('contacts').select('*').maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const { data: socialLinks } = useQuery({
+    queryKey: ['social_links'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('social_links').select('*').order('sort_order');
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const getSocialUrl = (provider: string) => {
+    return socialLinks?.find(l => l.provider.toLowerCase() === provider.toLowerCase())?.url;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
       <section className="container mx-auto px-4 py-20">
         <div className="max-w-4xl mx-auto text-center animate-fade-in">
           <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">
@@ -27,33 +50,25 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* Contact Info */}
       <section className="container mx-auto px-4 py-16">
         <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Email */}
-          {profile?.email && (
+          {contact?.email && (
             <Card className="hover-scale">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
                   <Mail className="w-8 h-8 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    {language === 'en' ? 'Email' : 'Email'}
-                  </h3>
-                  <a
-                    href={`mailto:${profile.email}`}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {profile.email}
+                  <h3 className="font-semibold text-lg mb-2">Email</h3>
+                  <a href={`mailto:${contact.email}`} className="text-muted-foreground hover:text-primary transition-colors">
+                    {contact.email}
                   </a>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Phone */}
-          {profile?.phone && (
+          {contact?.phone && (
             <Card className="hover-scale">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -63,19 +78,15 @@ const Contact = () => {
                   <h3 className="font-semibold text-lg mb-2">
                     {language === 'en' ? 'Phone' : 'Điện thoại'}
                   </h3>
-                  <a
-                    href={`tel:${profile.phone}`}
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                  >
-                    {profile.phone}
+                  <a href={`tel:${contact.phone}`} className="text-muted-foreground hover:text-primary transition-colors">
+                    {contact.phone}
                   </a>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Location */}
-          {profile?.location && (
+          {contact?.location && (
             <Card className="hover-scale">
               <CardContent className="p-8 text-center space-y-4">
                 <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -85,13 +96,12 @@ const Contact = () => {
                   <h3 className="font-semibold text-lg mb-2">
                     {language === 'en' ? 'Location' : 'Vị trí'}
                   </h3>
-                  <p className="text-muted-foreground">{profile.location}</p>
+                  <p className="text-muted-foreground">{contact.location}</p>
                 </div>
               </CardContent>
             </Card>
           )}
 
-          {/* Social */}
           <Card className="hover-scale">
             <CardContent className="p-8 text-center space-y-4">
               <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
@@ -102,33 +112,21 @@ const Contact = () => {
                   {language === 'en' ? 'Social Media' : 'Mạng xã hội'}
                 </h3>
                 <div className="flex gap-4 justify-center">
-                  {profile?.linkedin_url && (
-                    <a
-                      href={profile.linkedin_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                    >
+                  {getSocialUrl('linkedin') && (
+                    <a href={getSocialUrl('linkedin')} target="_blank" rel="noopener noreferrer"
+                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
                       <Linkedin size={20} />
                     </a>
                   )}
-                  {profile?.github_url && (
-                    <a
-                      href={profile.github_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                    >
+                  {getSocialUrl('github') && (
+                    <a href={getSocialUrl('github')} target="_blank" rel="noopener noreferrer"
+                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
                       <Github size={20} />
                     </a>
                   )}
-                  {profile?.twitter_url && (
-                    <a
-                      href={profile.twitter_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors"
-                    >
+                  {getSocialUrl('twitter') && (
+                    <a href={getSocialUrl('twitter')} target="_blank" rel="noopener noreferrer"
+                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
                       <Twitter size={20} />
                     </a>
                   )}
@@ -139,7 +137,6 @@ const Contact = () => {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="container mx-auto px-4 py-16 bg-muted/30">
         <div className="max-w-2xl mx-auto text-center space-y-6">
           <h2 className="font-serif text-3xl font-bold">
