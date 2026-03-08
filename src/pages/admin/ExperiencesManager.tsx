@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAllExperiences, useCreateExperience, useUpdateExperience, useDeleteExperience } from '@/hooks/useExperiences';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
