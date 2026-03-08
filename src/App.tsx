@@ -29,6 +29,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
 import ChatbotWidget from "./components/ChatbotWidget";
+import FaviconUpdater from "./components/FaviconUpdater";
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => (
         </Routes>
         <BackToTop />
         <ChatbotWidget />
+        <FaviconUpdater />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
