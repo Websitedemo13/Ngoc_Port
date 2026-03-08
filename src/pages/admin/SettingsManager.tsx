@@ -7,8 +7,11 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
+import { COLOR_THEMES, applyColorTheme } from '@/lib/colorThemes';
+import { useTheme } from '@/lib/theme';
+import { cn } from '@/lib/utils';
 
 const PAGE_KEYS = [
   { key: 'page_about', label: 'Giới thiệu (About)', path: '/about' },
@@ -40,6 +43,7 @@ interface SocialLink {
 
 export default function SettingsManager() {
   const queryClient = useQueryClient();
+  const { theme: darkMode } = useTheme();
   const [settings, setSettings] = useState({
     logo_url: '',
     favicon_url: '',
@@ -47,6 +51,7 @@ export default function SettingsManager() {
     footer_tagline: '',
     footer_text: '',
   });
+  const [colorTheme, setColorTheme] = useState('navy-gold');
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [saving, setSaving] = useState(false);
@@ -59,7 +64,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -76,6 +81,7 @@ export default function SettingsManager() {
         footer_tagline: map.footer_tagline || '',
         footer_text: map.footer_text || '',
       });
+      setColorTheme(map.color_theme || 'navy-gold');
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
       setPageVisibility(vis);
@@ -104,6 +110,11 @@ export default function SettingsManager() {
       // Save all settings
       for (const [key, value] of Object.entries(settings)) {
         const { error } = await supabase.from('settings').upsert({ key, value }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+      // Save color theme
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'color_theme', value: colorTheme }, { onConflict: 'key' });
         if (error) throw error;
       }
       // Save page visibility
@@ -250,6 +261,59 @@ export default function SettingsManager() {
               placeholder="VD: TRẦN BẢO NGỌC"
               className="max-w-md mt-1"
             />
+          </div>
+        </div>
+
+        {/* Color Theme Picker */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Bảng màu Website</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Chọn bảng màu chủ đạo cho toàn bộ website. Thay đổi sẽ áp dụng ngay sau khi lưu.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {COLOR_THEMES.map((t) => {
+              const isActive = colorTheme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    setColorTheme(t.id);
+                    applyColorTheme(t.id, darkMode === 'dark');
+                  }}
+                  className={cn(
+                    "relative text-left p-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md group",
+                    isActive
+                      ? "border-primary shadow-md ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                  {/* Color swatches */}
+                  <div className="flex gap-1.5 mb-3">
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.primary }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.secondary }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.accent }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.bg }} />
+                  </div>
+                  {/* Preview bar */}
+                  <div className="h-2 rounded-full mb-3 overflow-hidden flex">
+                    <div className="flex-1" style={{ background: t.preview.primary }} />
+                    <div className="flex-1" style={{ background: t.preview.secondary }} />
+                    <div className="flex-1" style={{ background: t.preview.accent }} />
+                  </div>
+                  <p className="font-semibold text-sm">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.description}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
