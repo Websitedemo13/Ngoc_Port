@@ -126,7 +126,7 @@ export default function ExperiencesManager() {
                 </div>
                 <div>
                   <Label>Mô tả / Description</Label>
-                  <Textarea value={formData.description} onChange={(e) => setFormData({ ...formData, description: e.target.value })} rows={4} />
+                  <RichTextEditor content={formData.description} onChange={(html) => setFormData({ ...formData, description: html })} placeholder="Mô tả công việc và trách nhiệm..." />
                 </div>
                 <div>
                   <Label>Thành tựu / Achievements</Label>

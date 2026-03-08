@@ -91,12 +91,10 @@ export default function SettingsManager() {
 
             <div>
               <Label htmlFor="footer_text">Footer Description</Label>
-              <Textarea
-                id="footer_text"
-                value={settings.footer_text}
-                onChange={(e) => setSettings(prev => ({ ...prev, footer_text: e.target.value }))}
+              <RichTextEditor
+                content={settings.footer_text}
+                onChange={(html) => setSettings(prev => ({ ...prev, footer_text: html }))}
                 placeholder="Mô tả ngắn gọn cho footer"
-                rows={3}
               />
             </div>
           </div>

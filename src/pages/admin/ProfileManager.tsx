@@ -92,7 +92,7 @@ export default function ProfileManager() {
 
             <div>
               <Label htmlFor="quote">Câu trích dẫn / Quote</Label>
-              <Textarea id="quote" value={formData.quote} onChange={(e) => handleInputChange('quote', e.target.value)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" rows={3} />
+              <RichTextEditor content={formData.quote} onChange={(html) => handleInputChange('quote', html)} placeholder="Kết nối – Thuyết phục – Bứt phá doanh số" />
             </div>
           </div>
 
