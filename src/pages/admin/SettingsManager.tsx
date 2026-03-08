@@ -62,6 +62,8 @@ export default function SettingsManager() {
   const [customColors, setCustomColors] = useState<CustomColors>({ primary: '#1e2a4a', secondary: '#d4a017', accent: '#d4a017', bg: '#ffffff' });
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
+  const [newThemeName, setNewThemeName] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
