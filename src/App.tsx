@@ -21,6 +21,7 @@ import ProjectsManager from "./pages/admin/ProjectsManager";
 import SettingsManager from "./pages/admin/SettingsManager";
 import ActivitiesManager from "./pages/admin/ActivitiesManager";
 import ExperiencesManager from "./pages/admin/ExperiencesManager";
+import EducationManager from "./pages/admin/EducationManager";
 import BlogManager from "./pages/admin/BlogManager";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import ProtectedRoute from "./components/ProtectedRoute";
