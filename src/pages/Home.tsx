@@ -175,35 +175,37 @@ const Home = () => {
       </section>
 
       {/* ═══════════════ STATS ═══════════════ */}
-      <section className="container mx-auto px-4 -mt-6 relative z-20">
-        <div ref={statsReveal.ref} className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: Briefcase, value: experiences?.length || 0, label: language === 'en' ? 'Years Experience' : 'Năm kinh nghiệm', color: 'text-primary' },
-              { icon: TrendingUp, value: featuredProjects?.length || 0, label: language === 'en' ? 'Projects Completed' : 'Dự án hoàn thành', color: 'text-secondary' },
-              { icon: Users, value: featuredPosts?.length || 0, label: language === 'en' ? 'Articles Written' : 'Bài viết', color: 'text-primary' },
-            ].map((stat, i) => (
-              <Card
-                key={i}
-                className={`card-premium border-0 shadow-lg scroll-hidden ${statsReveal.isVisible ? 'scroll-visible' : ''}`}
-                style={{ transitionDelay: `${i * 0.15}s` }}
-              >
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center ${stat.color}`}>
-                    <stat.icon size={24} />
-                  </div>
-                  <div>
-                    <p className="font-serif text-3xl font-bold">
-                      <CountUp end={stat.value} trigger={statsReveal.isVisible} />
-                    </p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+      {((experiences && experiences.length > 0) || (featuredProjects && featuredProjects.length > 0) || (featuredPosts && featuredPosts.length > 0)) && (
+        <section className="container mx-auto px-4 -mt-6 relative z-20">
+          <div ref={statsReveal.ref} className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { icon: Briefcase, value: experiences?.length || 0, label: language === 'en' ? 'Years Experience' : 'Năm kinh nghiệm', color: 'text-primary' },
+                { icon: TrendingUp, value: featuredProjects?.length || 0, label: language === 'en' ? 'Projects Completed' : 'Dự án hoàn thành', color: 'text-secondary' },
+                { icon: Users, value: featuredPosts?.length || 0, label: language === 'en' ? 'Articles Written' : 'Bài viết', color: 'text-primary' },
+              ].map((stat, i) => (
+                <Card
+                  key={i}
+                  className={`card-premium border-0 shadow-lg scroll-hidden ${statsReveal.isVisible ? 'scroll-visible' : ''}`}
+                  style={{ transitionDelay: `${i * 0.15}s` }}
+                >
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center ${stat.color}`}>
+                      <stat.icon size={24} />
+                    </div>
+                    <div>
+                      <p className="font-serif text-3xl font-bold">
+                        <CountUp end={stat.value} trigger={statsReveal.isVisible} />
+                      </p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══════════════ FEATURED PROJECTS ═══════════════ */}
       {featuredProjects && featuredProjects.length > 0 && (

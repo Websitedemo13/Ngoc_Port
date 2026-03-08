@@ -5,10 +5,11 @@ import { toast } from 'sonner';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, BookOpen,
-  Award, MessageSquare, BarChart3
+  Award, Sun, Moon
 } from 'lucide-react';
 import { useAllPosts } from '@/hooks/useBlog';
 import { usePublishedExperiences } from '@/hooks/useExperiences';
+import { useTheme } from '@/lib/theme';
 
 const menuItems = [
   { path: '/admin/profile', icon: User, label: 'Hồ sơ', desc: 'Quản lý thông tin cá nhân', color: 'from-blue-500/10 to-blue-600/5' },
