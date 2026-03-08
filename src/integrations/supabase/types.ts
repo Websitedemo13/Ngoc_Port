@@ -41,6 +41,57 @@ export type Database = {
         }
         Relationships: []
       }
+      activities: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string | null
+          date: string | null
+          description: string | null
+          featured: boolean | null
+          id: string
+          image_url: string | null
+          link: string | null
+          location: string | null
+          published: boolean | null
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          date?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          location?: string | null
+          published?: boolean | null
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string | null
+          date?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          image_url?: string | null
+          link?: string | null
+          location?: string | null
+          published?: boolean | null
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       blog_categories: {
         Row: {
           color: string | null
