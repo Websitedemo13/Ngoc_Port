@@ -94,6 +94,7 @@ export default function SettingsManager() {
         footer_text: map.footer_text || '',
       });
       setColorTheme(map.color_theme || 'navy-gold');
+      setFontTheme(map.font_theme || 'inter-lora');
       if (map.custom_theme_colors) {
         try { setCustomColors(JSON.parse(map.custom_theme_colors)); } catch { /* ignore */ }
       }
