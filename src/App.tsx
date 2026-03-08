@@ -30,6 +30,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
 import ChatbotWidget from "./components/ChatbotWidget";
 import FaviconUpdater from "./components/FaviconUpdater";
+import ColorThemeApplier from "./components/ColorThemeApplier";
 
 const queryClient = new QueryClient();
 
