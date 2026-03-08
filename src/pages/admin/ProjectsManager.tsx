@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { useAllProjects, useCreateProject, useUpdateProject, useDeleteProject, useToggleProjectFeatured } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
