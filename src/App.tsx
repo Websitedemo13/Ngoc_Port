@@ -31,6 +31,7 @@ import BackToTop from "./components/BackToTop";
 import ChatbotWidget from "./components/ChatbotWidget";
 import FaviconUpdater from "./components/FaviconUpdater";
 import ColorThemeApplier from "./components/ColorThemeApplier";
+import FontThemeApplier from "./components/FontThemeApplier";
 
 const queryClient = new QueryClient();
 

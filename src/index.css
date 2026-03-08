@@ -281,3 +281,11 @@ All colors MUST be HSL.
 .tiptap mark { background-color: #fef08a; padding: 0.125rem 0; border-radius: 0.125rem; }
 .tiptap iframe { border-radius: 0.75rem; margin: 1rem 0; max-width: 100%; }
 .tiptap video { max-width: 100%; border-radius: 0.75rem; margin: 1rem 0; }
+
+/* Dynamic font system */
+body {
+  font-family: var(--font-body);
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+}
