@@ -359,23 +359,6 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
         </Popover>
       </div>
 
-      {/* ═══ Bubble Menu ═══ */}
-      {editor && (
-        <BubbleMenu editor={editor} tippyOptions={{ duration: 150 }} className="bg-card border border-border rounded-lg shadow-lg p-1 flex items-center gap-0.5">
-          <MenuButton onClick={() => editor.chain().focus().toggleBold().run()} isActive={editor.isActive('bold')} title="Bold">
-            <Bold size={14} />
-          </MenuButton>
-          <MenuButton onClick={() => editor.chain().focus().toggleItalic().run()} isActive={editor.isActive('italic')} title="Italic">
-            <Italic size={14} />
-          </MenuButton>
-          <MenuButton onClick={() => editor.chain().focus().toggleUnderline().run()} isActive={editor.isActive('underline')} title="Underline">
-            <UnderlineIcon size={14} />
-          </MenuButton>
-          <MenuButton onClick={() => editor.chain().focus().toggleHighlight({ color: '#fef08a' }).run()} isActive={editor.isActive('highlight')} title="Highlight">
-            <Highlighter size={14} />
-          </MenuButton>
-        </BubbleMenu>
-      )}
 
       {/* ═══ Editor Content ═══ */}
       <EditorContent editor={editor} />
