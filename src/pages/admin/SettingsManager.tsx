@@ -7,7 +7,7 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
@@ -42,6 +42,12 @@ interface SocialLink {
   sort_order: number;
 }
 
+interface SavedTheme {
+  name: string;
+  colors: CustomColors;
+  createdAt: string;
+}
+
 export default function SettingsManager() {
   const queryClient = useQueryClient();
   const { theme: darkMode } = useTheme();
@@ -56,6 +62,8 @@ export default function SettingsManager() {
   const [customColors, setCustomColors] = useState<CustomColors>({ primary: '#1e2a4a', secondary: '#d4a017', accent: '#d4a017', bg: '#ffffff' });
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
+  const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
+  const [newThemeName, setNewThemeName] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -66,7 +74,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -86,6 +94,9 @@ export default function SettingsManager() {
       setColorTheme(map.color_theme || 'navy-gold');
       if (map.custom_theme_colors) {
         try { setCustomColors(JSON.parse(map.custom_theme_colors)); } catch { /* ignore */ }
+      }
+      if (map.saved_custom_themes) {
+        try { setSavedThemes(JSON.parse(map.saved_custom_themes)); } catch { /* ignore */ }
       }
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
@@ -125,6 +136,11 @@ export default function SettingsManager() {
       // Save custom theme colors
       {
         const { error } = await supabase.from('settings').upsert({ key: 'custom_theme_colors', value: JSON.stringify(customColors) }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+      // Save saved custom themes
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'saved_custom_themes', value: JSON.stringify(savedThemes) }, { onConflict: 'key' });
         if (error) throw error;
       }
       // Save page visibility
@@ -401,6 +417,88 @@ export default function SettingsManager() {
                   </div>
                 ))}
               </div>
+            </div>
+          )}
+
+          {/* Saved Custom Themes */}
+          {colorTheme === 'custom' && (
+            <div className="mt-4 p-5 rounded-xl border border-border bg-muted/30 space-y-4">
+              <div className="flex items-center gap-2">
+                <Bookmark className="h-4 w-4 text-primary" />
+                <p className="text-sm font-medium text-foreground">Bảng màu đã lưu</p>
+              </div>
+
+              {/* Save current */}
+              <div className="flex gap-2">
+                <Input
+                  value={newThemeName}
+                  onChange={(e) => setNewThemeName(e.target.value)}
+                  placeholder="Tên bảng màu (VD: Thương hiệu chính)"
+                  className="text-sm h-9"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!newThemeName.trim()}
+                  onClick={() => {
+                    const theme: SavedTheme = {
+                      name: newThemeName.trim(),
+                      colors: { ...customColors },
+                      createdAt: new Date().toISOString(),
+                    };
+                    setSavedThemes(prev => [...prev, theme]);
+                    setNewThemeName('');
+                    toast.success(`Đã lưu "${theme.name}". Nhấn "Lưu tất cả" để đồng bộ.`);
+                  }}
+                  className="shrink-0"
+                >
+                  <BookmarkPlus className="h-4 w-4 mr-1" />
+                  Lưu
+                </Button>
+              </div>
+
+              {/* List saved themes */}
+              {savedThemes.length === 0 ? (
+                <p className="text-xs text-muted-foreground text-center py-3">
+                  Chưa có bảng màu nào được lưu. Chọn màu rồi nhấn "Lưu" ở trên.
+                </p>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {savedThemes.map((theme, index) => (
+                    <div
+                      key={index}
+                      className="group relative flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:border-primary/40 transition-colors cursor-pointer"
+                      onClick={() => {
+                        setCustomColors({ ...theme.colors });
+                        applyColorTheme('custom', darkMode === 'dark', theme.colors);
+                      }}
+                    >
+                      <div className="flex gap-1 shrink-0">
+                        {(['primary', 'secondary', 'accent', 'bg'] as const).map((k) => (
+                          <div
+                            key={k}
+                            className="w-5 h-5 rounded border border-black/10"
+                            style={{ background: theme.colors[k] }}
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs font-medium truncate flex-1">{theme.name}</span>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSavedThemes(prev => prev.filter((_, i) => i !== index));
+                          toast.info(`Đã xóa "${theme.name}". Nhấn "Lưu tất cả" để đồng bộ.`);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 transition-opacity p-1 rounded hover:bg-destructive/10 text-destructive"
+                      >
+                        <X className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
