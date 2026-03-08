@@ -403,6 +403,20 @@ export default function SettingsManager() {
               </div>
             </div>
           )}
+
+          {/* Mini Website Preview */}
+          <div className="mt-6 space-y-3">
+            <div className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">Xem trước giao diện</p>
+            </div>
+            <div className="max-w-md mx-auto">
+              <ThemePreview
+                themeId={colorTheme}
+                customColors={colorTheme === 'custom' ? customColors : undefined}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Social Links */}
