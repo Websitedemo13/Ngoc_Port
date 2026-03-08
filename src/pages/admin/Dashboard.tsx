@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { data: posts } = useAllPosts();
   const { data: experiences } = usePublishedExperiences();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
