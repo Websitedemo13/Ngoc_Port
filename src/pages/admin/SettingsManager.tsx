@@ -525,6 +525,54 @@ export default function SettingsManager() {
           </div>
         </div>
 
+        {/* Font Theme Picker */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Type className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Font chữ Website</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Chọn cặp font chữ cho tiêu đề và nội dung. Thay đổi sẽ áp dụng ngay sau khi lưu.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {FONT_THEMES.map((ft) => {
+              const isActive = fontTheme === ft.id;
+              return (
+                <button
+                  key={ft.id}
+                  type="button"
+                  onClick={() => {
+                    setFontTheme(ft.id);
+                    applyFontTheme(ft.id);
+                  }}
+                  className={cn(
+                    "relative text-left p-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md",
+                    isActive
+                      ? "border-primary shadow-md ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm mb-1">{ft.name}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{ft.description}</p>
+                  <div className="space-y-1 rounded-lg bg-muted/50 p-3 border border-border">
+                    <p className="text-sm font-bold" style={{ fontFamily: ft.heading }}>
+                      Tiêu đề mẫu — Heading
+                    </p>
+                    <p className="text-xs leading-relaxed" style={{ fontFamily: ft.body }}>
+                      Đây là đoạn văn mẫu để xem trước font chữ. The quick brown fox jumps over the lazy dog. 0123456789
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Social Links */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between mb-2">
