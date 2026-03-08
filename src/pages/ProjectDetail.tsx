@@ -103,7 +103,7 @@ const ProjectDetail = () => {
                 <h2 className="font-serif text-2xl font-bold mb-4 text-foreground">
                   {language === 'en' ? 'The Challenge' : 'Thách thức'}
                 </h2>
-                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{project.challenge}</p>
+                <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" dangerouslySetInnerHTML={{ __html: project.challenge }} />
               </CardContent>
             </Card>
           )}
@@ -113,7 +113,7 @@ const ProjectDetail = () => {
               <h2 className="font-serif text-2xl font-bold mb-4">
                 {language === 'en' ? 'Solution' : 'Giải pháp'}
               </h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{project.solution}</p>
+              <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" dangerouslySetInnerHTML={{ __html: project.solution }} />
             </div>
           )}
 
