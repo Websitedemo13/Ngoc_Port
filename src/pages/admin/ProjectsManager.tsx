@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, X, ImageIcon } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
 import type { Project, ProjectInsert, ProjectUpdate } from '@/lib/supabase/projects';
@@ -99,6 +99,36 @@ export default function ProjectsManager() {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editingProject ? 'Sửa dự án' : 'Thêm dự án'}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Premium Cover Image Section */}
+              <div>
+                <Label className="text-sm font-semibold mb-2 block">Ảnh bìa dự án</Label>
+                {formData.image_url ? (
+                  <div className="relative w-full aspect-[21/9] rounded-xl overflow-hidden group border border-border">
+                    <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Button type="button" size="sm" variant="secondary" className="shadow-lg" onClick={() => setFormData(p => ({ ...p, image_url: '' }))}>
+                        <X className="h-4 w-4 mr-1" /> Xóa ảnh
+                      </Button>
+                    </div>
+                    <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded">21:9 • Ảnh bìa</span>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="relative w-full aspect-[21/9] rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-muted/50 transition-colors">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                      <ImageIcon className="h-6 w-6 text-primary/60" />
+                    </div>
+                    <p className="text-sm text-muted-foreground font-medium">Tải lên ảnh bìa dự án</p>
+                    <p className="text-xs text-muted-foreground/60">Khuyến nghị: 1920×820px, tỉ lệ 21:9</p>
+                  </div>
+                )}
+                <div className="mt-2">
+                  <MediaUpload label="" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
+                </div>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required /></div>
                 <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} /></div>
@@ -117,7 +147,6 @@ export default function ProjectsManager() {
               <div><Label>Giải pháp</Label>
                 <RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} placeholder="Giải pháp đã áp dụng..." />
               </div>
-              <MediaUpload label="Ảnh dự án" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
               <div>
                 <Label>Công nghệ</Label>
                 <div className="flex gap-2 mb-2">
@@ -153,6 +182,7 @@ export default function ProjectsManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16">Ảnh</TableHead>
               <TableHead>Tiêu đề</TableHead>
               <TableHead>Danh mục</TableHead>
               <TableHead>Nổi bật</TableHead>
@@ -162,6 +192,17 @@ export default function ProjectsManager() {
           <TableBody>
             {projects?.map((project) => (
               <TableRow key={project.id}>
+                <TableCell>
+                  {project.image_url ? (
+                    <div className="w-12 h-8 rounded overflow-hidden border border-border">
+                      <img src={project.image_url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-8 rounded bg-muted flex items-center justify-center border border-border">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">{project.title}</TableCell>
                 <TableCell>{project.category}</TableCell>
                 <TableCell>

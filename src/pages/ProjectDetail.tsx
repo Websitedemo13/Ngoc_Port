@@ -53,11 +53,17 @@ const ProjectDetail = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Image */}
+      {/* Premium Hero Image */}
       {project.image_url && (
-        <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
-          <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+        <div className="relative w-full h-[45vh] md:h-[60vh] overflow-hidden">
+          <img
+            src={project.image_url}
+            alt={project.title}
+            className="w-full h-full object-cover scale-105 animate-fade-in"
+            style={{ objectPosition: 'center 30%' }}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-background/10" />
+          <div className="absolute inset-0 bg-gradient-to-r from-background/30 to-transparent" />
         </div>
       )}
 
