@@ -146,6 +146,11 @@ export default function SettingsManager() {
         const { error } = await supabase.from('settings').upsert({ key: 'saved_custom_themes', value: JSON.stringify(savedThemes) }, { onConflict: 'key' });
         if (error) throw error;
       }
+      // Save font theme
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'font_theme', value: fontTheme }, { onConflict: 'key' });
+        if (error) throw error;
+      }
       // Save page visibility
       for (const [key, visible] of Object.entries(pageVisibility)) {
         const value = visible ? 'visible' : 'hidden';
