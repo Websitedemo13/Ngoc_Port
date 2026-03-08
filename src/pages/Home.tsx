@@ -175,95 +175,99 @@ const Home = () => {
       </section>
 
       {/* ═══════════════ STATS ═══════════════ */}
-      <section className="container mx-auto px-4 -mt-6 relative z-20">
-        <div ref={statsReveal.ref} className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              { icon: Briefcase, value: experiences?.length || 0, label: language === 'en' ? 'Years Experience' : 'Năm kinh nghiệm', color: 'text-primary' },
-              { icon: TrendingUp, value: featuredProjects?.length || 0, label: language === 'en' ? 'Projects Completed' : 'Dự án hoàn thành', color: 'text-secondary' },
-              { icon: Users, value: featuredPosts?.length || 0, label: language === 'en' ? 'Articles Written' : 'Bài viết', color: 'text-primary' },
-            ].map((stat, i) => (
-              <Card
-                key={i}
-                className={`card-premium border-0 shadow-lg scroll-hidden ${statsReveal.isVisible ? 'scroll-visible' : ''}`}
-                style={{ transitionDelay: `${i * 0.15}s` }}
-              >
-                <CardContent className="p-6 flex items-center gap-4">
-                  <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center ${stat.color}`}>
-                    <stat.icon size={24} />
-                  </div>
-                  <div>
-                    <p className="font-serif text-3xl font-bold">
-                      <CountUp end={stat.value} trigger={statsReveal.isVisible} />
-                    </p>
-                    <p className="text-sm text-muted-foreground">{stat.label}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════ FEATURED PROJECTS ═══════════════ */}
-      <section className="container mx-auto px-4 py-24">
-        <div className="max-w-6xl mx-auto">
-          <RevealSection>
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
-                  {language === 'en' ? 'Portfolio' : 'Danh mục'}
-                </p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold">
-                  {language === 'en' ? 'Featured Projects' : 'Dự án nổi bật'}
-                </h2>
-              </div>
-              <Button variant="ghost" className="hidden md:inline-flex text-primary" asChild>
-                <Link to="/projects">
-                  {language === 'en' ? 'View All' : 'Xem tất cả'}
-                  <ArrowRight className="ml-1" size={16} />
-                </Link>
-              </Button>
-            </div>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProjects?.slice(0, 3).map((project, i) => (
-              <RevealSection key={project.id} delay={i * 0.12}>
-                <Card className="card-premium overflow-hidden group border-0 shadow-md h-full">
-                  {project.image_url && (
-                    <div className="aspect-video overflow-hidden relative">
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      {((experiences && experiences.length > 0) || (featuredProjects && featuredProjects.length > 0) || (featuredPosts && featuredPosts.length > 0)) && (
+        <section className="container mx-auto px-4 -mt-6 relative z-20">
+          <div ref={statsReveal.ref} className="max-w-4xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {[
+                { icon: Briefcase, value: experiences?.length || 0, label: language === 'en' ? 'Years Experience' : 'Năm kinh nghiệm', color: 'text-primary' },
+                { icon: TrendingUp, value: featuredProjects?.length || 0, label: language === 'en' ? 'Projects Completed' : 'Dự án hoàn thành', color: 'text-secondary' },
+                { icon: Users, value: featuredPosts?.length || 0, label: language === 'en' ? 'Articles Written' : 'Bài viết', color: 'text-primary' },
+              ].map((stat, i) => (
+                <Card
+                  key={i}
+                  className={`card-premium border-0 shadow-lg scroll-hidden ${statsReveal.isVisible ? 'scroll-visible' : ''}`}
+                  style={{ transitionDelay: `${i * 0.15}s` }}
+                >
+                  <CardContent className="p-6 flex items-center gap-4">
+                    <div className={`w-14 h-14 rounded-2xl bg-muted flex items-center justify-center ${stat.color}`}>
+                      <stat.icon size={24} />
                     </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h3 className="font-serif font-bold text-xl mb-2 group-hover:text-secondary transition-colors duration-300">{project.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{project.description}</p>
-                    <Link
-                      to={`/projects/${project.slug}`}
-                      className="text-secondary font-medium text-sm inline-flex items-center gap-1 hover:gap-2 transition-all duration-300"
-                    >
-                      {language === 'en' ? 'View Project' : 'Xem chi tiết'}
-                      <ArrowRight size={16} />
-                    </Link>
+                    <div>
+                      <p className="font-serif text-3xl font-bold">
+                        <CountUp end={stat.value} trigger={statsReveal.isVisible} />
+                      </p>
+                      <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    </div>
                   </CardContent>
                 </Card>
-              </RevealSection>
-            ))}
+              ))}
+            </div>
           </div>
+        </section>
+      )}
 
-          <div className="text-center mt-10 md:hidden">
-            <Button variant="outline" asChild>
-              <Link to="/projects">{language === 'en' ? 'View All Projects' : 'Xem tất cả dự án'}</Link>
-            </Button>
+      {/* ═══════════════ FEATURED PROJECTS ═══════════════ */}
+      {featuredProjects && featuredProjects.length > 0 && (
+        <section className="container mx-auto px-4 py-24">
+          <div className="max-w-6xl mx-auto">
+            <RevealSection>
+              <div className="flex items-end justify-between mb-12">
+                <div>
+                  <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
+                    {language === 'en' ? 'Portfolio' : 'Danh mục'}
+                  </p>
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold">
+                    {language === 'en' ? 'Featured Projects' : 'Dự án nổi bật'}
+                  </h2>
+                </div>
+                <Button variant="ghost" className="hidden md:inline-flex text-primary" asChild>
+                  <Link to="/projects">
+                    {language === 'en' ? 'View All' : 'Xem tất cả'}
+                    <ArrowRight className="ml-1" size={16} />
+                  </Link>
+                </Button>
+              </div>
+            </RevealSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredProjects.slice(0, 3).map((project, i) => (
+                <RevealSection key={project.id} delay={i * 0.12}>
+                  <Card className="card-premium overflow-hidden group border-0 shadow-md h-full">
+                    {project.image_url && (
+                      <div className="aspect-video overflow-hidden relative">
+                        <img
+                          src={project.image_url}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+                    )}
+                    <CardContent className="p-6">
+                      <h3 className="font-serif font-bold text-xl mb-2 group-hover:text-secondary transition-colors duration-300">{project.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{project.description}</p>
+                      <Link
+                        to={`/projects/${project.slug}`}
+                        className="text-secondary font-medium text-sm inline-flex items-center gap-1 hover:gap-2 transition-all duration-300"
+                      >
+                        {language === 'en' ? 'View Project' : 'Xem chi tiết'}
+                        <ArrowRight size={16} />
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </RevealSection>
+              ))}
+            </div>
+
+            <div className="text-center mt-10 md:hidden">
+              <Button variant="outline" asChild>
+                <Link to="/projects">{language === 'en' ? 'View All Projects' : 'Xem tất cả dự án'}</Link>
+              </Button>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══════════════ TESTIMONIALS ═══════════════ */}
       <section className="py-24 relative overflow-hidden">

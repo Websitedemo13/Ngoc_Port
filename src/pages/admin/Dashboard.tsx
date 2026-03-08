@@ -5,10 +5,11 @@ import { toast } from 'sonner';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, BookOpen,
-  Award, MessageSquare, BarChart3
+  Award, Sun, Moon
 } from 'lucide-react';
 import { useAllPosts } from '@/hooks/useBlog';
 import { usePublishedExperiences } from '@/hooks/useExperiences';
+import { useTheme } from '@/lib/theme';
 
 const menuItems = [
   { path: '/admin/profile', icon: User, label: 'Hồ sơ', desc: 'Quản lý thông tin cá nhân', color: 'from-blue-500/10 to-blue-600/5' },
@@ -24,6 +25,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const { data: posts } = useAllPosts();
   const { data: experiences } = usePublishedExperiences();
+  const { theme, toggleTheme } = useTheme();
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -65,7 +67,11 @@ export default function AdminDashboard() {
               </Link>
             ))}
           </nav>
-          <div className="p-4 border-t border-primary-foreground/10">
+          <div className="p-4 border-t border-primary-foreground/10 space-y-1">
+            <button onClick={toggleTheme} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-primary-foreground/10 transition-colors w-full text-left opacity-70 hover:opacity-100">
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+            </button>
             <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-primary-foreground/10 transition-colors w-full text-left opacity-70 hover:opacity-100">
               <LogOut size={18} />
               <span>Đăng xuất</span>
@@ -78,9 +84,14 @@ export default function AdminDashboard() {
           {/* Mobile header */}
           <header className="lg:hidden border-b border-border bg-card px-4 py-3 flex items-center justify-between">
             <h1 className="font-bold text-lg">Admin Dashboard</h1>
-            <Button onClick={handleLogout} variant="ghost" size="sm">
-              <LogOut size={16} />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button onClick={toggleTheme} variant="ghost" size="sm">
+                {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+              </Button>
+              <Button onClick={handleLogout} variant="ghost" size="sm">
+                <LogOut size={16} />
+              </Button>
+            </div>
           </header>
 
           <div className="p-6 md:p-8">
