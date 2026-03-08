@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { ArrowLeft, Plus, Pencil, Trash2 } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
+import { slugify } from '@/lib/slugify';
 import type { BlogPost, BlogPostInsert, BlogPostUpdate } from '@/lib/supabase/blog';
 
 export default function BlogManager() {
@@ -24,30 +25,16 @@ export default function BlogManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [formData, setFormData] = useState<Partial<BlogPostInsert>>({
-    title: '',
-    slug: '',
-    excerpt: '',
-    content: '',
-    image_url: '',
-    published: false,
-    featured: false,
+    title: '', slug: '', excerpt: '', content: '', image_url: '', published: false, featured: false,
   });
-
-  const generateSlug = (title: string) => {
-    return title.toLowerCase().replace(/[^\w\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
-  };
 
   const handleOpenDialog = (post?: BlogPost) => {
     if (post) {
       setEditingPost(post);
       setFormData({
-        title: post.title,
-        slug: post.slug || '',
-        excerpt: post.excerpt || '',
-        content: post.content,
-        image_url: post.image_url || '',
-        published: post.published || false,
-        featured: post.featured || false,
+        title: post.title, slug: post.slug || '', excerpt: post.excerpt || '',
+        content: post.content, image_url: post.image_url || '',
+        published: post.published || false, featured: post.featured || false,
       });
     } else {
       setEditingPost(null);
@@ -106,7 +93,11 @@ export default function BlogManager() {
                   <Label>Tiêu đề / Title *</Label>
                   <Input
                     value={formData.title}
-                    onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: !editingPost ? generateSlug(e.target.value) : formData.slug })}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      title: e.target.value,
+                      slug: !editingPost ? slugify(e.target.value) : formData.slug,
+                    })}
                     required
                   />
                 </div>
@@ -159,7 +150,7 @@ export default function BlogManager() {
               {posts.map((post) => (
                 <TableRow key={post.id}>
                   <TableCell className="font-medium">{post.title}</TableCell>
-                  <TableCell className="text-muted-foreground">{post.slug}</TableCell>
+                  <TableCell className="text-muted-foreground text-xs font-mono">{post.slug}</TableCell>
                   <TableCell>
                     <Switch checked={post.published || false} onCheckedChange={() => togglePublishedMutation.mutate({ id: post.id, published: !post.published })} />
                   </TableCell>

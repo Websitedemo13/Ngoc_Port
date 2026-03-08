@@ -1,94 +1,141 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
-import { usePublishedPosts } from '@/hooks/useBlog';
+import { usePublishedPosts, useFeaturedPosts } from '@/hooks/useBlog';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Calendar } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
+import { ArrowRight, Calendar, Clock, Search, Star } from 'lucide-react';
 
 const Blog = () => {
   const { language } = useLanguage();
-  const { data: postsData, isLoading } = usePublishedPosts();
+  const { data: postsData, isLoading } = usePublishedPosts(1, 50);
+  const { data: featuredPosts } = useFeaturedPosts(3);
+  const [search, setSearch] = useState('');
+
+  const posts = postsData?.posts || [];
+  const filtered = search.trim()
+    ? posts.filter(p =>
+        p.title.toLowerCase().includes(search.toLowerCase()) ||
+        (p.excerpt || '').toLowerCase().includes(search.toLowerCase())
+      )
+    : posts;
+
+  const readingTime = (content: string) => Math.max(1, Math.ceil(content.split(/\s+/).length / 200));
 
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">
+      {/* Hero */}
+      <section className="bg-navy-gradient text-primary-foreground py-20 md:py-28">
+        <div className="container mx-auto px-4 text-center animate-fade-in">
+          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-4">
             {language === 'en' ? 'Insights & Articles' : 'Bài viết & Chia sẻ'}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg opacity-80 max-w-2xl mx-auto mb-8">
             {language === 'en'
               ? 'Thoughts on leadership, international relations, and professional development.'
-              : 'Suy nghĩ về lãnh đạo, quan hệ quốc tế và phát triển nghề nghiệp.'}
+              : 'Chia sẻ về lãnh đạo, quan hệ quốc tế và phát triển nghề nghiệp.'}
           </p>
+          <div className="max-w-md mx-auto relative">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={language === 'en' ? 'Search articles...' : 'Tìm kiếm bài viết...'}
+              className="pl-10 bg-background text-foreground rounded-full border-none shadow-lg"
+            />
+          </div>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-6xl mx-auto">
+      {/* Featured */}
+      {!search && featuredPosts && featuredPosts.length > 0 && (
+        <section className="container mx-auto px-4 -mt-10 relative z-10 mb-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            {featuredPosts.map((post, i) => (
+              <Link key={post.id} to={`/blog/${post.slug}`} className="group">
+                <Card className="overflow-hidden card-premium h-full border-0 shadow-lg animate-fade-in" style={{ animationDelay: `${i * 100}ms` }}>
+                  {post.image_url && (
+                    <div className="aspect-video overflow-hidden relative">
+                      <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      <Badge className="absolute top-3 left-3 bg-secondary text-secondary-foreground">
+                        <Star size={12} className="mr-1" />
+                        {language === 'en' ? 'Featured' : 'Nổi bật'}
+                      </Badge>
+                    </div>
+                  )}
+                  <CardContent className="p-5">
+                    <h3 className="font-serif font-bold text-lg mb-2 group-hover:text-primary transition-colors line-clamp-2">
+                      {post.title}
+                    </h3>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1"><Calendar size={12} />{new Date(post.created_at).toLocaleDateString(language === 'en' ? 'en-US' : 'vi-VN')}</span>
+                      <span className="flex items-center gap-1"><Clock size={12} />{readingTime(post.content)} {language === 'en' ? 'min' : 'phút'}</span>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* All Posts */}
+      <section className="container mx-auto px-4 py-12">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-serif text-2xl font-bold mb-8">
+            {search ? (language === 'en' ? `Results for "${search}"` : `Kết quả cho "${search}"`) : (language === 'en' ? 'All Articles' : 'Tất cả bài viết')}
+          </h2>
+
           {isLoading ? (
-            <div className="text-center text-muted-foreground">
-              {language === 'en' ? 'Loading...' : 'Đang tải...'}
+            <div className="space-y-6">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="animate-pulse flex gap-6">
+                  <div className="w-32 h-24 bg-muted rounded-lg shrink-0 hidden md:block" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-5 bg-muted rounded w-3/4" />
+                    <div className="h-4 bg-muted rounded w-full" />
+                    <div className="h-3 bg-muted rounded w-1/4" />
+                  </div>
+                </div>
+              ))}
             </div>
-          ) : postsData?.posts && postsData.posts.length > 0 ? (
-            <div className="space-y-8">
-              {postsData.posts.map((post, index) => (
-                <Card key={post.id} className="hover-scale overflow-hidden animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          ) : filtered.length > 0 ? (
+            <div className="space-y-6">
+              {filtered.map((post, i) => (
+                <Link key={post.id} to={`/blog/${post.slug}`} className="group block">
+                  <div className="flex gap-5 p-4 rounded-xl hover:bg-muted/50 transition-colors animate-fade-in" style={{ animationDelay: `${i * 40}ms` }}>
                     {post.image_url && (
-                      <div className="md:col-span-1 aspect-video md:aspect-square overflow-hidden">
-                        <img
-                          src={post.image_url}
-                          alt={post.title}
-                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
+                      <div className="w-28 h-20 md:w-36 md:h-24 rounded-lg overflow-hidden shrink-0">
+                        <img src={post.image_url} alt={post.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                       </div>
                     )}
-
-                    <CardContent className={`${post.image_url ? 'md:col-span-2' : 'md:col-span-3'} p-6 space-y-4`}>
-                      <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-2">
-                          <Calendar size={14} />
-                          <span>
-                            {new Date(post.created_at).toLocaleDateString(
-                              language === 'en' ? 'en-US' : 'vi-VN',
-                              { year: 'numeric', month: 'long', day: 'numeric' }
-                            )}
-                          </span>
-                        </div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-serif font-bold text-lg mb-1 group-hover:text-primary transition-colors line-clamp-1">
+                        {post.title}
+                      </h3>
+                      {post.excerpt && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-2">{post.excerpt}</p>
+                      )}
+                      <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1"><Calendar size={12} />{new Date(post.created_at).toLocaleDateString(language === 'en' ? 'en-US' : 'vi-VN')}</span>
+                        <span className="flex items-center gap-1"><Clock size={12} />{readingTime(post.content)} {language === 'en' ? 'min' : 'phút'}</span>
+                        <span className="hidden md:inline-flex items-center gap-1 text-primary ml-auto opacity-0 group-hover:opacity-100 transition-opacity">
+                          {language === 'en' ? 'Read' : 'Đọc'} <ArrowRight size={12} />
+                        </span>
                       </div>
-
-                      <div>
-                        <h2 className="font-serif text-2xl font-bold mb-3 line-clamp-2">
-                          {post.title}
-                        </h2>
-                        {post.excerpt && (
-                          <p className="text-muted-foreground leading-relaxed line-clamp-3">
-                            {post.excerpt}
-                          </p>
-                        )}
-                      </div>
-
-                      <div className="pt-4">
-                        <Link
-                          to={`/blog/${post.slug}`}
-                          className="text-primary font-medium inline-flex items-center hover:underline"
-                        >
-                          {language === 'en' ? 'Read Full Article' : 'Đọc toàn bộ'}
-                          <ArrowRight className="ml-2" size={16} />
-                        </Link>
-                      </div>
-                    </CardContent>
+                    </div>
                   </div>
-                </Card>
+                </Link>
               ))}
             </div>
           ) : (
-            <div className="text-center text-muted-foreground">
-              {language === 'en' ? 'No articles available.' : 'Chưa có bài viết nào.'}
+            <div className="text-center py-12 text-muted-foreground">
+              {language === 'en' ? 'No articles found.' : 'Không tìm thấy bài viết nào.'}
             </div>
           )}
         </div>
