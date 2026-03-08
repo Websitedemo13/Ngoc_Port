@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
-  Image, Settings, LogOut, LayoutDashboard,
+  Image, Settings, LogOut, LayoutDashboard, GraduationCap,
   Sun, Moon, Menu, X, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
