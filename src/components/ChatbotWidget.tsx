@@ -1,13 +1,75 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/i18n';
-import { supabase } from '@/integrations/supabase/client';
+import ReactMarkdown from 'react-markdown';
 
 interface Message {
   role: 'user' | 'assistant';
   content: string;
+}
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat`;
+
+async function streamChat({
+  messages,
+  language,
+  onDelta,
+  onDone,
+  onError,
+}: {
+  messages: Message[];
+  language: string;
+  onDelta: (text: string) => void;
+  onDone: () => void;
+  onError: (err: string) => void;
+}) {
+  const resp = await fetch(CHAT_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+    },
+    body: JSON.stringify({ messages, language }),
+  });
+
+  if (!resp.ok) {
+    const data = await resp.json().catch(() => ({}));
+    onError(data.error || 'Lỗi kết nối AI');
+    return;
+  }
+
+  if (!resp.body) { onError('No stream'); return; }
+
+  const reader = resp.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+
+    let idx: number;
+    while ((idx = buffer.indexOf('\n')) !== -1) {
+      let line = buffer.slice(0, idx);
+      buffer = buffer.slice(idx + 1);
+      if (line.endsWith('\r')) line = line.slice(0, -1);
+      if (!line.startsWith('data: ')) continue;
+      const json = line.slice(6).trim();
+      if (json === '[DONE]') { onDone(); return; }
+      try {
+        const parsed = JSON.parse(json);
+        const content = parsed.choices?.[0]?.delta?.content;
+        if (content) onDelta(content);
+      } catch {
+        buffer = line + '\n' + buffer;
+        break;
+      }
+    }
+  }
+  onDone();
 }
 
 const ChatbotWidget = () => {
@@ -17,63 +79,52 @@ const ChatbotWidget = () => {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
-  const [trainingData, setTrainingData] = useState<any[]>([]);
-
-  useEffect(() => {
-    // Load chatbot training data
-    supabase
-      .from('chatbot_training')
-      .select('*')
-      .eq('active', true)
-      .order('priority', { ascending: false })
-      .then(({ data }) => {
-        if (data) setTrainingData(data);
-      });
-  }, []);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  const findAnswer = (query: string): string | null => {
-    const q = query.toLowerCase();
-    for (const item of trainingData) {
-      if (item.language !== language && item.language !== 'both') continue;
-      const matchesKeyword = item.keywords?.some((kw: string) => q.includes(kw.toLowerCase()));
-      const matchesQuestion = item.question.toLowerCase().split(' ').some((w: string) => q.includes(w));
-      if (matchesKeyword || matchesQuestion) return item.answer;
-    }
-    // Fallback: search all languages
-    for (const item of trainingData) {
-      const matchesKeyword = item.keywords?.some((kw: string) => q.includes(kw.toLowerCase()));
-      if (matchesKeyword) return item.answer;
-    }
-    return null;
-  };
+  }, [messages, loading]);
 
   const handleSend = async () => {
     if (!input.trim() || loading) return;
     const userMsg: Message = { role: 'user', content: input.trim() };
-    setMessages(prev => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput('');
     setLoading(true);
 
-    // Try local training data first
-    const localAnswer = findAnswer(userMsg.content);
-    
-    setTimeout(() => {
-      const answer = localAnswer || (language === 'en' 
-        ? "Thank you for your question! I'm a simple assistant trained on limited data. For more details, please visit the Contact page or reach out directly."
-        : "Cảm ơn câu hỏi của bạn! Tôi là trợ lý đơn giản với dữ liệu hạn chế. Để biết thêm chi tiết, vui lòng truy cập trang Liên hệ hoặc liên hệ trực tiếp.");
-      
-      setMessages(prev => [...prev, { role: 'assistant', content: answer }]);
+    let assistantSoFar = '';
+
+    const upsertAssistant = (chunk: string) => {
+      assistantSoFar += chunk;
+      setMessages(prev => {
+        const last = prev[prev.length - 1];
+        if (last?.role === 'assistant') {
+          return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantSoFar } : m);
+        }
+        return [...prev, { role: 'assistant', content: assistantSoFar }];
+      });
+    };
+
+    try {
+      await streamChat({
+        messages: updatedMessages,
+        language,
+        onDelta: upsertAssistant,
+        onDone: () => setLoading(false),
+        onError: (err) => {
+          setMessages(prev => [...prev, { role: 'assistant', content: `⚠️ ${err}` }]);
+          setLoading(false);
+        },
+      });
+    } catch {
+      setMessages(prev => [...prev, { role: 'assistant', content: '⚠️ Không thể kết nối AI. Vui lòng thử lại.' }]);
       setLoading(false);
-    }, 600);
+    }
   };
 
-  const greeting = language === 'en' 
-    ? "👋 Hi! I'm the portfolio assistant. Ask me anything about skills, experience, or projects!"
-    : "👋 Xin chào! Tôi là trợ lý portfolio. Hỏi tôi về kỹ năng, kinh nghiệm hoặc dự án!";
+  const greeting = language === 'en'
+    ? "👋 Hi! I'm the AI portfolio assistant. Ask me anything about skills, experience, or projects!"
+    : "👋 Xin chào! Tôi là trợ lý AI portfolio. Hỏi tôi bất cứ điều gì về kỹ năng, kinh nghiệm hoặc dự án!";
 
   return (
     <>
@@ -85,7 +136,7 @@ const ChatbotWidget = () => {
             setMessages([{ role: 'assistant', content: greeting }]);
           }
         }}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-secondary text-secondary-foreground shadow-gold flex items-center justify-center hover:scale-110 transition-all duration-300 ${open ? 'scale-0' : 'scale-100'}`}
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-secondary text-secondary-foreground shadow-gold flex items-center justify-center hover:scale-110 transition-all duration-300 ${open ? 'scale-0 pointer-events-none' : 'scale-100'}`}
         aria-label="Open chat"
       >
         <MessageCircle size={24} />
@@ -93,14 +144,19 @@ const ChatbotWidget = () => {
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-[360px] max-w-[calc(100vw-2rem)] h-[500px] max-h-[calc(100vh-6rem)] bg-card border border-border rounded-2xl shadow-xl flex flex-col overflow-hidden animate-scale-in">
+        <div className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] bg-card border border-border rounded-2xl shadow-xl flex flex-col overflow-hidden animate-scale-in">
           {/* Header */}
           <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <Bot size={20} />
-              <span className="font-semibold text-sm">
-                {language === 'en' ? 'Portfolio Assistant' : 'Trợ lý Portfolio'}
-              </span>
+              <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+                <Sparkles size={16} className="text-secondary" />
+              </div>
+              <div>
+                <span className="font-semibold text-sm block leading-tight">
+                  {language === 'en' ? 'AI Assistant' : 'Trợ lý AI'}
+                </span>
+                <span className="text-[10px] opacity-60">Powered by Lovable AI</span>
+              </div>
             </div>
             <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
               <X size={18} />
@@ -112,31 +168,35 @@ const ChatbotWidget = () => {
             {messages.map((msg, i) => (
               <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                 {msg.role === 'assistant' && (
-                  <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center shrink-0 mt-0.5">
                     <Bot size={14} className="text-secondary" />
                   </div>
                 )}
-                <div className={`max-w-[75%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
-                  msg.role === 'user' 
-                    ? 'bg-primary text-primary-foreground rounded-br-md' 
+                <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                  msg.role === 'user'
+                    ? 'bg-primary text-primary-foreground rounded-br-md'
                     : 'bg-muted text-foreground rounded-bl-md'
                 }`}>
-                  {msg.content}
+                  {msg.role === 'assistant' ? (
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1 prose-ul:my-1 prose-li:my-0.5 prose-a:text-primary">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : msg.content}
                 </div>
                 {msg.role === 'user' && (
-                  <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-primary/20 flex items-center justify-center shrink-0 mt-0.5">
                     <User size={14} className="text-primary" />
                   </div>
                 )}
               </div>
             ))}
-            {loading && (
-              <div className="flex gap-2 items-center">
+            {loading && messages[messages.length - 1]?.role !== 'assistant' && (
+              <div className="flex gap-2 items-start">
                 <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center">
                   <Bot size={14} className="text-secondary" />
                 </div>
-                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-2">
-                  <div className="flex gap-1">
+                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '0ms' }} />
                     <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '150ms' }} />
                     <span className="w-2 h-2 rounded-full bg-muted-foreground/40 animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -153,7 +213,7 @@ const ChatbotWidget = () => {
               <Input
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                placeholder={language === 'en' ? 'Type a message...' : 'Nhập tin nhắn...'}
+                placeholder={language === 'en' ? 'Ask me anything...' : 'Hỏi tôi bất cứ điều gì...'}
                 className="flex-1 text-sm rounded-full"
                 disabled={loading}
               />
