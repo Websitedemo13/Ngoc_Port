@@ -10,6 +10,7 @@ const allNavItems = [
   { path: '/', label: { en: 'Home', vi: 'Trang chủ' } },
   { path: '/about', label: { en: 'About', vi: 'Giới thiệu' } },
   { path: '/experience', label: { en: 'Experience', vi: 'Kinh nghiệm' } },
+  { path: '/education', label: { en: 'Education', vi: 'Học vấn' } },
   { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
   { path: '/activities', label: { en: 'Activities', vi: 'Hoạt động' } },
   { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
