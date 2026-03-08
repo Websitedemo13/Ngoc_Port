@@ -206,64 +206,66 @@ const Home = () => {
       </section>
 
       {/* ═══════════════ FEATURED PROJECTS ═══════════════ */}
-      <section className="container mx-auto px-4 py-24">
-        <div className="max-w-6xl mx-auto">
-          <RevealSection>
-            <div className="flex items-end justify-between mb-12">
-              <div>
-                <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
-                  {language === 'en' ? 'Portfolio' : 'Danh mục'}
-                </p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold">
-                  {language === 'en' ? 'Featured Projects' : 'Dự án nổi bật'}
-                </h2>
+      {featuredProjects && featuredProjects.length > 0 && (
+        <section className="container mx-auto px-4 py-24">
+          <div className="max-w-6xl mx-auto">
+            <RevealSection>
+              <div className="flex items-end justify-between mb-12">
+                <div>
+                  <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
+                    {language === 'en' ? 'Portfolio' : 'Danh mục'}
+                  </p>
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold">
+                    {language === 'en' ? 'Featured Projects' : 'Dự án nổi bật'}
+                  </h2>
+                </div>
+                <Button variant="ghost" className="hidden md:inline-flex text-primary" asChild>
+                  <Link to="/projects">
+                    {language === 'en' ? 'View All' : 'Xem tất cả'}
+                    <ArrowRight className="ml-1" size={16} />
+                  </Link>
+                </Button>
               </div>
-              <Button variant="ghost" className="hidden md:inline-flex text-primary" asChild>
-                <Link to="/projects">
-                  {language === 'en' ? 'View All' : 'Xem tất cả'}
-                  <ArrowRight className="ml-1" size={16} />
-                </Link>
+            </RevealSection>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              {featuredProjects.slice(0, 3).map((project, i) => (
+                <RevealSection key={project.id} delay={i * 0.12}>
+                  <Card className="card-premium overflow-hidden group border-0 shadow-md h-full">
+                    {project.image_url && (
+                      <div className="aspect-video overflow-hidden relative">
+                        <img
+                          src={project.image_url}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                      </div>
+                    )}
+                    <CardContent className="p-6">
+                      <h3 className="font-serif font-bold text-xl mb-2 group-hover:text-secondary transition-colors duration-300">{project.title}</h3>
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{project.description}</p>
+                      <Link
+                        to={`/projects/${project.slug}`}
+                        className="text-secondary font-medium text-sm inline-flex items-center gap-1 hover:gap-2 transition-all duration-300"
+                      >
+                        {language === 'en' ? 'View Project' : 'Xem chi tiết'}
+                        <ArrowRight size={16} />
+                      </Link>
+                    </CardContent>
+                  </Card>
+                </RevealSection>
+              ))}
+            </div>
+
+            <div className="text-center mt-10 md:hidden">
+              <Button variant="outline" asChild>
+                <Link to="/projects">{language === 'en' ? 'View All Projects' : 'Xem tất cả dự án'}</Link>
               </Button>
             </div>
-          </RevealSection>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProjects?.slice(0, 3).map((project, i) => (
-              <RevealSection key={project.id} delay={i * 0.12}>
-                <Card className="card-premium overflow-hidden group border-0 shadow-md h-full">
-                  {project.image_url && (
-                    <div className="aspect-video overflow-hidden relative">
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                    </div>
-                  )}
-                  <CardContent className="p-6">
-                    <h3 className="font-serif font-bold text-xl mb-2 group-hover:text-secondary transition-colors duration-300">{project.title}</h3>
-                    <p className="text-muted-foreground text-sm mb-4 line-clamp-2">{project.description}</p>
-                    <Link
-                      to={`/projects/${project.slug}`}
-                      className="text-secondary font-medium text-sm inline-flex items-center gap-1 hover:gap-2 transition-all duration-300"
-                    >
-                      {language === 'en' ? 'View Project' : 'Xem chi tiết'}
-                      <ArrowRight size={16} />
-                    </Link>
-                  </CardContent>
-                </Card>
-              </RevealSection>
-            ))}
           </div>
-
-          <div className="text-center mt-10 md:hidden">
-            <Button variant="outline" asChild>
-              <Link to="/projects">{language === 'en' ? 'View All Projects' : 'Xem tất cả dự án'}</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* ═══════════════ TESTIMONIALS ═══════════════ */}
       <section className="py-24 relative overflow-hidden">
