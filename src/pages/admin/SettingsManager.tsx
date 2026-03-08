@@ -264,6 +264,59 @@ export default function SettingsManager() {
           </div>
         </div>
 
+        {/* Color Theme Picker */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Palette className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Bảng màu Website</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Chọn bảng màu chủ đạo cho toàn bộ website. Thay đổi sẽ áp dụng ngay sau khi lưu.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {COLOR_THEMES.map((t) => {
+              const isActive = colorTheme === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => {
+                    setColorTheme(t.id);
+                    applyColorTheme(t.id, darkMode === 'dark');
+                  }}
+                  className={cn(
+                    "relative text-left p-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md group",
+                    isActive
+                      ? "border-primary shadow-md ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                  {/* Color swatches */}
+                  <div className="flex gap-1.5 mb-3">
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.primary }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.secondary }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.accent }} />
+                    <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.bg }} />
+                  </div>
+                  {/* Preview bar */}
+                  <div className="h-2 rounded-full mb-3 overflow-hidden flex">
+                    <div className="flex-1" style={{ background: t.preview.primary }} />
+                    <div className="flex-1" style={{ background: t.preview.secondary }} />
+                    <div className="flex-1" style={{ background: t.preview.accent }} />
+                  </div>
+                  <p className="font-semibold text-sm">{t.name}</p>
+                  <p className="text-xs text-muted-foreground">{t.description}</p>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Social Links */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between mb-2">
