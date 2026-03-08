@@ -65,7 +65,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
