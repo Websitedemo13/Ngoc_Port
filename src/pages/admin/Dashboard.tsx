@@ -84,9 +84,14 @@ export default function AdminDashboard() {
           {/* Mobile header */}
           <header className="lg:hidden border-b border-border bg-card px-4 py-3 flex items-center justify-between">
             <h1 className="font-bold text-lg">Admin Dashboard</h1>
-            <Button onClick={handleLogout} variant="ghost" size="sm">
-              <LogOut size={16} />
-            </Button>
+            <div className="flex items-center gap-1">
+              <Button onClick={toggleTheme} variant="ghost" size="sm">
+                {theme === 'light' ? <Moon size={16} /> : <Sun size={16} />}
+              </Button>
+              <Button onClick={handleLogout} variant="ghost" size="sm">
+                <LogOut size={16} />
+              </Button>
+            </div>
           </header>
 
           <div className="p-6 md:p-8">
