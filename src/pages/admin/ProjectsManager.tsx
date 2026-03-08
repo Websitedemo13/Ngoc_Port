@@ -182,6 +182,7 @@ export default function ProjectsManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-16">Ảnh</TableHead>
               <TableHead>Tiêu đề</TableHead>
               <TableHead>Danh mục</TableHead>
               <TableHead>Nổi bật</TableHead>
@@ -191,6 +192,17 @@ export default function ProjectsManager() {
           <TableBody>
             {projects?.map((project) => (
               <TableRow key={project.id}>
+                <TableCell>
+                  {project.image_url ? (
+                    <div className="w-12 h-8 rounded overflow-hidden border border-border">
+                      <img src={project.image_url} alt="" className="w-full h-full object-cover" />
+                    </div>
+                  ) : (
+                    <div className="w-12 h-8 rounded bg-muted flex items-center justify-center border border-border">
+                      <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">{project.title}</TableCell>
                 <TableCell>{project.category}</TableCell>
                 <TableCell>

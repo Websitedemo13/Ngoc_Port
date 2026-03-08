@@ -97,16 +97,25 @@ const Projects = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filtered.map((project, index) => (
                 <Card key={project.id} className="card-premium overflow-hidden group border-0 shadow-md animate-fade-in" style={{ animationDelay: `${index * 50}ms` }}>
-                  {project.image_url && (
-                    <div className="aspect-video overflow-hidden relative">
-                      <img
-                        src={project.image_url}
-                        alt={project.title}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-card/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  )}
+                  <div className="aspect-video overflow-hidden relative bg-muted">
+                    {project.image_url ? (
+                      <>
+                        <img
+                          src={project.image_url}
+                          alt={project.title}
+                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-out"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-card via-card/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity duration-500" />
+                      </>
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-2">
+                        <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Search className="h-5 w-5 text-primary/40" />
+                        </div>
+                        <span className="text-xs text-muted-foreground/50">No cover</span>
+                      </div>
+                    )}
+                  </div>
                   <CardContent className="p-6 space-y-4">
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-xs border-secondary/30 text-secondary">{project.category}</Badge>
