@@ -112,7 +112,11 @@ export default function BlogManager() {
                 </div>
                 <div>
                   <Label>Nội dung / Content *</Label>
-                  <Textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} rows={10} required />
+                  <RichTextEditor
+                    content={formData.content || ''}
+                    onChange={(html) => setFormData({ ...formData, content: html })}
+                    placeholder="Viết nội dung bài viết tại đây..."
+                  />
                 </div>
                 <MediaUpload label="Ảnh bìa / Featured Image" value={formData.image_url || ''} onChange={(url) => setFormData({ ...formData, image_url: url })} accept="image/*" />
                 <div className="flex gap-6">

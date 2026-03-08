@@ -127,9 +127,15 @@ export default function ProjectsManager() {
                   <div><Label>Link</Label><Input value={formData.link} onChange={(e) => setFormData(p => ({ ...p, link: e.target.value }))} /></div>
                 </div>
                 <div><Label>Mô tả ngắn *</Label><Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} required /></div>
-                <div><Label>Mô tả chi tiết</Label><Textarea value={formData.full_description} onChange={(e) => setFormData(p => ({ ...p, full_description: e.target.value }))} rows={5} /></div>
-                <div><Label>Thách thức</Label><Textarea value={formData.challenge} onChange={(e) => setFormData(p => ({ ...p, challenge: e.target.value }))} rows={3} /></div>
-                <div><Label>Giải pháp</Label><Textarea value={formData.solution} onChange={(e) => setFormData(p => ({ ...p, solution: e.target.value }))} rows={3} /></div>
+                <div><Label>Mô tả chi tiết</Label>
+                  <RichTextEditor content={formData.full_description} onChange={(html) => setFormData(p => ({ ...p, full_description: html }))} placeholder="Mô tả chi tiết về dự án..." />
+                </div>
+                <div><Label>Thách thức</Label>
+                  <RichTextEditor content={formData.challenge} onChange={(html) => setFormData(p => ({ ...p, challenge: html }))} placeholder="Thách thức gặp phải..." />
+                </div>
+                <div><Label>Giải pháp</Label>
+                  <RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} placeholder="Giải pháp đã áp dụng..." />
+                </div>
                 <MediaUpload label="Ảnh dự án" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
                 <div>
                   <Label>Công nghệ</Label>
