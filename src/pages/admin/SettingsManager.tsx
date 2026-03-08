@@ -43,6 +43,7 @@ interface SocialLink {
 
 export default function SettingsManager() {
   const queryClient = useQueryClient();
+  const { theme: darkMode } = useTheme();
   const [settings, setSettings] = useState({
     logo_url: '',
     favicon_url: '',
@@ -50,6 +51,7 @@ export default function SettingsManager() {
     footer_tagline: '',
     footer_text: '',
   });
+  const [colorTheme, setColorTheme] = useState('navy-gold');
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [saving, setSaving] = useState(false);
