@@ -6,7 +6,6 @@ export type SettingInsert = TablesInsert<'settings'>;
 export type SettingUpdate = TablesUpdate<'settings'>;
 
 export const settingsAPI = {
-  // Get all settings
   async getAllSettings() {
     const { data, error } = await supabase
       .from('settings')
@@ -17,7 +16,6 @@ export const settingsAPI = {
     return data;
   },
 
-  // Get setting by key
   async getSettingByKey(key: string) {
     const { data, error } = await supabase
       .from('settings')
@@ -29,7 +27,6 @@ export const settingsAPI = {
     return data;
   },
 
-  // Create or update setting
   async upsertSetting(setting: SettingInsert) {
     const { data, error } = await supabase
       .from('settings')
@@ -41,20 +38,6 @@ export const settingsAPI = {
     return data;
   },
 
-  // Update setting
-  async updateSetting(key: string, updates: SettingUpdate) {
-    const { data, error } = await supabase
-      .from('settings')
-      .update(updates)
-      .eq('key', key)
-      .select()
-      .single();
-    
-    if (error) throw error;
-    return data;
-  },
-
-  // Delete setting
   async deleteSetting(key: string) {
     const { error } = await supabase
       .from('settings')
