@@ -56,6 +56,7 @@ const App = () => (
             <Route path="settings" element={<SettingsManager />} />
             <Route path="activities" element={<ActivitiesManager />} />
             <Route path="experiences" element={<ExperiencesManager />} />
+            <Route path="education" element={<EducationManager />} />
             <Route path="blog" element={<BlogManager />} />
             <Route path="media" element={<MediaLibrary />} />
           </Route>

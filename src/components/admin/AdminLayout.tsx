@@ -15,6 +15,7 @@ const menuItems = [
   { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/admin/profile', icon: User, label: 'Hồ sơ' },
   { path: '/admin/experiences', icon: Briefcase, label: 'Kinh nghiệm' },
+  { path: '/admin/education', icon: GraduationCap, label: 'Học vấn' },
   { path: '/admin/projects', icon: FolderOpen, label: 'Dự án' },
   { path: '/admin/activities', icon: Activity, label: 'Hoạt động' },
   { path: '/admin/blog', icon: FileText, label: 'Blog' },
