@@ -4,21 +4,30 @@ import { usePostBySlug } from '@/hooks/useBlog';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Calendar } from 'lucide-react';
+import { ArrowLeft, Calendar, Clock, Share2 } from 'lucide-react';
 
 const BlogPost = () => {
   const { slug } = useParams<{ slug: string }>();
   const { language } = useLanguage();
   const { data: post, isLoading } = usePostBySlug(slug || '');
 
+  const readingTime = post ? Math.max(1, Math.ceil(post.content.split(/\s+/).length / 200)) : 0;
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-muted-foreground">
-            {language === 'en' ? 'Loading...' : 'Đang tải...'}
-          </p>
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-3xl mx-auto space-y-6 animate-pulse">
+            <div className="h-8 bg-muted rounded w-1/3" />
+            <div className="h-12 bg-muted rounded w-2/3" />
+            <div className="h-64 bg-muted rounded-xl" />
+            <div className="space-y-3">
+              <div className="h-4 bg-muted rounded w-full" />
+              <div className="h-4 bg-muted rounded w-5/6" />
+              <div className="h-4 bg-muted rounded w-4/6" />
+            </div>
+          </div>
         </div>
         <Footer />
       </div>
@@ -30,15 +39,20 @@ const BlogPost = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">
-            {language === 'en' ? 'Article Not Found' : 'Không tìm thấy bài viết'}
-          </h1>
-          <Button asChild>
-            <Link to="/blog">
-              <ArrowLeft className="mr-2" size={16} />
-              {language === 'en' ? 'Back to Blog' : 'Quay lại'}
-            </Link>
-          </Button>
+          <div className="max-w-md mx-auto">
+            <h1 className="font-serif text-3xl font-bold mb-4 text-foreground">
+              {language === 'en' ? 'Article Not Found' : 'Không tìm thấy bài viết'}
+            </h1>
+            <p className="text-muted-foreground mb-8">
+              {language === 'en' ? 'The article you\'re looking for doesn\'t exist or has been removed.' : 'Bài viết bạn tìm kiếm không tồn tại hoặc đã bị xóa.'}
+            </p>
+            <Button asChild>
+              <Link to="/blog">
+                <ArrowLeft className="mr-2" size={16} />
+                {language === 'en' ? 'Back to Blog' : 'Quay lại Blog'}
+              </Link>
+            </Button>
+          </div>
         </div>
         <Footer />
       </div>
@@ -49,45 +63,72 @@ const BlogPost = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <article className="container mx-auto px-4 py-12">
-        <div className="max-w-3xl mx-auto">
-          <Button variant="ghost" asChild className="mb-8">
-            <Link to="/blog">
-              <ArrowLeft className="mr-2" size={16} />
-              {language === 'en' ? 'Back to Blog' : 'Quay lại'}
-            </Link>
-          </Button>
+      <article>
+        {/* Hero */}
+        {post.image_url && (
+          <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
+            <img
+              src={post.image_url}
+              alt={post.title}
+              className="w-full h-full object-cover"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          </div>
+        )}
 
-          <div className="space-y-6 mb-12">
-            <h1 className="font-serif text-4xl md:text-5xl font-bold leading-tight">
-              {post.title}
-            </h1>
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl mx-auto">
+            {/* Back button */}
+            <div className={post.image_url ? '-mt-20 relative z-10' : 'pt-12'}>
+              <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground hover:text-foreground">
+                <Link to="/blog">
+                  <ArrowLeft className="mr-2" size={16} />
+                  {language === 'en' ? 'All Articles' : 'Tất cả bài viết'}
+                </Link>
+              </Button>
 
-            <div className="flex flex-wrap items-center gap-6 text-muted-foreground">
-              <div className="flex items-center gap-2">
-                <Calendar size={16} />
-                <span className="text-sm">
-                  {new Date(post.created_at).toLocaleDateString(
-                    language === 'en' ? 'en-US' : 'vi-VN',
-                    { year: 'numeric', month: 'long', day: 'numeric' }
-                  )}
-                </span>
+              {/* Title */}
+              <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight mb-6 text-foreground">
+                {post.title}
+              </h1>
+
+              {/* Meta */}
+              <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground mb-8 pb-8 border-b border-border">
+                <div className="flex items-center gap-1.5">
+                  <Calendar size={14} />
+                  <span>
+                    {new Date(post.created_at).toLocaleDateString(
+                      language === 'en' ? 'en-US' : 'vi-VN',
+                      { year: 'numeric', month: 'long', day: 'numeric' }
+                    )}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={14} />
+                  <span>{readingTime} {language === 'en' ? 'min read' : 'phút đọc'}</span>
+                </div>
+                <button
+                  onClick={() => navigator.clipboard.writeText(window.location.href)}
+                  className="flex items-center gap-1.5 hover:text-primary transition-colors ml-auto"
+                >
+                  <Share2 size={14} />
+                  <span>{language === 'en' ? 'Share' : 'Chia sẻ'}</span>
+                </button>
               </div>
             </div>
-          </div>
 
-          {post.image_url && (
-            <div className="mb-12">
-              <img
-                src={post.image_url}
-                alt={post.title}
-                className="w-full rounded-lg shadow-lg"
-              />
+            {/* Content */}
+            <div className="prose prose-lg max-w-none pb-16
+              prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground
+              prose-p:text-muted-foreground prose-p:leading-relaxed
+              prose-a:text-primary prose-a:no-underline hover:prose-a:underline
+              prose-img:rounded-xl prose-img:shadow-lg
+              prose-blockquote:border-l-secondary prose-blockquote:bg-muted/30 prose-blockquote:py-1 prose-blockquote:px-4 prose-blockquote:rounded-r-lg
+              prose-strong:text-foreground
+              prose-code:bg-muted prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:text-sm
+            ">
+              <div dangerouslySetInnerHTML={{ __html: post.content }} />
             </div>
-          )}
-
-          <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:font-bold prose-a:text-primary prose-img:rounded-lg">
-            <div dangerouslySetInnerHTML={{ __html: post.content }} />
           </div>
         </div>
       </article>
