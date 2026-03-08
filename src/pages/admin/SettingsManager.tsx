@@ -42,6 +42,12 @@ interface SocialLink {
   sort_order: number;
 }
 
+interface SavedTheme {
+  name: string;
+  colors: CustomColors;
+  createdAt: string;
+}
+
 export default function SettingsManager() {
   const queryClient = useQueryClient();
   const { theme: darkMode } = useTheme();
