@@ -350,9 +350,112 @@ export const getThemeById = (id: string): ColorTheme => {
   return COLOR_THEMES.find(t => t.id === id) || COLOR_THEMES[0];
 };
 
-export const applyColorTheme = (themeId: string, isDark: boolean) => {
-  const theme = getThemeById(themeId);
-  const vars = isDark ? { ...theme.light, ...theme.dark } : theme.light;
+// --- Hex to HSL conversion utilities ---
+function hexToHsl(hex: string): [number, number, number] {
+  hex = hex.replace('#', '');
+  const r = parseInt(hex.substring(0, 2), 16) / 255;
+  const g = parseInt(hex.substring(2, 4), 16) / 255;
+  const b = parseInt(hex.substring(4, 6), 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0;
+  const l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return [Math.round(h * 360), Math.round(s * 100), Math.round(l * 100)];
+}
+
+function hsl(h: number, s: number, l: number): string {
+  return `${h} ${s}% ${l}%`;
+}
+
+function clamp(v: number, min: number, max: number) {
+  return Math.max(min, Math.min(max, v));
+}
+
+export interface CustomColors {
+  primary: string;
+  secondary: string;
+  accent: string;
+  bg: string;
+}
+
+export function generateCustomTheme(colors: CustomColors): { light: Record<string, string>; dark: Record<string, string> } {
+  const [ph, ps, pl] = hexToHsl(colors.primary);
+  const [sh, ss, sl] = hexToHsl(colors.secondary);
+  const [ah, as, al] = hexToHsl(colors.accent);
+  const [bh, bs, bl] = hexToHsl(colors.bg);
+
+  const light: Record<string, string> = {
+    '--background': hsl(bh, bs, clamp(bl, 95, 100)),
+    '--foreground': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--navy-dark': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--navy-main': hsl(ph, clamp(ps, 25, 70), clamp(pl + 10, 20, 30)),
+    '--navy-light': hsl(ph, clamp(ps, 20, 55), clamp(pl + 25, 35, 45)),
+    '--navy-accent': hsl(ph, clamp(ps, 15, 45), clamp(pl + 40, 50, 60)),
+    '--gold-dark': hsl(ah, clamp(as, 80, 95), clamp(al - 10, 38, 48)),
+    '--gold-main': hsl(ah, clamp(as, 85, 98), clamp(al, 48, 58)),
+    '--gold-light': hsl(ah, clamp(as, 88, 98), clamp(al + 15, 65, 75)),
+    '--gold-accent': hsl(ah, clamp(as, 90, 100), clamp(al + 30, 82, 90)),
+    '--primary': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--primary-foreground': hsl(bh, bs, clamp(bl, 95, 100)),
+    '--secondary': hsl(sh, clamp(ss, 50, 95), clamp(sl, 40, 60)),
+    '--secondary-foreground': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--accent': hsl(ah, clamp(as, 80, 98), clamp(al, 45, 58)),
+    '--accent-foreground': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--muted': hsl(ph, clamp(ps - 25, 10, 25), 95),
+    '--muted-foreground': hsl(ph, clamp(ps - 30, 8, 15), 40),
+    '--card': hsl(bh, clamp(bs, 0, 50), clamp(bl, 98, 100)),
+    '--card-foreground': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--popover': hsl(bh, clamp(bs, 0, 50), clamp(bl, 98, 100)),
+    '--popover-foreground': hsl(ph, clamp(ps, 30, 80), clamp(pl, 10, 20)),
+    '--border': hsl(ph, clamp(ps - 25, 10, 20), 90),
+    '--input': hsl(ph, clamp(ps - 25, 10, 20), 90),
+    '--ring': hsl(sh, clamp(ss, 50, 95), clamp(sl, 40, 60)),
+    '--destructive': '0 84.2% 60.2%',
+    '--destructive-foreground': '0 0% 100%',
+  };
+
+  const dark: Record<string, string> = {
+    '--background': hsl(ph, clamp(ps, 30, 70), clamp(pl - 5, 5, 12)),
+    '--foreground': hsl(bh, clamp(bs, 0, 30), 95),
+    '--primary': hsl(sh, clamp(ss, 50, 95), clamp(sl, 45, 60)),
+    '--primary-foreground': hsl(ph, clamp(ps, 30, 70), clamp(pl - 5, 5, 12)),
+    '--secondary': hsl(ph, clamp(ps, 25, 55), clamp(pl + 5, 15, 25)),
+    '--secondary-foreground': hsl(bh, clamp(bs, 0, 30), 95),
+    '--accent': hsl(ah, clamp(as, 80, 98), clamp(al, 45, 58)),
+    '--accent-foreground': hsl(ph, clamp(ps, 30, 70), clamp(pl - 5, 5, 12)),
+    '--muted': hsl(ph, clamp(ps, 25, 55), clamp(pl, 12, 18)),
+    '--muted-foreground': hsl(ph, clamp(ps - 25, 10, 20), 55),
+    '--card': hsl(ph, clamp(ps, 28, 60), clamp(pl, 10, 16)),
+    '--card-foreground': hsl(bh, clamp(bs, 0, 30), 95),
+    '--popover': hsl(ph, clamp(ps, 28, 60), clamp(pl, 10, 16)),
+    '--popover-foreground': hsl(bh, clamp(bs, 0, 30), 95),
+    '--border': hsl(ph, clamp(ps, 20, 45), clamp(pl + 10, 20, 30)),
+    '--input': hsl(ph, clamp(ps, 20, 45), clamp(pl + 10, 20, 30)),
+    '--ring': hsl(sh, clamp(ss, 50, 95), clamp(sl, 45, 60)),
+    '--destructive': '0 62.8% 30.6%',
+    '--destructive-foreground': '0 0% 100%',
+  };
+
+  return { light, dark };
+}
+
+export const applyColorTheme = (themeId: string, isDark: boolean, customColors?: CustomColors) => {
+  let vars: Record<string, string>;
+  if (themeId === 'custom' && customColors) {
+    const custom = generateCustomTheme(customColors);
+    vars = isDark ? { ...custom.light, ...custom.dark } : custom.light;
+  } else {
+    const theme = getThemeById(themeId);
+    vars = isDark ? { ...theme.light, ...theme.dark } : theme.light;
+  }
   const root = document.documentElement;
   Object.entries(vars).forEach(([key, value]) => {
     root.style.setProperty(key, value);

@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { COLOR_THEMES, applyColorTheme } from '@/lib/colorThemes';
+import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
