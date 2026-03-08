@@ -7,7 +7,7 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
