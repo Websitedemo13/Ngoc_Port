@@ -11,6 +11,7 @@ import { Save, Eye, EyeOff } from 'lucide-react';
 const PAGE_KEYS = [
   { key: 'page_about', label: 'Giới thiệu (About)', path: '/about' },
   { key: 'page_experience', label: 'Kinh nghiệm (Experience)', path: '/experience' },
+  { key: 'page_education', label: 'Học vấn (Education)', path: '/education' },
   { key: 'page_projects', label: 'Dự án (Projects)', path: '/projects' },
   { key: 'page_activities', label: 'Hoạt động (Activities)', path: '/activities' },
   { key: 'page_blog', label: 'Blog', path: '/blog' },
