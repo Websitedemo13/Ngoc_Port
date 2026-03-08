@@ -112,6 +112,11 @@ export default function SettingsManager() {
         const { error } = await supabase.from('settings').upsert({ key, value }, { onConflict: 'key' });
         if (error) throw error;
       }
+      // Save color theme
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'color_theme', value: colorTheme }, { onConflict: 'key' });
+        if (error) throw error;
+      }
       // Save page visibility
       for (const [key, visible] of Object.entries(pageVisibility)) {
         const value = visible ? 'visible' : 'hidden';
