@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { useAllProjects, useCreateProject, useUpdateProject, useDeleteProject, useToggleProjectFeatured } from '@/hooks/useProjects';
 import { Button } from '@/components/ui/button';
@@ -9,13 +8,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Loader2, Plus, Pencil, Trash2, ArrowLeft, X } from 'lucide-react';
+import { Loader2, Plus, Pencil, Trash2, X } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
 import type { Project, ProjectInsert, ProjectUpdate } from '@/lib/supabase/projects';
 
 export default function ProjectsManager() {
-  const navigate = useNavigate();
   const { data: projects, isLoading } = useAllProjects();
   const createProject = useCreateProject();
   const updateProject = useUpdateProject();
@@ -25,35 +23,19 @@ export default function ProjectsManager() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [formData, setFormData] = useState({
-    title: '',
-    slug: '',
-    description: '',
-    category: '',
-    full_description: '',
-    challenge: '',
-    solution: '',
-    image_url: '',
-    link: '',
-    technologies: [] as string[],
-    featured: false,
-    sort_order: 0,
+    title: '', slug: '', description: '', category: '', full_description: '', challenge: '', solution: '',
+    image_url: '', link: '', technologies: [] as string[], featured: false, sort_order: 0,
   });
   const [techInput, setTechInput] = useState('');
 
   useEffect(() => {
     if (editingProject) {
       setFormData({
-        title: editingProject.title,
-        slug: editingProject.slug || '',
-        description: editingProject.description,
-        category: editingProject.category,
-        full_description: editingProject.full_description || '',
-        challenge: editingProject.challenge || '',
-        solution: editingProject.solution || '',
-        image_url: editingProject.image_url || '',
-        link: editingProject.link || '',
-        technologies: editingProject.technologies || [],
-        featured: editingProject.featured || false,
+        title: editingProject.title, slug: editingProject.slug || '', description: editingProject.description,
+        category: editingProject.category, full_description: editingProject.full_description || '',
+        challenge: editingProject.challenge || '', solution: editingProject.solution || '',
+        image_url: editingProject.image_url || '', link: editingProject.link || '',
+        technologies: editingProject.technologies || [], featured: editingProject.featured || false,
         sort_order: editingProject.sort_order || 0,
       });
     } else {
@@ -100,76 +82,74 @@ export default function ProjectsManager() {
   };
 
   if (isLoading) {
-    return <div className="min-h-screen bg-background flex items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
+    return <div className="flex items-center justify-center py-20"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>;
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b border-border bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/admin/dashboard')}><ArrowLeft className="h-5 w-5" /></Button>
-            <h1 className="font-display text-2xl font-bold text-foreground">Quản lý dự án</h1>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingProject(null); resetForm(); } }}>
-            <DialogTrigger asChild>
-              <Button><Plus className="h-4 w-4 mr-2" /> Thêm dự án</Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-              <DialogHeader><DialogTitle>{editingProject ? 'Sửa dự án' : 'Thêm dự án'}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required /></div>
-                  <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} /></div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div><Label>Danh mục *</Label><Input value={formData.category} onChange={(e) => setFormData(p => ({ ...p, category: e.target.value }))} required /></div>
-                  <div><Label>Link</Label><Input value={formData.link} onChange={(e) => setFormData(p => ({ ...p, link: e.target.value }))} /></div>
-                </div>
-                <div><Label>Mô tả ngắn *</Label><Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} required /></div>
-                <div><Label>Mô tả chi tiết</Label>
-                  <RichTextEditor content={formData.full_description} onChange={(html) => setFormData(p => ({ ...p, full_description: html }))} placeholder="Mô tả chi tiết về dự án..." />
-                </div>
-                <div><Label>Thách thức</Label>
-                  <RichTextEditor content={formData.challenge} onChange={(html) => setFormData(p => ({ ...p, challenge: html }))} placeholder="Thách thức gặp phải..." />
-                </div>
-                <div><Label>Giải pháp</Label>
-                  <RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} placeholder="Giải pháp đã áp dụng..." />
-                </div>
-                <MediaUpload label="Ảnh dự án" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
-                <div>
-                  <Label>Công nghệ</Label>
-                  <div className="flex gap-2 mb-2">
-                    <Input value={techInput} onChange={(e) => setTechInput(e.target.value)} placeholder="React, Node.js..." onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())} />
-                    <Button type="button" onClick={addTech}><Plus className="h-4 w-4" /></Button>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {formData.technologies.map((tech, i) => (
-                      <div key={i} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
-                        <span>{tech}</span>
-                        <button type="button" onClick={() => setFormData(p => ({ ...p, technologies: p.technologies.filter((_, j) => j !== i) }))}><X className="h-3 w-3" /></button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex gap-6">
-                  <div className="flex items-center space-x-2">
-                    <Switch checked={formData.featured} onCheckedChange={(checked) => setFormData(p => ({ ...p, featured: checked }))} />
-                    <Label>Nổi bật</Label>
-                  </div>
-                  <div><Label>Thứ tự</Label><Input type="number" value={formData.sort_order} onChange={(e) => setFormData(p => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))} className="w-24" /></div>
-                </div>
-                <div className="flex justify-end gap-2">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
-                  <Button type="submit">{editingProject ? 'Cập nhật' : 'Tạo mới'}</Button>
-                </div>
-              </form>
-            </DialogContent>
-          </Dialog>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground">Quản lý dự án</h1>
+          <p className="text-sm text-muted-foreground">Thêm và chỉnh sửa các dự án portfolio</p>
         </div>
-      </header>
+        <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingProject(null); resetForm(); } }}>
+          <DialogTrigger asChild>
+            <Button><Plus className="h-4 w-4 mr-2" /> Thêm dự án</Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader><DialogTitle>{editingProject ? 'Sửa dự án' : 'Thêm dự án'}</DialogTitle></DialogHeader>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required /></div>
+                <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label>Danh mục *</Label><Input value={formData.category} onChange={(e) => setFormData(p => ({ ...p, category: e.target.value }))} required /></div>
+                <div><Label>Link</Label><Input value={formData.link} onChange={(e) => setFormData(p => ({ ...p, link: e.target.value }))} /></div>
+              </div>
+              <div><Label>Mô tả ngắn *</Label><Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} required /></div>
+              <div><Label>Mô tả chi tiết</Label>
+                <RichTextEditor content={formData.full_description} onChange={(html) => setFormData(p => ({ ...p, full_description: html }))} placeholder="Mô tả chi tiết về dự án..." />
+              </div>
+              <div><Label>Thách thức</Label>
+                <RichTextEditor content={formData.challenge} onChange={(html) => setFormData(p => ({ ...p, challenge: html }))} placeholder="Thách thức gặp phải..." />
+              </div>
+              <div><Label>Giải pháp</Label>
+                <RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} placeholder="Giải pháp đã áp dụng..." />
+              </div>
+              <MediaUpload label="Ảnh dự án" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
+              <div>
+                <Label>Công nghệ</Label>
+                <div className="flex gap-2 mb-2">
+                  <Input value={techInput} onChange={(e) => setTechInput(e.target.value)} placeholder="React, Node.js..." onKeyDown={(e) => e.key === 'Enter' && (e.preventDefault(), addTech())} />
+                  <Button type="button" onClick={addTech}><Plus className="h-4 w-4" /></Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.technologies.map((tech, i) => (
+                    <div key={i} className="flex items-center gap-1 bg-primary/10 text-primary px-3 py-1 rounded-full text-sm">
+                      <span>{tech}</span>
+                      <button type="button" onClick={() => setFormData(p => ({ ...p, technologies: p.technologies.filter((_, j) => j !== i) }))}><X className="h-3 w-3" /></button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="flex gap-6">
+                <div className="flex items-center space-x-2">
+                  <Switch checked={formData.featured} onCheckedChange={(checked) => setFormData(p => ({ ...p, featured: checked }))} />
+                  <Label>Nổi bật</Label>
+                </div>
+                <div><Label>Thứ tự</Label><Input type="number" value={formData.sort_order} onChange={(e) => setFormData(p => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))} className="w-24" /></div>
+              </div>
+              <div className="flex justify-end gap-2">
+                <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
+                <Button type="submit">{editingProject ? 'Cập nhật' : 'Tạo mới'}</Button>
+              </div>
+            </form>
+          </DialogContent>
+        </Dialog>
+      </div>
 
-      <main className="container mx-auto px-4 py-8">
+      <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -197,7 +177,7 @@ export default function ProjectsManager() {
             ))}
           </TableBody>
         </Table>
-      </main>
+      </div>
     </div>
   );
 }
