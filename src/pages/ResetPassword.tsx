@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Lock, KeyRound, CheckCircle2, Eye, EyeOff, ShieldCheck } from 'lucide-react';
+import { Lock, KeyRound, CheckCircle2, Eye, EyeOff, ShieldCheck, Loader2, AlertTriangle } from 'lucide-react';
 
 export default function ResetPassword() {
   const [password, setPassword] = useState('');
@@ -14,24 +14,42 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
-  const [isRecovery, setIsRecovery] = useState(false);
+  const [sessionReady, setSessionReady] = useState(false);
+  const [sessionError, setSessionError] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Listen for password recovery event
+    let timeoutId: ReturnType<typeof setTimeout>;
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
-        setIsRecovery(true);
+        setSessionReady(true);
+        clearTimeout(timeoutId);
       }
     });
 
-    // Check URL hash for recovery type
-    const hash = window.location.hash;
-    if (hash.includes('type=recovery')) {
-      setIsRecovery(true);
-    }
+    // Fallback: check session after 3s
+    timeoutId = setTimeout(async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        setSessionReady(true);
+      } else {
+        setSessionError(true);
+      }
+    }, 3000);
 
-    return () => subscription.unsubscribe();
+    // Immediate check for existing session (e.g. page refresh)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        setSessionReady(true);
+        clearTimeout(timeoutId);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const passwordStrength = (pwd: string) => {
@@ -66,6 +84,13 @@ export default function ResetPassword() {
       return;
     }
 
+    // Double-check session
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error('Phiên đăng nhập không hợp lệ. Vui lòng yêu cầu link đổi mật khẩu mới.');
+      return;
+    }
+
     setLoading(true);
     try {
       const { error } = await supabase.auth.updateUser({ password });
@@ -81,9 +106,52 @@ export default function ResetPassword() {
     }
   };
 
+  // Loading state
+  if (!sessionReady && !sessionError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--navy-main))] to-[hsl(var(--navy-light))] flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-8 text-center space-y-6">
+            <Loader2 className="w-12 h-12 animate-spin text-[hsl(var(--gold-main))] mx-auto" />
+            <div className="space-y-2">
+              <h1 className="font-display text-xl font-bold text-foreground">Đang xác thực...</h1>
+              <p className="text-muted-foreground text-sm">Vui lòng đợi trong giây lát</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Error / expired state
+  if (sessionError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--navy-main))] to-[hsl(var(--navy-light))] flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="bg-card/95 backdrop-blur-xl border border-border/50 rounded-2xl shadow-2xl p-8 text-center space-y-6">
+            <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center">
+              <AlertTriangle className="w-8 h-8 text-destructive" />
+            </div>
+            <div className="space-y-2">
+              <h1 className="font-display text-xl font-bold text-foreground">Link đã hết hạn</h1>
+              <p className="text-muted-foreground text-sm">
+                Link đặt lại mật khẩu không hợp lệ hoặc đã hết hạn. Vui lòng yêu cầu link mới.
+              </p>
+            </div>
+            <Button
+              onClick={() => navigate('/admin')}
+              className="rounded-xl bg-gradient-to-r from-[hsl(var(--gold-dark))] to-[hsl(var(--gold-main))] text-[hsl(var(--navy-dark))] font-semibold"
+            >
+              Quay lại đăng nhập
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-[hsl(var(--navy-dark))] via-[hsl(var(--navy-main))] to-[hsl(var(--navy-light))] flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-96 h-96 rounded-full bg-[hsl(var(--gold-main)/0.08)] blur-3xl" />
         <div className="absolute -bottom-40 -left-40 w-96 h-96 rounded-full bg-[hsl(var(--gold-main)/0.05)] blur-3xl" />
@@ -97,12 +165,8 @@ export default function ResetPassword() {
                 <CheckCircle2 className="w-10 h-10 text-green-600" />
               </div>
               <div className="space-y-2">
-                <h1 className="font-display text-2xl font-bold text-foreground">
-                  Đổi mật khẩu thành công!
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  Bạn sẽ được chuyển hướng đến trang đăng nhập...
-                </p>
+                <h1 className="font-display text-2xl font-bold text-foreground">Đổi mật khẩu thành công!</h1>
+                <p className="text-muted-foreground text-sm">Bạn sẽ được chuyển hướng đến trang đăng nhập...</p>
               </div>
               <Button
                 onClick={() => navigate('/admin')}
@@ -117,12 +181,8 @@ export default function ResetPassword() {
                 <div className="mx-auto w-16 h-16 rounded-2xl bg-gradient-to-br from-[hsl(var(--gold-dark))] to-[hsl(var(--gold-light))] flex items-center justify-center shadow-lg">
                   <ShieldCheck className="w-8 h-8 text-[hsl(var(--navy-dark))]" />
                 </div>
-                <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">
-                  Đặt lại mật khẩu
-                </h1>
-                <p className="text-muted-foreground text-sm">
-                  Nhập mật khẩu mới cho tài khoản của bạn
-                </p>
+                <h1 className="font-display text-2xl font-bold text-foreground tracking-tight">Đặt lại mật khẩu</h1>
+                <p className="text-muted-foreground text-sm">Nhập mật khẩu mới cho tài khoản của bạn</p>
               </div>
 
               <form onSubmit={handleResetPassword} className="space-y-5">
@@ -140,31 +200,18 @@ export default function ResetPassword() {
                       disabled={loading}
                       className="pl-10 pr-10 h-12 rounded-xl border-border/60 bg-muted/30 focus:bg-background transition-colors"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
-
-                  {/* Password strength indicator */}
                   {password && (
                     <div className="space-y-1.5 pt-1">
                       <div className="flex gap-1">
                         {[0, 1, 2, 3].map((i) => (
-                          <div
-                            key={i}
-                            className={`h-1.5 flex-1 rounded-full transition-colors ${
-                              i < strength ? strengthColors[strength] : 'bg-border'
-                            }`}
-                          />
+                          <div key={i} className={`h-1.5 flex-1 rounded-full transition-colors ${i < strength ? strengthColors[strength] : 'bg-border'}`} />
                         ))}
                       </div>
-                      <p className="text-xs text-muted-foreground">
-                        Độ mạnh: <span className="font-medium">{strengthLabels[strength]}</span>
-                      </p>
+                      <p className="text-xs text-muted-foreground">Độ mạnh: <span className="font-medium">{strengthLabels[strength]}</span></p>
                     </div>
                   )}
                 </div>
@@ -183,11 +230,7 @@ export default function ResetPassword() {
                       disabled={loading}
                       className="pl-10 pr-10 h-12 rounded-xl border-border/60 bg-muted/30 focus:bg-background transition-colors"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowConfirm(!showConfirm)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                    >
+                    <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
                       {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
                   </div>
@@ -211,10 +254,7 @@ export default function ResetPassword() {
               </form>
 
               <div className="text-center">
-                <a
-                  href="/admin"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                >
+                <a href="/admin" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
                   Quay lại đăng nhập
                 </a>
               </div>
