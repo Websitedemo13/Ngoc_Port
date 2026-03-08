@@ -81,6 +81,7 @@ export default function SettingsManager() {
         footer_tagline: map.footer_tagline || '',
         footer_text: map.footer_text || '',
       });
+      setColorTheme(map.color_theme || 'navy-gold');
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
       setPageVisibility(vis);
