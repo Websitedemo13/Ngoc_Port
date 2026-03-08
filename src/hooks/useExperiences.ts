@@ -4,8 +4,8 @@ import { toast } from 'sonner';
 
 export const usePublishedExperiences = () => {
   return useQuery({
-    queryKey: ['experiences', 'published'],
-    queryFn: () => experiencesAPI.getPublishedExperiences(),
+    queryKey: ['experiences', 'all'],
+    queryFn: () => experiencesAPI.getAllExperiences(),
   });
 };
 
@@ -66,22 +66,6 @@ export const useDeleteExperience = () => {
     },
     onError: (error: Error) => {
       toast.error(`Failed to delete experience: ${error.message}`);
-    },
-  });
-};
-
-export const useToggleExperiencePublished = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: ({ id, published }: { id: string; published: boolean }) =>
-      experiencesAPI.togglePublished(id, published),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['experiences'] });
-      toast.success('Experience status updated');
-    },
-    onError: (error: Error) => {
-      toast.error(`Failed to update status: ${error.message}`);
     },
   });
 };
