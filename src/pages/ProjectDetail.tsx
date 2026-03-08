@@ -5,6 +5,7 @@ import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
 
 const ProjectDetail = () => {
@@ -16,10 +17,12 @@ const ProjectDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Navigation />
-        <div className="container mx-auto px-4 py-20 text-center">
-          <p className="text-muted-foreground">
-            {language === 'en' ? 'Loading...' : 'Đang tải...'}
-          </p>
+        <div className="container mx-auto px-4 py-20">
+          <div className="max-w-4xl mx-auto space-y-6 animate-pulse">
+            <div className="h-8 bg-muted rounded w-1/4" />
+            <div className="h-12 bg-muted rounded w-2/3" />
+            <div className="h-80 bg-muted rounded-2xl" />
+          </div>
         </div>
         <Footer />
       </div>
@@ -31,7 +34,7 @@ const ProjectDetail = () => {
       <div className="min-h-screen bg-background">
         <Navigation />
         <div className="container mx-auto px-4 py-20 text-center">
-          <h1 className="text-2xl font-bold mb-4">
+          <h1 className="font-serif text-3xl font-bold mb-4">
             {language === 'en' ? 'Project Not Found' : 'Không tìm thấy dự án'}
           </h1>
           <Button asChild>
@@ -50,33 +53,39 @@ const ProjectDetail = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <section className="container mx-auto px-4 py-12">
-        <div className="max-w-4xl mx-auto">
-          <Button variant="ghost" asChild className="mb-8">
-            <Link to="/projects">
-              <ArrowLeft className="mr-2" size={16} />
-              {language === 'en' ? 'Back to Projects' : 'Quay lại'}
-            </Link>
-          </Button>
+      {/* Hero Image */}
+      {project.image_url && (
+        <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden">
+          <img src={project.image_url} alt={project.title} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/30 to-transparent" />
+        </div>
+      )}
 
-          <div className="space-y-6">
-            {project.technologies && project.technologies.length > 0 && (
+      <section className="container mx-auto px-4">
+        <div className="max-w-4xl mx-auto">
+          <div className={project.image_url ? '-mt-24 relative z-10' : 'pt-12'}>
+            <Button variant="ghost" size="sm" asChild className="mb-6 text-muted-foreground hover:text-foreground">
+              <Link to="/projects">
+                <ArrowLeft className="mr-2" size={16} />
+                {language === 'en' ? 'All Projects' : 'Tất cả dự án'}
+              </Link>
+            </Button>
+
+            <div className="space-y-4">
               <div className="flex flex-wrap gap-2">
-                {project.technologies.map((tech, i) => (
-                  <Badge key={i} variant="secondary">{tech}</Badge>
+                <Badge variant="outline" className="border-secondary/30 text-secondary">{project.category}</Badge>
+                {project.technologies?.map((tech, i) => (
+                  <Badge key={i} className="bg-muted text-muted-foreground border-0 text-xs">{tech}</Badge>
                 ))}
               </div>
-            )}
 
-            <h1 className="font-serif text-4xl md:text-5xl font-bold">{project.title}</h1>
+              <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight">{project.title}</h1>
 
-            <div className="flex flex-wrap gap-6 text-muted-foreground">
-              <Badge variant="outline">{project.category}</Badge>
               {project.link && (
                 <a href={project.link} target="_blank" rel="noopener noreferrer"
-                  className="flex items-center gap-2 hover:text-primary transition-colors">
-                  <ExternalLink size={16} />
-                  <span>{language === 'en' ? 'Visit Project' : 'Truy cập dự án'}</span>
+                  className="inline-flex items-center gap-2 text-sm text-secondary hover:underline font-medium">
+                  <ExternalLink size={14} />
+                  {language === 'en' ? 'Visit Live Project' : 'Truy cập dự án'}
                 </a>
               )}
             </div>
@@ -84,27 +93,19 @@ const ProjectDetail = () => {
         </div>
       </section>
 
-      {project.image_url && (
-        <section className="container mx-auto px-4 py-8">
-          <div className="max-w-4xl mx-auto">
-            <img src={project.image_url} alt={project.title} className="w-full rounded-lg shadow-lg" />
-          </div>
-        </section>
-      )}
-
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto space-y-12">
-          <div>
-            <p className="text-lg text-muted-foreground leading-relaxed">{project.description}</p>
-          </div>
+      <section className="container mx-auto px-4 py-12 md:py-16">
+        <div className="max-w-4xl mx-auto space-y-10">
+          <p className="text-lg text-muted-foreground leading-relaxed">{project.description}</p>
 
           {project.challenge && (
-            <div className="bg-muted/30 p-8 rounded-lg">
-              <h2 className="font-serif text-2xl font-bold mb-4">
-                {language === 'en' ? 'The Challenge' : 'Thách thức'}
-              </h2>
-              <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{project.challenge}</p>
-            </div>
+            <Card className="border-0 bg-muted/40 shadow-sm">
+              <CardContent className="p-8">
+                <h2 className="font-serif text-2xl font-bold mb-4 text-foreground">
+                  {language === 'en' ? 'The Challenge' : 'Thách thức'}
+                </h2>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{project.challenge}</p>
+              </CardContent>
+            </Card>
           )}
 
           {project.solution && (
@@ -117,7 +118,7 @@ const ProjectDetail = () => {
           )}
 
           {project.full_description && (
-            <div className="prose prose-lg max-w-none">
+            <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary">
               <div dangerouslySetInnerHTML={{ __html: project.full_description }} />
             </div>
           )}
