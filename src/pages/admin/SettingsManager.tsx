@@ -7,7 +7,8 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor } from 'lucide-react';
+import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { useTheme } from '@/lib/theme';
@@ -402,6 +403,20 @@ export default function SettingsManager() {
               </div>
             </div>
           )}
+
+          {/* Mini Website Preview */}
+          <div className="mt-6 space-y-3">
+            <div className="flex items-center gap-2">
+              <Monitor className="h-4 w-4 text-primary" />
+              <p className="text-sm font-medium text-foreground">Xem trước giao diện</p>
+            </div>
+            <div className="max-w-md mx-auto">
+              <ThemePreview
+                themeId={colorTheme}
+                customColors={colorTheme === 'custom' ? customColors : undefined}
+              />
+            </div>
+          </div>
         </div>
 
         {/* Social Links */}
