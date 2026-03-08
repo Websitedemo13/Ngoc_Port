@@ -11,7 +11,7 @@ export interface MediaItem {
   created_at: string;
 }
 
-export type MediaItemInsert = Omit<MediaItem, 'id' | 'created_at'>;
+export type MediaItemInsert = Omit<MediaItem, 'id' | 'created_at'> & { alt_text_en?: string | null; alt_text_vi?: string | null };
 
 export const mediaAPI = {
   async getAllMedia(): Promise<MediaItem[]> {
