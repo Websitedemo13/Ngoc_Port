@@ -21,6 +21,7 @@ import ProjectsManager from "./pages/admin/ProjectsManager";
 import SettingsManager from "./pages/admin/SettingsManager";
 import ActivitiesManager from "./pages/admin/ActivitiesManager";
 import ExperiencesManager from "./pages/admin/ExperiencesManager";
+import EducationManager from "./pages/admin/EducationManager";
 import BlogManager from "./pages/admin/BlogManager";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -55,6 +56,7 @@ const App = () => (
             <Route path="settings" element={<SettingsManager />} />
             <Route path="activities" element={<ActivitiesManager />} />
             <Route path="experiences" element={<ExperiencesManager />} />
+            <Route path="education" element={<EducationManager />} />
             <Route path="blog" element={<BlogManager />} />
             <Route path="media" element={<MediaLibrary />} />
           </Route>

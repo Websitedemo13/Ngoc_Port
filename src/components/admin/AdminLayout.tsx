@@ -6,7 +6,7 @@ import { toast } from 'sonner';
 import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
-  Image, Settings, LogOut, LayoutDashboard,
+  Image, Settings, LogOut, LayoutDashboard, GraduationCap,
   Sun, Moon, Menu, X, ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,7 @@ const menuItems = [
   { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { path: '/admin/profile', icon: User, label: 'Hồ sơ' },
   { path: '/admin/experiences', icon: Briefcase, label: 'Kinh nghiệm' },
+  { path: '/admin/education', icon: GraduationCap, label: 'Học vấn' },
   { path: '/admin/projects', icon: FolderOpen, label: 'Dự án' },
   { path: '/admin/activities', icon: Activity, label: 'Hoạt động' },
   { path: '/admin/blog', icon: FileText, label: 'Blog' },
