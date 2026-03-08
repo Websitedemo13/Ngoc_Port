@@ -3,13 +3,26 @@ import { Linkedin, Github, Twitter, Mail, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
 import { useProfile } from '@/hooks/useProfile';
 import { useSetting } from '@/hooks/useSettings';
+import { usePageVisibility } from '@/hooks/usePageVisibility';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+
+const allQuickLinks = [
+  { path: '/about', label: { en: 'About', vi: 'Giới thiệu' } },
+  { path: '/experience', label: { en: 'Experience', vi: 'Kinh nghiệm' } },
+  { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
+  { path: '/activities', label: { en: 'Activities', vi: 'Hoạt động' } },
+  { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
+  { path: '/contact', label: { en: 'Contact', vi: 'Liên hệ' } },
+];
 
 const Footer = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
   const { data: footerTagline } = useSetting('footer_tagline');
+  const { data: hiddenPages } = usePageVisibility();
+
+  const quickLinks = allQuickLinks.filter(item => !hiddenPages?.has(item.path));
 
   const { data: socialLinks } = useQuery({
     queryKey: ['social_links'],
@@ -33,14 +46,6 @@ const Footer = () => {
     return socialLinks?.find(l => l.provider.toLowerCase() === provider.toLowerCase())?.url;
   };
 
-  const quickLinks = [
-    { path: '/about', label: { en: 'About', vi: 'Giới thiệu' } },
-    { path: '/experience', label: { en: 'Experience', vi: 'Kinh nghiệm' } },
-    { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
-    { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
-    { path: '/contact', label: { en: 'Contact', vi: 'Liên hệ' } },
-  ];
-
   return (
     <footer className="bg-navy-gradient text-primary-foreground">
       <div className="container mx-auto px-4 py-16">
@@ -53,7 +58,6 @@ const Footer = () => {
             <p className="text-sm opacity-70 max-w-sm leading-relaxed">
               {footerTagline?.value || profile?.quote || ''}
             </p>
-            {/* Social */}
             <div className="flex gap-3 mt-6">
               {getSocialUrl('linkedin') && (
                 <a href={getSocialUrl('linkedin')} target="_blank" rel="noopener noreferrer"
@@ -112,7 +116,6 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* Bottom */}
         <div className="border-t border-primary-foreground/10 mt-12 pt-8 text-center text-xs opacity-50">
           <p>&copy; {new Date().getFullYear()} {profile?.name || 'Portfolio'}. {language === 'en' ? 'All rights reserved.' : 'Bảo lưu mọi quyền.'}</p>
         </div>

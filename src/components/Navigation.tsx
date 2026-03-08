@@ -4,22 +4,28 @@ import { Menu, X, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
 import { useTheme } from '@/lib/theme';
+import { usePageVisibility } from '@/hooks/usePageVisibility';
+
+const allNavItems = [
+  { path: '/', label: { en: 'Home', vi: 'Trang chủ' } },
+  { path: '/about', label: { en: 'About', vi: 'Giới thiệu' } },
+  { path: '/experience', label: { en: 'Experience', vi: 'Kinh nghiệm' } },
+  { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
+  { path: '/activities', label: { en: 'Activities', vi: 'Hoạt động' } },
+  { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
+  { path: '/contact', label: { en: 'Contact', vi: 'Liên hệ' } },
+];
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { language, setLanguage } = useLanguage();
   const { theme, toggleTheme } = useTheme();
+  const { data: hiddenPages } = usePageVisibility();
 
-  const navItems = [
-    { path: '/', label: { en: 'Home', vi: 'Trang chủ' } },
-    { path: '/about', label: { en: 'About', vi: 'Giới thiệu' } },
-    { path: '/experience', label: { en: 'Experience', vi: 'Kinh nghiệm' } },
-    { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
-    { path: '/activities', label: { en: 'Activities', vi: 'Hoạt động' } },
-    { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
-    { path: '/contact', label: { en: 'Contact', vi: 'Liên hệ' } },
-  ];
+  const navItems = allNavItems.filter(item =>
+    item.path === '/' || !hiddenPages?.has(item.path)
+  );
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -46,12 +52,9 @@ const Navigation = () => {
             ))}
 
             <div className="flex items-center gap-1 border-l border-border pl-4">
-              {/* Theme toggle */}
               <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
                 {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </Button>
-
-              {/* Language */}
               <Button variant={language === 'en' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('en')}>EN</Button>
               <Button variant={language === 'vi' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('vi')}>VI</Button>
             </div>
