@@ -67,7 +67,11 @@ export default function AdminDashboard() {
               </Link>
             ))}
           </nav>
-          <div className="p-4 border-t border-primary-foreground/10">
+          <div className="p-4 border-t border-primary-foreground/10 space-y-1">
+            <button onClick={toggleTheme} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-primary-foreground/10 transition-colors w-full text-left opacity-70 hover:opacity-100">
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+              <span>{theme === 'light' ? 'Dark Mode' : 'Light Mode'}</span>
+            </button>
             <button onClick={handleLogout} className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm hover:bg-primary-foreground/10 transition-colors w-full text-left opacity-70 hover:opacity-100">
               <LogOut size={18} />
               <span>Đăng xuất</span>
