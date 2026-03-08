@@ -7,10 +7,11 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
+import { FONT_THEMES, applyFontTheme } from '@/lib/fontThemes';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
@@ -59,6 +60,7 @@ export default function SettingsManager() {
     footer_text: '',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
+  const [fontTheme, setFontTheme] = useState('inter-lora');
   const [customColors, setCustomColors] = useState<CustomColors>({ primary: '#1e2a4a', secondary: '#d4a017', accent: '#d4a017', bg: '#ffffff' });
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
@@ -74,7 +76,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -92,6 +94,7 @@ export default function SettingsManager() {
         footer_text: map.footer_text || '',
       });
       setColorTheme(map.color_theme || 'navy-gold');
+      setFontTheme(map.font_theme || 'inter-lora');
       if (map.custom_theme_colors) {
         try { setCustomColors(JSON.parse(map.custom_theme_colors)); } catch { /* ignore */ }
       }
@@ -141,6 +144,11 @@ export default function SettingsManager() {
       // Save saved custom themes
       {
         const { error } = await supabase.from('settings').upsert({ key: 'saved_custom_themes', value: JSON.stringify(savedThemes) }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+      // Save font theme
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'font_theme', value: fontTheme }, { onConflict: 'key' });
         if (error) throw error;
       }
       // Save page visibility
@@ -514,6 +522,54 @@ export default function SettingsManager() {
                 customColors={colorTheme === 'custom' ? customColors : undefined}
               />
             </div>
+          </div>
+        </div>
+
+        {/* Font Theme Picker */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <Type className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Font chữ Website</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Chọn cặp font chữ cho tiêu đề và nội dung. Thay đổi sẽ áp dụng ngay sau khi lưu.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            {FONT_THEMES.map((ft) => {
+              const isActive = fontTheme === ft.id;
+              return (
+                <button
+                  key={ft.id}
+                  type="button"
+                  onClick={() => {
+                    setFontTheme(ft.id);
+                    applyFontTheme(ft.id);
+                  }}
+                  className={cn(
+                    "relative text-left p-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md",
+                    isActive
+                      ? "border-primary shadow-md ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {isActive && (
+                    <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm mb-1">{ft.name}</p>
+                  <p className="text-xs text-muted-foreground mb-3">{ft.description}</p>
+                  <div className="space-y-1 rounded-lg bg-muted/50 p-3 border border-border">
+                    <p className="text-sm font-bold" style={{ fontFamily: ft.heading }}>
+                      Tiêu đề mẫu — Heading
+                    </p>
+                    <p className="text-xs leading-relaxed" style={{ fontFamily: ft.body }}>
+                      Đây là đoạn văn mẫu để xem trước font chữ. The quick brown fox jumps over the lazy dog. 0123456789
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
           </div>
         </div>
 
