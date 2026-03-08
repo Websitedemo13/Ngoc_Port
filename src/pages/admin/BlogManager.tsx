@@ -4,6 +4,7 @@ import { useAllPosts, useCreatePost, useUpdatePost, useDeletePost, useTogglePost
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -111,7 +112,11 @@ export default function BlogManager() {
                 </div>
                 <div>
                   <Label>Nội dung / Content *</Label>
-                  <Textarea value={formData.content} onChange={(e) => setFormData({ ...formData, content: e.target.value })} rows={10} required />
+                  <RichTextEditor
+                    content={formData.content || ''}
+                    onChange={(html) => setFormData({ ...formData, content: html })}
+                    placeholder="Viết nội dung bài viết tại đây..."
+                  />
                 </div>
                 <MediaUpload label="Ảnh bìa / Featured Image" value={formData.image_url || ''} onChange={(url) => setFormData({ ...formData, image_url: url })} accept="image/*" />
                 <div className="flex gap-6">
