@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { applyColorTheme } from '@/lib/colorThemes';
+import { applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { useTheme } from '@/lib/theme';
 
 const ColorThemeApplier = () => {
@@ -20,11 +20,30 @@ const ColorThemeApplier = () => {
     staleTime: 5 * 60 * 1000,
   });
 
+  const { data: customColorsRaw } = useQuery({
+    queryKey: ['settings', 'custom_theme_colors'],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', 'custom_theme_colors')
+        .maybeSingle();
+      return data?.value || null;
+    },
+    staleTime: 5 * 60 * 1000,
+    enabled: colorThemeId === 'custom',
+  });
+
   useEffect(() => {
-    if (colorThemeId) {
-      applyColorTheme(colorThemeId, darkMode === 'dark');
+    if (!colorThemeId) return;
+    let customColors: CustomColors | undefined;
+    if (colorThemeId === 'custom' && customColorsRaw) {
+      try {
+        customColors = JSON.parse(customColorsRaw);
+      } catch { /* ignore */ }
     }
-  }, [colorThemeId, darkMode]);
+    applyColorTheme(colorThemeId, darkMode === 'dark', customColors);
+  }, [colorThemeId, darkMode, customColorsRaw]);
 
   return null;
 };

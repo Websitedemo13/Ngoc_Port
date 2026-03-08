@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
-import { COLOR_THEMES, applyColorTheme } from '@/lib/colorThemes';
+import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 
@@ -52,6 +52,7 @@ export default function SettingsManager() {
     footer_text: '',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
+  const [customColors, setCustomColors] = useState<CustomColors>({ primary: '#1e2a4a', secondary: '#d4a017', accent: '#d4a017', bg: '#ffffff' });
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [saving, setSaving] = useState(false);
@@ -64,7 +65,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -82,6 +83,9 @@ export default function SettingsManager() {
         footer_text: map.footer_text || '',
       });
       setColorTheme(map.color_theme || 'navy-gold');
+      if (map.custom_theme_colors) {
+        try { setCustomColors(JSON.parse(map.custom_theme_colors)); } catch { /* ignore */ }
+      }
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
       setPageVisibility(vis);
@@ -115,6 +119,11 @@ export default function SettingsManager() {
       // Save color theme
       {
         const { error } = await supabase.from('settings').upsert({ key: 'color_theme', value: colorTheme }, { onConflict: 'key' });
+        if (error) throw error;
+      }
+      // Save custom theme colors
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'custom_theme_colors', value: JSON.stringify(customColors) }, { onConflict: 'key' });
         if (error) throw error;
       }
       // Save page visibility
@@ -296,14 +305,12 @@ export default function SettingsManager() {
                       <Check className="h-3.5 w-3.5 text-primary-foreground" />
                     </div>
                   )}
-                  {/* Color swatches */}
                   <div className="flex gap-1.5 mb-3">
                     <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.primary }} />
                     <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.secondary }} />
                     <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.accent }} />
                     <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: t.preview.bg }} />
                   </div>
-                  {/* Preview bar */}
                   <div className="h-2 rounded-full mb-3 overflow-hidden flex">
                     <div className="flex-1" style={{ background: t.preview.primary }} />
                     <div className="flex-1" style={{ background: t.preview.secondary }} />
@@ -314,7 +321,87 @@ export default function SettingsManager() {
                 </button>
               );
             })}
+
+            {/* Custom Theme Card */}
+            <button
+              type="button"
+              onClick={() => {
+                setColorTheme('custom');
+                applyColorTheme('custom', darkMode === 'dark', customColors);
+              }}
+              className={cn(
+                "relative text-left p-4 rounded-xl border-2 transition-all duration-200 hover:shadow-md group",
+                colorTheme === 'custom'
+                  ? "border-primary shadow-md ring-2 ring-primary/20"
+                  : "border-dashed border-border hover:border-muted-foreground/30"
+              )}
+            >
+              {colorTheme === 'custom' && (
+                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                  <Check className="h-3.5 w-3.5 text-primary-foreground" />
+                </div>
+              )}
+              <div className="flex gap-1.5 mb-3">
+                <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: customColors.primary }} />
+                <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: customColors.secondary }} />
+                <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: customColors.accent }} />
+                <div className="w-8 h-8 rounded-lg shadow-sm border border-black/10" style={{ background: customColors.bg }} />
+              </div>
+              <div className="h-2 rounded-full mb-3 overflow-hidden flex">
+                <div className="flex-1" style={{ background: customColors.primary }} />
+                <div className="flex-1" style={{ background: customColors.secondary }} />
+                <div className="flex-1" style={{ background: customColors.accent }} />
+              </div>
+              <p className="font-semibold text-sm">✨ Tùy chỉnh</p>
+              <p className="text-xs text-muted-foreground">Tự chọn màu theo ý thích</p>
+            </button>
           </div>
+
+          {/* Custom Color Pickers */}
+          {colorTheme === 'custom' && (
+            <div className="mt-4 p-5 rounded-xl border border-border bg-muted/30 space-y-4">
+              <p className="text-sm font-medium text-foreground">Chọn 4 màu chủ đạo:</p>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                {([
+                  { key: 'primary' as const, label: 'Primary' },
+                  { key: 'secondary' as const, label: 'Secondary' },
+                  { key: 'accent' as const, label: 'Accent' },
+                  { key: 'bg' as const, label: 'Background' },
+                ]).map(({ key, label }) => (
+                  <div key={key} className="space-y-2">
+                    <Label className="text-xs font-medium">{label}</Label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="color"
+                        value={customColors[key]}
+                        onChange={(e) => {
+                          const updated = { ...customColors, [key]: e.target.value };
+                          setCustomColors(updated);
+                          applyColorTheme('custom', darkMode === 'dark', updated);
+                        }}
+                        className="w-10 h-10 rounded-lg border border-border cursor-pointer"
+                      />
+                      <Input
+                        value={customColors[key]}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (/^#[0-9a-fA-F]{6}$/.test(val)) {
+                            const updated = { ...customColors, [key]: val };
+                            setCustomColors(updated);
+                            applyColorTheme('custom', darkMode === 'dark', updated);
+                          } else {
+                            setCustomColors(prev => ({ ...prev, [key]: val }));
+                          }
+                        }}
+                        className="font-mono text-xs h-10"
+                        placeholder="#000000"
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Social Links */}
