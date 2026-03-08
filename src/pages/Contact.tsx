@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
@@ -5,11 +6,18 @@ import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mail, MapPin, Linkedin, Github, Twitter, Phone } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Mail, MapPin, Linkedin, Github, Twitter, Phone, Send, ArrowRight } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Contact = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
+  const { toast } = useToast();
+  const [sending, setSending] = useState(false);
+  const [form, setForm] = useState({ name: '', email: '', phone: '', message: '' });
 
   const { data: contact } = useQuery({
     queryKey: ['contacts'],
@@ -33,122 +41,233 @@ const Contact = () => {
     return socialLinks?.find(l => l.provider.toLowerCase() === provider.toLowerCase())?.url;
   };
 
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.name || !form.email || !form.message) return;
+    setSending(true);
+    try {
+      const { error } = await supabase.from('contact_submissions').insert({
+        name: form.name,
+        email: form.email,
+        phone: form.phone || null,
+        message: form.message,
+      });
+      if (error) throw error;
+      toast({
+        title: language === 'en' ? 'Message sent!' : 'Đã gửi tin nhắn!',
+        description: language === 'en' ? "Thank you! I'll get back to you soon." : 'Cảm ơn bạn! Tôi sẽ phản hồi sớm.',
+      });
+      setForm({ name: '', email: '', phone: '', message: '' });
+    } catch {
+      toast({
+        title: language === 'en' ? 'Error' : 'Lỗi',
+        description: language === 'en' ? 'Failed to send message. Please try again.' : 'Gửi tin nhắn thất bại. Vui lòng thử lại.',
+        variant: 'destructive',
+      });
+    } finally {
+      setSending(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      <section className="container mx-auto px-4 py-20">
-        <div className="max-w-4xl mx-auto text-center animate-fade-in">
-          <h1 className="font-serif text-4xl md:text-5xl font-bold mb-6">
-            {language === 'en' ? "Let's Connect" : 'Liên hệ'}
+      {/* Hero */}
+      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute bottom-0 right-10 w-80 h-80 bg-secondary rounded-full blur-3xl" />
+        </div>
+        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
+          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
+            {language === 'en' ? 'Contact' : 'Liên hệ'}
+          </p>
+          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
+            {language === 'en' ? "Let's Connect" : 'Kết nối với tôi'}
           </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="text-lg opacity-80 max-w-2xl mx-auto">
             {language === 'en'
               ? "I'm always open to discussing new opportunities, collaborations, or just having a conversation."
               : 'Tôi luôn sẵn sàng thảo luận về cơ hội mới, hợp tác hoặc chỉ để trò chuyện.'}
           </p>
         </div>
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg viewBox="0 0 1440 60" fill="none" className="w-full"><path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" /></svg>
+        </div>
       </section>
 
-      <section className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
-          {contact?.email && (
-            <Card className="hover-scale">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <Mail className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">Email</h3>
-                  <a href={`mailto:${contact.email}`} className="text-muted-foreground hover:text-primary transition-colors">
-                    {contact.email}
-                  </a>
-                </div>
+      {/* Contact Content */}
+      <section className="container mx-auto px-4 py-16 md:py-20">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12">
+          {/* Contact Form */}
+          <div className="lg:col-span-3">
+            <Card className="border-0 shadow-lg">
+              <CardContent className="p-8">
+                <h2 className="font-serif text-2xl font-bold mb-6">
+                  {language === 'en' ? 'Send a Message' : 'Gửi tin nhắn'}
+                </h2>
+                <form onSubmit={handleSubmit} className="space-y-5">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">
+                        {language === 'en' ? 'Full Name' : 'Họ và tên'} *
+                      </label>
+                      <Input
+                        required
+                        value={form.name}
+                        onChange={(e) => setForm({ ...form, name: e.target.value })}
+                        placeholder={language === 'en' ? 'Your name' : 'Tên của bạn'}
+                        className="rounded-lg"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-1.5 block">Email *</label>
+                      <Input
+                        required
+                        type="email"
+                        value={form.email}
+                        onChange={(e) => setForm({ ...form, email: e.target.value })}
+                        placeholder="email@example.com"
+                        className="rounded-lg"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">
+                      {language === 'en' ? 'Phone (optional)' : 'Số điện thoại (tùy chọn)'}
+                    </label>
+                    <Input
+                      value={form.phone}
+                      onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                      placeholder="+84..."
+                      className="rounded-lg"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-sm font-medium mb-1.5 block">
+                      {language === 'en' ? 'Message' : 'Tin nhắn'} *
+                    </label>
+                    <Textarea
+                      required
+                      value={form.message}
+                      onChange={(e) => setForm({ ...form, message: e.target.value })}
+                      placeholder={language === 'en' ? 'How can I help you?' : 'Tôi có thể giúp gì cho bạn?'}
+                      rows={5}
+                      className="rounded-lg resize-none"
+                    />
+                  </div>
+                  <Button type="submit" size="lg" disabled={sending} className="w-full rounded-lg gold-shine">
+                    {sending ? (
+                      <span className="animate-pulse">{language === 'en' ? 'Sending...' : 'Đang gửi...'}</span>
+                    ) : (
+                      <>
+                        <Send size={18} className="mr-2" />
+                        {language === 'en' ? 'Send Message' : 'Gửi tin nhắn'}
+                      </>
+                    )}
+                  </Button>
+                </form>
               </CardContent>
             </Card>
-          )}
+          </div>
 
-          {contact?.phone && (
-            <Card className="hover-scale">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <Phone className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    {language === 'en' ? 'Phone' : 'Điện thoại'}
-                  </h3>
-                  <a href={`tel:${contact.phone}`} className="text-muted-foreground hover:text-primary transition-colors">
-                    {contact.phone}
-                  </a>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+          {/* Contact Info */}
+          <div className="lg:col-span-2 space-y-6">
+            {contact?.email && (
+              <Card className="card-premium border-0 shadow-sm">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Mail className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Email</p>
+                    <a href={`mailto:${contact.email}`} className="font-medium text-foreground hover:text-primary transition-colors text-sm">
+                      {contact.email}
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          {contact?.location && (
-            <Card className="hover-scale">
-              <CardContent className="p-8 text-center space-y-4">
-                <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                  <MapPin className="w-8 h-8 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    {language === 'en' ? 'Location' : 'Vị trí'}
-                  </h3>
-                  <p className="text-muted-foreground">{contact.location}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+            {contact?.phone && (
+              <Card className="card-premium border-0 shadow-sm">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <Phone className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{language === 'en' ? 'Phone' : 'Điện thoại'}</p>
+                    <a href={`tel:${contact.phone}`} className="font-medium text-foreground hover:text-primary transition-colors text-sm">
+                      {contact.phone}
+                    </a>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-          <Card className="hover-scale">
-            <CardContent className="p-8 text-center space-y-4">
-              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
-                <Linkedin className="w-8 h-8 text-primary" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg mb-4">
-                  {language === 'en' ? 'Social Media' : 'Mạng xã hội'}
-                </h3>
-                <div className="flex gap-4 justify-center">
+            {contact?.location && (
+              <Card className="card-premium border-0 shadow-sm">
+                <CardContent className="p-6 flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-secondary/10 flex items-center justify-center shrink-0">
+                    <MapPin className="w-5 h-5 text-secondary" />
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">{language === 'en' ? 'Location' : 'Địa điểm'}</p>
+                    <p className="font-medium text-foreground text-sm">{contact.location}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Social */}
+            <Card className="card-premium border-0 shadow-sm">
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground mb-4">
+                  {language === 'en' ? 'Connect on Social' : 'Kết nối mạng xã hội'}
+                </p>
+                <div className="flex gap-3">
                   {getSocialUrl('linkedin') && (
                     <a href={getSocialUrl('linkedin')} target="_blank" rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <Linkedin size={20} />
+                      className="w-11 h-11 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center">
+                      <Linkedin size={18} />
                     </a>
                   )}
                   {getSocialUrl('github') && (
                     <a href={getSocialUrl('github')} target="_blank" rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <Github size={20} />
+                      className="w-11 h-11 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center">
+                      <Github size={18} />
                     </a>
                   )}
                   {getSocialUrl('twitter') && (
                     <a href={getSocialUrl('twitter')} target="_blank" rel="noopener noreferrer"
-                      className="p-3 rounded-full bg-muted hover:bg-primary hover:text-primary-foreground transition-colors">
-                      <Twitter size={20} />
+                      className="w-11 h-11 rounded-xl bg-muted hover:bg-primary hover:text-primary-foreground transition-all flex items-center justify-center">
+                      <Twitter size={18} />
                     </a>
                   )}
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </section>
 
-      <section className="container mx-auto px-4 py-16 bg-muted/30">
-        <div className="max-w-2xl mx-auto text-center space-y-6">
-          <h2 className="font-serif text-3xl font-bold">
-            {language === 'en' ? 'Ready to collaborate?' : 'Sẵn sàng hợp tác?'}
-          </h2>
-          <p className="text-lg text-muted-foreground">
-            {language === 'en'
-              ? "Whether you're looking for a strategic partner, seeking advisory support, or have an exciting opportunity to discuss, I'd love to hear from you."
-              : 'Cho dù bạn đang tìm kiếm đối tác chiến lược, hỗ trợ tư vấn, hay có cơ hội thú vị để thảo luận, tôi rất muốn được lắng nghe.'}
-          </p>
-        </div>
-      </section>
+      {/* Map */}
+      {contact?.map_embed_url && (
+        <section className="container mx-auto px-4 pb-16">
+          <div className="max-w-5xl mx-auto rounded-2xl overflow-hidden shadow-lg">
+            <iframe
+              src={contact.map_embed_url}
+              width="100%"
+              height="350"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Location Map"
+            />
+          </div>
+        </section>
+      )}
 
       <Footer />
     </div>
