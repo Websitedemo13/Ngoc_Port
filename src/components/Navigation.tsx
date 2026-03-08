@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, Moon, Sun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/lib/i18n';
+import { useTheme } from '@/lib/theme';
 
 const Navigation = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { language, setLanguage } = useLanguage();
+  const { theme, toggleTheme } = useTheme();
 
   const navItems = [
     { path: '/', label: { en: 'Home', vi: 'Trang chủ' } },
@@ -25,12 +27,11 @@ const Navigation = () => {
     <nav className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          {/* Logo */}
           <Link to="/" className="text-xl font-serif font-bold text-primary">
-            {language === 'en' ? 'Trần Bảo Ngọc' : 'TRẦN BẢO NGỌC'}
+            TRẦN BẢO NGỌC
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop */}
           <div className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
               <Link
@@ -43,36 +44,30 @@ const Navigation = () => {
                 {item.label[language]}
               </Link>
             ))}
-            
-            {/* Language Switcher */}
-            <div className="flex gap-2 border-l border-border pl-4">
-              <Button
-                variant={language === 'en' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('en')}
-              >
-                EN
+
+            <div className="flex items-center gap-1 border-l border-border pl-4">
+              {/* Theme toggle */}
+              <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+                {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
               </Button>
-              <Button
-                variant={language === 'vi' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('vi')}
-              >
-                VI
-              </Button>
+
+              {/* Language */}
+              <Button variant={language === 'en' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('en')}>EN</Button>
+              <Button variant={language === 'vi' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('vi')}>VI</Button>
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          {/* Mobile */}
+          <div className="md:hidden flex items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={toggleTheme} className="h-8 w-8">
+              {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
+            </Button>
+            <button onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile Navigation */}
         {isOpen && (
           <div className="md:hidden py-4 animate-fade-in">
             {navItems.map((item) => (
@@ -88,20 +83,8 @@ const Navigation = () => {
               </Link>
             ))}
             <div className="flex gap-2 mt-4 pt-4 border-t border-border">
-              <Button
-                variant={language === 'en' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('en')}
-              >
-                EN
-              </Button>
-              <Button
-                variant={language === 'vi' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setLanguage('vi')}
-              >
-                VI
-              </Button>
+              <Button variant={language === 'en' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('en')}>EN</Button>
+              <Button variant={language === 'vi' ? 'default' : 'ghost'} size="sm" onClick={() => setLanguage('vi')}>VI</Button>
             </div>
           </div>
         )}
