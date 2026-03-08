@@ -67,6 +67,7 @@ const App = () => (
         </Routes>
         <BackToTop />
         <ChatbotWidget />
+        <FaviconUpdater />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
