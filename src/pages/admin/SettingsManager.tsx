@@ -52,6 +52,7 @@ export default function SettingsManager() {
     footer_text: '',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
+  const [customColors, setCustomColors] = useState<CustomColors>({ primary: '#1e2a4a', secondary: '#d4a017', accent: '#d4a017', bg: '#ffffff' });
   const [pageVisibility, setPageVisibility] = useState<Record<string, boolean>>({});
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [saving, setSaving] = useState(false);
