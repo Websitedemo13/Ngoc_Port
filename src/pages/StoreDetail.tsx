@@ -3,12 +3,13 @@ import { useParams, Link } from 'react-router-dom';
 import { useProductBySlug } from '@/hooks/useStore';
 import { useLanguage } from '@/lib/i18n';
 import { useSettings } from '@/hooks/useSettings';
+import { getBankByCode } from '@/lib/vietqrBanks';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
@@ -20,16 +21,17 @@ export default function StoreDetail() {
 
   // Bank settings from admin
   const settingsMap = allSettings?.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>) || {};
-  const bankName = settingsMap.bank_name || 'MB Bank';
   const bankCode = settingsMap.bank_code || '970422';
   const bankAccount = settingsMap.bank_account || '0123456789';
   const bankOwner = settingsMap.bank_owner || '';
+  const bank = getBankByCode(bankCode);
+
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
 
   if (isLoading) {
     return (
@@ -57,11 +59,15 @@ export default function StoreDetail() {
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(price);
 
+  const formatPriceRaw = (price: number) =>
+    new Intl.NumberFormat('vi-VN').format(price);
+
   const discountedPrice = product.discount_percent
     ? product.price * (1 - product.discount_percent / 100)
     : product.price;
 
   const totalPrice = discountedPrice * quantity;
+  const transferContent = `${product.name.slice(0, 30)} x${quantity}`;
 
   const allImages = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
 
@@ -69,12 +75,14 @@ export default function StoreDetail() {
   const typeLabels: Record<string, string> = { product: 'Vật phẩm', course: 'Khóa học', ebook: 'Tài liệu' };
   const TypeIcon = typeIcons[product.product_type] || Package;
 
-  const copyToClipboard = (text: string) => {
+  const copyToClipboard = (text: string, field: string) => {
     navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-    toast.success('Đã sao chép');
+    setCopiedField(field);
+    setTimeout(() => setCopiedField(null), 2000);
+    toast.success('Đã sao chép!');
   };
+
+  const qrUrl = `https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact2.jpg?amount=${Math.round(totalPrice)}&addInfo=${encodeURIComponent(transferContent)}&accountName=${encodeURIComponent(bankOwner)}`;
 
   return (
     <div className="min-h-screen bg-background">
@@ -205,7 +213,7 @@ export default function StoreDetail() {
                   disabled={product.product_type === 'product' && product.stock_quantity <= 0}
                 >
                   <QrCode size={18} className="mr-2" />
-                  {product.stock_quantity <= 0 && product.product_type === 'product' ? 'Hết hàng' : 'Mua ngay - Chuyển khoản'}
+                  {product.stock_quantity <= 0 && product.product_type === 'product' ? 'Hết hàng' : 'Thanh toán QR'}
                 </Button>
               </CardContent>
             </Card>
@@ -225,57 +233,157 @@ export default function StoreDetail() {
         )}
       </div>
 
-      {/* Payment Dialog */}
+      {/* Payment Dialog - Super Professional */}
       <Dialog open={showPayment} onOpenChange={setShowPayment}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><QrCode size={20} /> Thanh toán chuyển khoản</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="bg-muted rounded-xl p-4 text-center">
-              <img
-                src={`https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact2.jpg?amount=${Math.round(totalPrice)}&addInfo=${encodeURIComponent(`Mua ${product.name} x${quantity}`)}&accountName=${encodeURIComponent(bankOwner)}`}
-                alt="QR Chuyển khoản"
-                className="mx-auto rounded-lg max-w-[250px]"
-              />
-              <p className="text-xs text-muted-foreground mt-2">Quét mã QR bằng app ngân hàng</p>
+        <DialogContent className="max-w-lg p-0 overflow-hidden">
+          {/* Header */}
+          <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground p-6">
+            <DialogTitle className="text-xl font-bold flex items-center gap-2 mb-2">
+              <CreditCard size={22} /> Thanh toán chuyển khoản
+            </DialogTitle>
+            <p className="text-sm opacity-90">Quét mã QR hoặc chuyển khoản thủ công</p>
+          </div>
+
+          <div className="p-6 space-y-5">
+            {/* QR Code Section */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="bg-white p-3 rounded-2xl shadow-lg border">
+                <img
+                  src={qrUrl}
+                  alt="VietQR Payment"
+                  className="w-44 h-44 object-contain"
+                />
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                {bank && (
+                  <div className="flex items-center gap-2 justify-center md:justify-start mb-3">
+                    <img src={bank.logo} alt={bank.shortName} className="w-10 h-10 object-contain" />
+                    <div>
+                      <p className="font-bold text-sm">{bank.name}</p>
+                      <p className="text-xs text-muted-foreground">{bank.shortName}</p>
+                    </div>
+                  </div>
+                )}
+                <div className="space-y-1 text-sm">
+                  <p className="text-muted-foreground">Số tiền thanh toán</p>
+                  <p className="text-2xl font-bold text-primary">{formatPrice(totalPrice)}</p>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2 text-sm">
-              {bankName && (
-                <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                  <span className="text-muted-foreground">Ngân hàng:</span>
-                  <span className="font-medium">{bankName}</span>
+            {/* Instructions */}
+            <div className="bg-muted/50 rounded-xl p-4">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3 flex items-center gap-1.5">
+                <Smartphone size={12} /> Hướng dẫn thanh toán
+              </p>
+              <div className="space-y-2 text-sm">
+                <div className="flex gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">1</span>
+                  <span>Mở App Ngân hàng hoặc Ví điện tử (MoMo, ZaloPay...)</span>
                 </div>
-              )}
+                <div className="flex gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">2</span>
+                  <span>Quét mã QR hoặc nhập thông tin tài khoản bên dưới</span>
+                </div>
+                <div className="flex gap-2">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold">3</span>
+                  <span>Kiểm tra thông tin và xác nhận chuyển khoản</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Bank Details - Copy each field */}
+            <div className="space-y-2">
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Thông tin chuyển khoản</p>
+              
+              {/* Account Number */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group hover:bg-muted transition-colors">
+                <div>
+                  <p className="text-xs text-muted-foreground">Số tài khoản</p>
+                  <p className="font-mono font-bold">{bankAccount}</p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant={copiedField === 'account' ? 'default' : 'outline'} 
+                  onClick={() => copyToClipboard(bankAccount, 'account')}
+                  className="gap-1.5"
+                >
+                  {copiedField === 'account' ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedField === 'account' ? 'Đã sao chép' : 'Sao chép'}
+                </Button>
+              </div>
+
+              {/* Account Name */}
               {bankOwner && (
-                <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                  <span className="text-muted-foreground">Chủ TK:</span>
-                  <span className="font-medium">{bankOwner}</span>
-                </div>
-              )}
-              <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                <span className="text-muted-foreground">STK:</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-medium font-mono">{bankAccount}</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(bankAccount)}>
-                    {copied ? <Check size={12} /> : <Copy size={12} />}
+                <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group hover:bg-muted transition-colors">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Chủ tài khoản</p>
+                    <p className="font-bold">{bankOwner}</p>
+                  </div>
+                  <Button 
+                    size="sm" 
+                    variant={copiedField === 'owner' ? 'default' : 'outline'} 
+                    onClick={() => copyToClipboard(bankOwner, 'owner')}
+                    className="gap-1.5"
+                  >
+                    {copiedField === 'owner' ? <Check size={14} /> : <Copy size={14} />}
+                    {copiedField === 'owner' ? 'Đã sao chép' : 'Sao chép'}
                   </Button>
                 </div>
+              )}
+
+              {/* Amount */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group hover:bg-muted transition-colors">
+                <div>
+                  <p className="text-xs text-muted-foreground">Số tiền</p>
+                  <p className="font-bold text-primary">{formatPriceRaw(Math.round(totalPrice))} VNĐ</p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant={copiedField === 'amount' ? 'default' : 'outline'} 
+                  onClick={() => copyToClipboard(Math.round(totalPrice).toString(), 'amount')}
+                  className="gap-1.5"
+                >
+                  {copiedField === 'amount' ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedField === 'amount' ? 'Đã sao chép' : 'Sao chép'}
+                </Button>
               </div>
-              <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                <span className="text-muted-foreground">Số tiền:</span>
-                <span className="font-bold text-primary">{formatPrice(totalPrice)}</span>
-              </div>
-              <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                <span className="text-muted-foreground">Nội dung:</span>
-                <span className="font-medium text-xs">Mua {product.name} x{quantity}</span>
+
+              {/* Transfer Content */}
+              <div className="flex items-center justify-between p-3 bg-muted/50 rounded-lg group hover:bg-muted transition-colors">
+                <div className="flex-1 min-w-0 mr-2">
+                  <p className="text-xs text-muted-foreground">Nội dung chuyển khoản</p>
+                  <p className="font-medium text-sm truncate">{transferContent}</p>
+                </div>
+                <Button 
+                  size="sm" 
+                  variant={copiedField === 'content' ? 'default' : 'outline'} 
+                  onClick={() => copyToClipboard(transferContent, 'content')}
+                  className="gap-1.5 flex-shrink-0"
+                >
+                  {copiedField === 'content' ? <Check size={14} /> : <Copy size={14} />}
+                  {copiedField === 'content' ? 'Đã sao chép' : 'Sao chép'}
+                </Button>
               </div>
             </div>
 
-            <p className="text-xs text-muted-foreground text-center">
-              Sau khi chuyển khoản, vui lòng liên hệ qua Zalo/Facebook để xác nhận đơn hàng.
-            </p>
+            {/* Order Summary */}
+            <div className="bg-primary/5 rounded-xl p-4 border border-primary/10">
+              <div className="flex items-center gap-3">
+                {product.image_url && <img src={product.image_url} alt="" className="w-14 h-14 rounded-lg object-cover" />}
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold text-sm truncate">{product.name}</p>
+                  <p className="text-xs text-muted-foreground">Số lượng: {quantity}</p>
+                </div>
+                <p className="font-bold text-primary">{formatPrice(totalPrice)}</p>
+              </div>
+            </div>
+
+            {/* Footer note */}
+            <div className="flex items-start gap-2 text-xs text-muted-foreground">
+              <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5 text-secondary" />
+              <span>Sau khi chuyển khoản thành công, đơn hàng sẽ được xử lý trong vòng 24h. Liên hệ hotline nếu cần hỗ trợ.</span>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

@@ -6,12 +6,14 @@ import { Switch } from '@/components/ui/switch';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type, LayoutTemplate } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { FONT_THEMES, applyFontTheme } from '@/lib/fontThemes';
+import { VIETQR_BANKS } from '@/lib/vietqrBanks';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { PAGE_HERO_KEYS, DEFAULT_HEROES, type PageHeroes, type PageHeroConfig } from '@/hooks/usePageHeroes';
@@ -845,17 +847,39 @@ export default function SettingsManager() {
         {/* Bank Transfer Settings */}
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <h3 className="font-semibold text-lg flex items-center gap-2">
-            💳 Thanh toán chuyển khoản (Store)
+            💳 Thanh toán chuyển khoản VietQR (Store)
           </h3>
-          <p className="text-sm text-muted-foreground">Thông tin ngân hàng hiển thị khi khách mua hàng trên Store. Tra mã BIN tại <a href="https://www.vietqr.io/danh-sach-ngan-hang" target="_blank" rel="noopener" className="underline text-primary">vietqr.io</a></p>
+          <p className="text-sm text-muted-foreground">Thông tin ngân hàng hiển thị khi khách mua hàng. Hỗ trợ 40+ ngân hàng Việt Nam.</p>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label>Tên ngân hàng</Label>
-              <Input value={settings.bank_name} onChange={(e) => setSettings(prev => ({ ...prev, bank_name: e.target.value }))} placeholder="Ví dụ: MB Bank, Vietcombank..." />
-            </div>
-            <div>
-              <Label>Mã ngân hàng (BIN)</Label>
-              <Input value={settings.bank_code} onChange={(e) => setSettings(prev => ({ ...prev, bank_code: e.target.value }))} placeholder="Ví dụ: 970422 (MB), 970436 (VCB)" />
+            <div className="md:col-span-2">
+              <Label>Chọn ngân hàng</Label>
+              <Select 
+                value={settings.bank_code} 
+                onValueChange={(code) => {
+                  const bank = VIETQR_BANKS.find(b => b.code === code);
+                  setSettings(prev => ({ 
+                    ...prev, 
+                    bank_code: code, 
+                    bank_name: bank?.name || '' 
+                  }));
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Chọn ngân hàng..." />
+                </SelectTrigger>
+                <SelectContent className="max-h-80">
+                  {VIETQR_BANKS.map(bank => (
+                    <SelectItem key={bank.code} value={bank.code}>
+                      <div className="flex items-center gap-3">
+                        <img src={bank.logo} alt={bank.shortName} className="w-8 h-8 object-contain" />
+                        <span>{bank.name}</span>
+                        <span className="text-xs text-muted-foreground">({bank.shortName})</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <Label>Số tài khoản</Label>
@@ -866,6 +890,25 @@ export default function SettingsManager() {
               <Input value={settings.bank_owner} onChange={(e) => setSettings(prev => ({ ...prev, bank_owner: e.target.value }))} placeholder="NGUYEN VAN A (viết hoa, không dấu)" />
             </div>
           </div>
+
+          {/* Preview */}
+          {settings.bank_code && settings.bank_account && (
+            <div className="bg-muted/50 rounded-xl p-4">
+              <p className="text-xs text-muted-foreground mb-3">Xem trước mã QR:</p>
+              <div className="flex items-center gap-4">
+                <img 
+                  src={`https://img.vietqr.io/image/${settings.bank_code}-${settings.bank_account}-compact.jpg?amount=100000&addInfo=Test&accountName=${encodeURIComponent(settings.bank_owner || 'CHU TAI KHOAN')}`}
+                  alt="QR Preview" 
+                  className="w-28 h-28 rounded-lg border"
+                />
+                <div className="text-sm space-y-1">
+                  <p><span className="text-muted-foreground">Ngân hàng:</span> <strong>{settings.bank_name}</strong></p>
+                  <p><span className="text-muted-foreground">STK:</span> <strong className="font-mono">{settings.bank_account}</strong></p>
+                  <p><span className="text-muted-foreground">Chủ TK:</span> <strong>{settings.bank_owner || '(Chưa nhập)'}</strong></p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="bg-muted/50 border border-border rounded-2xl p-4">
