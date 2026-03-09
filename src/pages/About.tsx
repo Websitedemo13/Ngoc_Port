@@ -165,6 +165,7 @@ const About = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* About Section */}
       {aboutSection && (
