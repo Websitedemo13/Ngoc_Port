@@ -3,7 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 const PAGE_KEYS = [
   'page_about', 'page_experience', 'page_projects',
-  'page_activities', 'page_blog', 'page_contact',
+  'page_activities', 'page_blog', 'page_contact', 'page_store',
 ];
 
 const KEY_TO_PATH: Record<string, string> = {
@@ -13,6 +13,7 @@ const KEY_TO_PATH: Record<string, string> = {
   page_activities: '/activities',
   page_blog: '/blog',
   page_contact: '/contact',
+  page_store: '/store',
 };
 
 export const usePageVisibility = () => {

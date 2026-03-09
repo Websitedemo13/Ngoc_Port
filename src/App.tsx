@@ -13,6 +13,8 @@ import Activities from "./pages/Activities";
 import Blog from "./pages/Blog";
 import BlogPost from "./pages/BlogPost";
 import Contact from "./pages/Contact";
+import Store from "./pages/Store";
+import StoreDetail from "./pages/StoreDetail";
 import NotFound from "./pages/NotFound";
 import ResetPassword from "./pages/ResetPassword";
 import AdminLogin from "./pages/admin/Login";
@@ -25,6 +27,8 @@ import ExperiencesManager from "./pages/admin/ExperiencesManager";
 import EducationManager from "./pages/admin/EducationManager";
 import BlogManager from "./pages/admin/BlogManager";
 import MediaLibrary from "./pages/admin/MediaLibrary";
+import CustomSectionsManager from "./pages/admin/CustomSectionsManager";
+import StoreManager from "./pages/admin/StoreManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
@@ -52,6 +56,8 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/store" element={<Store />} />
+          <Route path="/store/:slug" element={<StoreDetail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/admin" element={<AdminLogin />} />
           <Route path="/admin" element={<ProtectedRoute><AdminLayout /></ProtectedRoute>}>
@@ -64,6 +70,8 @@ const App = () => (
             <Route path="education" element={<EducationManager />} />
             <Route path="blog" element={<BlogManager />} />
             <Route path="media" element={<MediaLibrary />} />
+            <Route path="custom-sections" element={<CustomSectionsManager />} />
+            <Route path="store" element={<StoreManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

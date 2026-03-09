@@ -2,6 +2,7 @@ import { useLanguage } from '@/lib/i18n';
 import { useAllEducation } from '@/hooks/useEducation';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, GraduationCap, ChevronRight, BookOpen } from 'lucide-react';
@@ -102,6 +103,7 @@ const Education = () => {
         </div>
       </section>
 
+      <CustomSections page="education" />
       <Footer />
     </div>
   );

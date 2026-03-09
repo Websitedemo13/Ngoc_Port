@@ -2,6 +2,7 @@ import { useLanguage } from '@/lib/i18n';
 import { usePublishedExperiences } from '@/hooks/useExperiences';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, MapPin, ChevronRight } from 'lucide-react';
@@ -96,6 +97,7 @@ const Experience = () => {
         </div>
       </section>
 
+      <CustomSections page="experience" />
       <Footer />
     </div>
   );

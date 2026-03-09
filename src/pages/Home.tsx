@@ -12,6 +12,7 @@ import { useScrollReveal } from '@/hooks/useScrollReveal';
 import CountUp from '@/components/CountUp';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 
 /* ── Scroll Reveal wrapper ── */
 const RevealSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
@@ -413,6 +414,7 @@ const Home = () => {
         </RevealSection>
       </section>
 
+      <CustomSections page="home" />
       <Footer />
     </div>
   );

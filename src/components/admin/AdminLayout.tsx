@@ -7,7 +7,7 @@ import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, GraduationCap,
-  Sun, Moon, Menu, X, ChevronRight
+  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,6 +19,8 @@ const menuItems = [
   { path: '/admin/projects', icon: FolderOpen, label: 'Dự án' },
   { path: '/admin/activities', icon: Activity, label: 'Hoạt động' },
   { path: '/admin/blog', icon: FileText, label: 'Blog' },
+  { path: '/admin/store', icon: ShoppingBag, label: 'Cửa hàng' },
+  { path: '/admin/custom-sections', icon: Blocks, label: 'Custom Sections' },
   { path: '/admin/media', icon: Image, label: 'Thư viện' },
   { path: '/admin/settings', icon: Settings, label: 'Cài đặt' },
 ];

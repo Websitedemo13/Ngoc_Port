@@ -5,6 +5,7 @@ import { usePublishedPosts, useFeaturedPosts } from '@/hooks/useBlog';
 import PageHero from '@/components/PageHero';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -140,6 +141,7 @@ const Blog = () => {
         </div>
       </section>
 
+      <CustomSections page="blog" />
       <Footer />
     </div>
   );

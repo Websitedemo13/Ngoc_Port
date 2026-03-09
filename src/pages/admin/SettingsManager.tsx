@@ -27,6 +27,7 @@ const PAGE_KEYS = [
   { key: 'page_activities', label: 'Hoạt động (Activities)', path: '/activities' },
   { key: 'page_blog', label: 'Blog', path: '/blog' },
   { key: 'page_contact', label: 'Liên hệ (Contact)', path: '/contact' },
+  { key: 'page_store', label: 'Cửa hàng (Store)', path: '/store' },
 ];
 
 const SOCIAL_PROVIDERS = [

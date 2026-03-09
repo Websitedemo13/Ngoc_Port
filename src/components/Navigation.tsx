@@ -15,6 +15,7 @@ const allNavItems = [
   { path: '/projects', label: { en: 'Projects', vi: 'Dự án' } },
   { path: '/activities', label: { en: 'Activities', vi: 'Hoạt động' } },
   { path: '/blog', label: { en: 'Blog', vi: 'Blog' } },
+  { path: '/store', label: { en: 'Store', vi: 'Cửa hàng' } },
   { path: '/contact', label: { en: 'Contact', vi: 'Liên hệ' } },
 ];
 

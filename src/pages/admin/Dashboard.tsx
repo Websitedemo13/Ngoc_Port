@@ -5,7 +5,7 @@ import { useAllProjects } from '@/hooks/useProjects';
 import { useAllMedia } from '@/hooks/useMedia';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
-  Image, Settings, BookOpen, Award, TrendingUp, Layers
+  Image, Settings, BookOpen, Award, TrendingUp, Layers, ShoppingBag, Blocks
 } from 'lucide-react';
 
 const menuItems = [
@@ -14,6 +14,8 @@ const menuItems = [
   { path: '/admin/projects', icon: FolderOpen, label: 'Dự án', desc: 'Quản lý dự án portfolio', gradient: 'from-violet-500 to-violet-600' },
   { path: '/admin/activities', icon: Activity, label: 'Hoạt động', desc: 'Quản lý hoạt động', gradient: 'from-orange-500 to-orange-600' },
   { path: '/admin/blog', icon: FileText, label: 'Blog', desc: 'Viết và xuất bản bài viết', gradient: 'from-rose-500 to-rose-600' },
+  { path: '/admin/store', icon: ShoppingBag, label: 'Cửa hàng', desc: 'Quản lý sản phẩm, khóa học, tài liệu', gradient: 'from-amber-500 to-amber-600' },
+  { path: '/admin/custom-sections', icon: Blocks, label: 'Custom Sections', desc: 'Tạo section tùy chỉnh trên mỗi trang', gradient: 'from-teal-500 to-teal-600' },
   { path: '/admin/media', icon: Image, label: 'Thư viện', desc: 'Quản lý hình ảnh và tệp', gradient: 'from-cyan-500 to-cyan-600' },
   { path: '/admin/settings', icon: Settings, label: 'Cài đặt', desc: 'Cấu hình footer và site', gradient: 'from-slate-500 to-slate-600' },
 ];
