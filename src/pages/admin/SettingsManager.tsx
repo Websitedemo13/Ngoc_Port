@@ -15,7 +15,7 @@ import { FONT_THEMES, applyFontTheme } from '@/lib/fontThemes';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
 import { PAGE_HERO_KEYS, DEFAULT_HEROES, type PageHeroes, type PageHeroConfig } from '@/hooks/usePageHeroes';
-import { MediaUpload as MediaUploadHero } from '@/components/admin/MediaUpload';
+
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
 
