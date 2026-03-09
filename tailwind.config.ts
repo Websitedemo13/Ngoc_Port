@@ -14,8 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "Plus Jakarta Sans", "system-ui", "sans-serif"],
-        serif: ["Lora", "Georgia", "serif"],
+        sans: ["var(--font-body)", "system-ui", "sans-serif"],
+        serif: ["var(--font-heading)", "system-ui", "sans-serif"],
       },
       colors: {
         border: "hsl(var(--border))",
