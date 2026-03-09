@@ -1,9 +1,76 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.4";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function fetchPortfolioContext(): Promise<string> {
+  try {
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+
+    const [heroRes, aboutRes, expRes, projRes, eduRes, skillsRes, contactRes, trainingRes] = await Promise.all([
+      supabase.from("hero_section").select("name, title, quote").maybeSingle(),
+      supabase.from("about_section").select("headline, description").maybeSingle(),
+      supabase.from("experiences").select("title, company, year, description, achievements, location").order("sort_order"),
+      supabase.from("projects").select("title, description, category, technologies").order("sort_order").limit(10),
+      supabase.from("education").select("degree, institution, year, field, achievements").order("sort_order"),
+      supabase.from("skills").select("name").order("sort_order"),
+      supabase.from("contacts").select("email, phone, location").maybeSingle(),
+      supabase.from("chatbot_training").select("question, answer, language").eq("active", true).order("priority", { ascending: false }),
+    ]);
+
+    const parts: string[] = [];
+
+    if (heroRes.data) {
+      parts.push(`# Thông tin chủ portfolio\nTên: ${heroRes.data.name}\nChức danh: ${heroRes.data.title}\nSlogan: ${heroRes.data.quote}`);
+    }
+
+    if (aboutRes.data) {
+      parts.push(`# Giới thiệu\n${aboutRes.data.description}`);
+    }
+
+    if (expRes.data?.length) {
+      parts.push(`# Kinh nghiệm làm việc\n${expRes.data.map(e =>
+        `- ${e.title} tại ${e.company} (${e.year})${e.location ? ` - ${e.location}` : ''}${e.description ? `\n  ${e.description}` : ''}${e.achievements?.length ? `\n  Thành tích: ${e.achievements.join('; ')}` : ''}`
+      ).join('\n')}`);
+    }
+
+    if (projRes.data?.length) {
+      parts.push(`# Dự án\n${projRes.data.map(p =>
+        `- ${p.title} (${p.category}): ${p.description}${p.technologies?.length ? ` | Công nghệ: ${p.technologies.join(', ')}` : ''}`
+      ).join('\n')}`);
+    }
+
+    if (eduRes.data?.length) {
+      parts.push(`# Học vấn\n${eduRes.data.map(e =>
+        `- ${e.degree} - ${e.institution} (${e.year})${e.field ? ` | ${e.field}` : ''}${e.achievements?.length ? ` | ${e.achievements.join('; ')}` : ''}`
+      ).join('\n')}`);
+    }
+
+    if (skillsRes.data?.length) {
+      parts.push(`# Kỹ năng\n${skillsRes.data.map(s => s.name).join(', ')}`);
+    }
+
+    if (contactRes.data) {
+      const c = contactRes.data;
+      parts.push(`# Liên hệ\n${c.email ? `Email: ${c.email}` : ''}${c.phone ? ` | SĐT: ${c.phone}` : ''}${c.location ? ` | Địa chỉ: ${c.location}` : ''}`);
+    }
+
+    if (trainingRes.data?.length) {
+      parts.push(`# FAQ đã huấn luyện\n${trainingRes.data.map(t => `Q: ${t.question}\nA: ${t.answer}`).join('\n\n')}`);
+    }
+
+    return parts.join('\n\n');
+  } catch (e) {
+    console.error("Error fetching portfolio context:", e);
+    return "";
+  }
+}
 
 serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
@@ -13,9 +80,31 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    const portfolioContext = await fetchPortfolioContext();
+
     const systemPrompt = language === "vi"
-      ? `Bạn là trợ lý portfolio thông minh của một chuyên gia Sales & Business Development. Bạn trả lời ngắn gọn, chuyên nghiệp, thân thiện bằng tiếng Việt. Bạn biết về kỹ năng, kinh nghiệm, dự án và các hoạt động của chủ portfolio. Nếu không biết câu trả lời chính xác, hãy gợi ý người dùng liên hệ trực tiếp qua trang Liên hệ. Giữ câu trả lời dưới 200 từ.`
-      : `You are a smart portfolio assistant for a Sales & Business Development expert. Answer concisely, professionally, and friendly in English. You know about the portfolio owner's skills, experience, projects, and activities. If you don't know the exact answer, suggest the user contact directly via the Contact page. Keep answers under 200 words.`;
+      ? `Bạn là trợ lý AI thông minh của portfolio cá nhân. Dưới đây là thông tin chi tiết về chủ portfolio:
+
+${portfolioContext}
+
+Hướng dẫn:
+- Trả lời ngắn gọn, chuyên nghiệp, thân thiện bằng tiếng Việt
+- Sử dụng thông tin ở trên để trả lời chính xác các câu hỏi
+- Nếu câu hỏi không liên quan đến portfolio, vẫn trả lời lịch sự nhưng gợi ý quay lại chủ đề portfolio
+- Nếu không biết câu trả lời chính xác, gợi ý liên hệ trực tiếp qua trang Liên hệ
+- Giữ câu trả lời dưới 200 từ
+- Có thể dùng emoji phù hợp để tạo sự thân thiện`
+      : `You are a smart AI assistant for a personal portfolio. Here is detailed information about the portfolio owner:
+
+${portfolioContext}
+
+Guidelines:
+- Answer concisely, professionally, and friendly in English
+- Use the information above to answer questions accurately
+- If the question isn't about the portfolio, still respond politely but suggest returning to portfolio topics
+- If you don't know the exact answer, suggest contacting directly via the Contact page
+- Keep answers under 200 words
+- Use appropriate emojis for friendliness`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
