@@ -11,6 +11,8 @@ import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award } from 'l
 const About = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
+  const { heroes } = usePageHeroes();
+  const aboutHeroVisible = heroes?.about?.visible !== false;
 
   const { data: aboutSection } = useQuery({
     queryKey: ['about_section'],
