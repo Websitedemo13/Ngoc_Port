@@ -60,4 +60,4 @@ export function usePageHeroes() {
   return { heroes: data || DEFAULT_HEROES, isLoading };
 }
 
-export { DEFAULT_HEROES };
+
