@@ -315,6 +315,54 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_sections: {
+        Row: {
+          background_style: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          image_url: string | null
+          page: string
+          published: boolean | null
+          section_type: string
+          show_title: boolean | null
+          sort_order: number | null
+          subtitle: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          background_style?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          page?: string
+          published?: boolean | null
+          section_type?: string
+          show_title?: boolean | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          background_style?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          image_url?: string | null
+          page?: string
+          published?: boolean | null
+          section_type?: string
+          show_title?: boolean | null
+          sort_order?: number | null
+          subtitle?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       education: {
         Row: {
           achievements: string[] | null
