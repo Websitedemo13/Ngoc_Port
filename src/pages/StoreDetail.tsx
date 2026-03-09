@@ -15,7 +15,15 @@ import { toast } from 'sonner';
 export default function StoreDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading } = useProductBySlug(slug || '');
+  const { data: allSettings } = useSettings();
   const { language } = useLanguage();
+
+  // Bank settings from admin
+  const settingsMap = allSettings?.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>) || {};
+  const bankName = settingsMap.bank_name || 'MB Bank';
+  const bankCode = settingsMap.bank_code || '970422';
+  const bankAccount = settingsMap.bank_account || '0123456789';
+  const bankOwner = settingsMap.bank_owner || '';
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
