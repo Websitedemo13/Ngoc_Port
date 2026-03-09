@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductBySlug } from '@/hooks/useStore';
 import { useLanguage } from '@/lib/i18n';
+import { useSettings } from '@/hooks/useSettings';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
@@ -14,7 +15,15 @@ import { toast } from 'sonner';
 export default function StoreDetail() {
   const { slug } = useParams<{ slug: string }>();
   const { data: product, isLoading } = useProductBySlug(slug || '');
+  const { data: allSettings } = useSettings();
   const { language } = useLanguage();
+
+  // Bank settings from admin
+  const settingsMap = allSettings?.reduce((acc, s) => ({ ...acc, [s.key]: s.value }), {} as Record<string, string>) || {};
+  const bankName = settingsMap.bank_name || 'MB Bank';
+  const bankCode = settingsMap.bank_code || '970422';
+  const bankAccount = settingsMap.bank_account || '0123456789';
+  const bankOwner = settingsMap.bank_owner || '';
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedColor, setSelectedColor] = useState('');
   const [selectedSize, setSelectedSize] = useState('');
@@ -225,7 +234,7 @@ export default function StoreDetail() {
           <div className="space-y-4">
             <div className="bg-muted rounded-xl p-4 text-center">
               <img
-                src={`https://img.vietqr.io/image/970422-0123456789-compact2.jpg?amount=${Math.round(totalPrice)}&addInfo=${encodeURIComponent(`Mua ${product.name} x${quantity}`)}`}
+                src={`https://img.vietqr.io/image/${bankCode}-${bankAccount}-compact2.jpg?amount=${Math.round(totalPrice)}&addInfo=${encodeURIComponent(`Mua ${product.name} x${quantity}`)}&accountName=${encodeURIComponent(bankOwner)}`}
                 alt="QR Chuyển khoản"
                 className="mx-auto rounded-lg max-w-[250px]"
               />
@@ -233,15 +242,23 @@ export default function StoreDetail() {
             </div>
 
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
-                <span className="text-muted-foreground">Ngân hàng:</span>
-                <span className="font-medium">MB Bank</span>
-              </div>
+              {bankName && (
+                <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground">Ngân hàng:</span>
+                  <span className="font-medium">{bankName}</span>
+                </div>
+              )}
+              {bankOwner && (
+                <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
+                  <span className="text-muted-foreground">Chủ TK:</span>
+                  <span className="font-medium">{bankOwner}</span>
+                </div>
+              )}
               <div className="flex justify-between items-center p-2 bg-muted/50 rounded-lg">
                 <span className="text-muted-foreground">STK:</span>
                 <div className="flex items-center gap-2">
-                  <span className="font-medium font-mono">0123456789</span>
-                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard('0123456789')}>
+                  <span className="font-medium font-mono">{bankAccount}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => copyToClipboard(bankAccount)}>
                     {copied ? <Check size={12} /> : <Copy size={12} />}
                   </Button>
                 </div>
