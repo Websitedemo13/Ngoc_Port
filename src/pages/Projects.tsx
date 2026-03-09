@@ -28,37 +28,22 @@ const Projects = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute bottom-10 left-20 w-80 h-80 bg-secondary rounded-full blur-3xl" />
+      <PageHero
+        pageKey="projects"
+        defaultTitle={{ en: 'Projects & Case Studies', vi: 'Dự án & Nghiên cứu' }}
+        defaultSubtitle={{ en: 'Explore my portfolio of impactful projects and strategic initiatives.', vi: 'Khám phá danh mục các dự án có tác động và sáng kiến chiến lược của tôi.' }}
+        defaultLabel={{ en: 'Portfolio', vi: 'Danh mục' }}
+      >
+        <div className="max-w-md mx-auto relative mt-8">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={language === 'en' ? 'Search projects...' : 'Tìm kiếm dự án...'}
+            className="pl-10 bg-background text-foreground rounded-full border-none shadow-lg"
+          />
         </div>
-        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
-          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
-            {language === 'en' ? 'Portfolio' : 'Danh mục'}
-          </p>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
-            {language === 'en' ? 'Projects & Case Studies' : 'Dự án & Nghiên cứu'}
-          </h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto mb-8">
-            {language === 'en'
-              ? 'Explore my portfolio of impactful projects and strategic initiatives.'
-              : 'Khám phá danh mục các dự án có tác động và sáng kiến chiến lược của tôi.'}
-          </p>
-          <div className="max-w-md mx-auto relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={language === 'en' ? 'Search projects...' : 'Tìm kiếm dự án...'}
-              className="pl-10 bg-background text-foreground rounded-full border-none shadow-lg"
-            />
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full"><path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" /></svg>
-        </div>
-      </section>
+      </PageHero>
 
       {/* Category Filter */}
       {categories.length > 2 && (
