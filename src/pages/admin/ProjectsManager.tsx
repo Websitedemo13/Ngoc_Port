@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { useAllProjects, useCreateProject, useUpdateProject, useDeleteProject, useToggleProjectFeatured } from '@/hooks/useProjects';
+import { useReorderItems } from '@/hooks/useReorder';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -11,6 +12,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Loader2, Plus, Pencil, Trash2, X, ImageIcon } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableRow } from '@/components/admin/SortableRow';
 import type { Project, ProjectInsert, ProjectUpdate } from '@/lib/supabase/projects';
 
 export default function ProjectsManager() {
@@ -19,6 +24,7 @@ export default function ProjectsManager() {
   const updateProject = useUpdateProject();
   const deleteProject = useDeleteProject();
   const toggleFeatured = useToggleProjectFeatured();
+  const reorder = useReorderItems('projects');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -27,6 +33,24 @@ export default function ProjectsManager() {
     image_url: '', link: '', technologies: [] as string[], featured: false, sort_order: 0,
   });
   const [techInput, setTechInput] = useState('');
+  const [localItems, setLocalItems] = useState<Project[]>([]);
+
+  useEffect(() => { if (projects) setLocalItems(projects); }, [projects]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = localItems.findIndex(i => i.id === active.id);
+    const newIndex = localItems.findIndex(i => i.id === over.id);
+    const newItems = arrayMove(localItems, oldIndex, newIndex);
+    setLocalItems(newItems);
+    reorder.mutate(newItems.map((item, i) => ({ id: item.id, sort_order: i })));
+  };
 
   useEffect(() => {
     if (editingProject) {
@@ -38,9 +62,7 @@ export default function ProjectsManager() {
         technologies: editingProject.technologies || [], featured: editingProject.featured || false,
         sort_order: editingProject.sort_order || 0,
       });
-    } else {
-      resetForm();
-    }
+    } else { resetForm(); }
   }, [editingProject]);
 
   const resetForm = () => {
@@ -63,9 +85,7 @@ export default function ProjectsManager() {
       setIsDialogOpen(false);
       setEditingProject(null);
       resetForm();
-    } catch (error) {
-      console.error('Error:', error);
-    }
+    } catch (error) { console.error('Error:', error); }
   };
 
   const handleDelete = async (id: string) => {
@@ -90,7 +110,7 @@ export default function ProjectsManager() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Quản lý dự án</h1>
-          <p className="text-sm text-muted-foreground">Thêm và chỉnh sửa các dự án portfolio</p>
+          <p className="text-sm text-muted-foreground">Kéo thả để sắp xếp thứ tự hiển thị</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={(open) => { setIsDialogOpen(open); if (!open) { setEditingProject(null); resetForm(); } }}>
           <DialogTrigger asChild>
@@ -99,7 +119,6 @@ export default function ProjectsManager() {
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <DialogHeader><DialogTitle>{editingProject ? 'Sửa dự án' : 'Thêm dự án'}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Premium Cover Image Section */}
               <div>
                 <Label className="text-sm font-semibold mb-2 block">Ảnh bìa dự án</Label>
                 {formData.image_url ? (
@@ -107,28 +126,17 @@ export default function ProjectsManager() {
                     <img src={formData.image_url} alt="Cover" className="w-full h-full object-cover" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                     <div className="absolute bottom-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Button type="button" size="sm" variant="secondary" className="shadow-lg" onClick={() => setFormData(p => ({ ...p, image_url: '' }))}>
-                        <X className="h-4 w-4 mr-1" /> Xóa ảnh
-                      </Button>
-                    </div>
-                    <div className="absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <span className="text-xs text-white/80 bg-black/40 px-2 py-1 rounded">21:9 • Ảnh bìa</span>
+                      <Button type="button" size="sm" variant="secondary" className="shadow-lg" onClick={() => setFormData(p => ({ ...p, image_url: '' }))}><X className="h-4 w-4 mr-1" /> Xóa ảnh</Button>
                     </div>
                   </div>
                 ) : (
-                  <div className="relative w-full aspect-[21/9] rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-2 hover:border-primary/40 hover:bg-muted/50 transition-colors">
-                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                      <ImageIcon className="h-6 w-6 text-primary/60" />
-                    </div>
-                    <p className="text-sm text-muted-foreground font-medium">Tải lên ảnh bìa dự án</p>
-                    <p className="text-xs text-muted-foreground/60">Khuyến nghị: 1920×820px, tỉ lệ 21:9</p>
+                  <div className="relative w-full aspect-[21/9] rounded-xl border-2 border-dashed border-border bg-muted/30 flex flex-col items-center justify-center gap-2">
+                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center"><ImageIcon className="h-6 w-6 text-primary/60" /></div>
+                    <p className="text-sm text-muted-foreground">Tải lên ảnh bìa dự án</p>
                   </div>
                 )}
-                <div className="mt-2">
-                  <MediaUpload label="" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" />
-                </div>
+                <div className="mt-2"><MediaUpload label="" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" /></div>
               </div>
-
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required /></div>
                 <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} /></div>
@@ -138,15 +146,9 @@ export default function ProjectsManager() {
                 <div><Label>Link</Label><Input value={formData.link} onChange={(e) => setFormData(p => ({ ...p, link: e.target.value }))} /></div>
               </div>
               <div><Label>Mô tả ngắn *</Label><Textarea value={formData.description} onChange={(e) => setFormData(p => ({ ...p, description: e.target.value }))} rows={3} required /></div>
-              <div><Label>Mô tả chi tiết</Label>
-                <RichTextEditor content={formData.full_description} onChange={(html) => setFormData(p => ({ ...p, full_description: html }))} placeholder="Mô tả chi tiết về dự án..." />
-              </div>
-              <div><Label>Thách thức</Label>
-                <RichTextEditor content={formData.challenge} onChange={(html) => setFormData(p => ({ ...p, challenge: html }))} placeholder="Thách thức gặp phải..." />
-              </div>
-              <div><Label>Giải pháp</Label>
-                <RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} placeholder="Giải pháp đã áp dụng..." />
-              </div>
+              <div><Label>Mô tả chi tiết</Label><RichTextEditor content={formData.full_description} onChange={(html) => setFormData(p => ({ ...p, full_description: html }))} /></div>
+              <div><Label>Thách thức</Label><RichTextEditor content={formData.challenge} onChange={(html) => setFormData(p => ({ ...p, challenge: html }))} /></div>
+              <div><Label>Giải pháp</Label><RichTextEditor content={formData.solution} onChange={(html) => setFormData(p => ({ ...p, solution: html }))} /></div>
               <div>
                 <Label>Công nghệ</Label>
                 <div className="flex gap-2 mb-2">
@@ -167,7 +169,6 @@ export default function ProjectsManager() {
                   <Switch checked={formData.featured} onCheckedChange={(checked) => setFormData(p => ({ ...p, featured: checked }))} />
                   <Label>Nổi bật</Label>
                 </div>
-                <div><Label>Thứ tự</Label><Input type="number" value={formData.sort_order} onChange={(e) => setFormData(p => ({ ...p, sort_order: parseInt(e.target.value) || 0 }))} className="w-24" /></div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
@@ -182,6 +183,7 @@ export default function ProjectsManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10" />
               <TableHead className="w-16">Ảnh</TableHead>
               <TableHead>Tiêu đề</TableHead>
               <TableHead>Danh mục</TableHead>
@@ -189,34 +191,34 @@ export default function ProjectsManager() {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {projects?.map((project) => (
-              <TableRow key={project.id}>
-                <TableCell>
-                  {project.image_url ? (
-                    <div className="w-12 h-8 rounded overflow-hidden border border-border">
-                      <img src={project.image_url} alt="" className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <div className="w-12 h-8 rounded bg-muted flex items-center justify-center border border-border">
-                      <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell className="font-medium">{project.title}</TableCell>
-                <TableCell>{project.category}</TableCell>
-                <TableCell>
-                  <Switch checked={project.featured || false} onCheckedChange={() => toggleFeatured.mutate({ id: project.id, featured: !project.featured })} />
-                </TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setEditingProject(project); setIsDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(project.id)}><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
+            <SortableContext items={localItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+              <TableBody>
+                {localItems.map((project) => (
+                  <SortableRow key={project.id} id={project.id}>
+                    <TableCell>
+                      {project.image_url ? (
+                        <div className="w-12 h-8 rounded overflow-hidden border border-border"><img src={project.image_url} alt="" className="w-full h-full object-cover" /></div>
+                      ) : (
+                        <div className="w-12 h-8 rounded bg-muted flex items-center justify-center border border-border"><ImageIcon className="h-4 w-4 text-muted-foreground/40" /></div>
+                      )}
+                    </TableCell>
+                    <TableCell className="font-medium">{project.title}</TableCell>
+                    <TableCell>{project.category}</TableCell>
+                    <TableCell>
+                      <Switch checked={project.featured || false} onCheckedChange={() => toggleFeatured.mutate({ id: project.id, featured: !project.featured })} />
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => { setEditingProject(project); setIsDialogOpen(true); }}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(project.id)}><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    </TableCell>
+                  </SortableRow>
+                ))}
+              </TableBody>
+            </SortableContext>
+          </DndContext>
         </Table>
       </div>
     </div>

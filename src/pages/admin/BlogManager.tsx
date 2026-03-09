@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAllPosts, useCreatePost, useUpdatePost, useDeletePost, useTogglePostPublished } from '@/hooks/useBlog';
+import { useReorderItems } from '@/hooks/useReorder';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,6 +13,10 @@ import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { MediaUpload } from '@/components/admin/MediaUpload';
 import { toast } from 'sonner';
 import { slugify } from '@/lib/slugify';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, type DragEndEvent } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable';
+import { restrictToVerticalAxis } from '@dnd-kit/modifiers';
+import { SortableRow } from '@/components/admin/SortableRow';
 import type { BlogPost, BlogPostInsert, BlogPostUpdate } from '@/lib/supabase/blog';
 
 export default function BlogManager() {
@@ -20,12 +25,31 @@ export default function BlogManager() {
   const updateMutation = useUpdatePost();
   const deleteMutation = useDeletePost();
   const togglePublishedMutation = useTogglePostPublished();
+  const reorder = useReorderItems('blogs');
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [formData, setFormData] = useState<Partial<BlogPostInsert>>({
     title: '', slug: '', excerpt: '', content: '', image_url: '', published: false, featured: false,
   });
+  const [localItems, setLocalItems] = useState<BlogPost[]>([]);
+
+  useEffect(() => { setLocalItems(posts); }, [posts]);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor)
+  );
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = localItems.findIndex(i => i.id === active.id);
+    const newIndex = localItems.findIndex(i => i.id === over.id);
+    const newItems = arrayMove(localItems, oldIndex, newIndex);
+    setLocalItems(newItems);
+    reorder.mutate(newItems.map((item, i) => ({ id: item.id, sort_order: i })));
+  };
 
   const handleOpenDialog = (post?: BlogPost) => {
     if (post) {
@@ -56,9 +80,7 @@ export default function BlogManager() {
       }
       setIsDialogOpen(false);
       setEditingPost(null);
-    } catch (error) {
-      console.error('Error saving post:', error);
-    }
+    } catch (error) { console.error('Error saving post:', error); }
   };
 
   const handleDelete = async (id: string) => {
@@ -76,56 +98,23 @@ export default function BlogManager() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Quản lý Blog</h1>
-          <p className="text-sm text-muted-foreground">Viết và xuất bản bài viết</p>
+          <p className="text-sm text-muted-foreground">Kéo thả để sắp xếp thứ tự hiển thị</p>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => handleOpenDialog()}>
-              <Plus className="h-4 w-4 mr-2" /> Thêm bài viết
-            </Button>
+            <Button onClick={() => handleOpenDialog()}><Plus className="h-4 w-4 mr-2" /> Thêm bài viết</Button>
           </DialogTrigger>
           <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingPost ? 'Sửa bài viết' : 'Tạo bài viết'}</DialogTitle>
-            </DialogHeader>
+            <DialogHeader><DialogTitle>{editingPost ? 'Sửa bài viết' : 'Tạo bài viết'}</DialogTitle></DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label>Tiêu đề *</Label>
-                <Input
-                  value={formData.title}
-                  onChange={(e) => setFormData({
-                    ...formData, title: e.target.value,
-                    slug: !editingPost ? slugify(e.target.value) : formData.slug,
-                  })}
-                  required
-                />
-              </div>
-              <div>
-                <Label>Slug</Label>
-                <Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} />
-              </div>
-              <div>
-                <Label>Tóm tắt</Label>
-                <Textarea value={formData.excerpt} onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })} rows={3} />
-              </div>
-              <div>
-                <Label>Nội dung *</Label>
-                <RichTextEditor
-                  content={formData.content || ''}
-                  onChange={(html) => setFormData({ ...formData, content: html })}
-                  placeholder="Viết nội dung bài viết tại đây..."
-                />
-              </div>
+              <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData({ ...formData, title: e.target.value, slug: !editingPost ? slugify(e.target.value) : formData.slug })} required /></div>
+              <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData({ ...formData, slug: e.target.value })} /></div>
+              <div><Label>Tóm tắt</Label><Textarea value={formData.excerpt} onChange={(e) => setFormData({ ...formData, excerpt: e.target.value })} rows={3} /></div>
+              <div><Label>Nội dung *</Label><RichTextEditor content={formData.content || ''} onChange={(html) => setFormData({ ...formData, content: html })} /></div>
               <MediaUpload label="Ảnh bìa" value={formData.image_url || ''} onChange={(url) => setFormData({ ...formData, image_url: url })} accept="image/*" />
               <div className="flex gap-6">
-                <div className="flex items-center space-x-2">
-                  <Switch id="published" checked={formData.published} onCheckedChange={(checked) => setFormData({ ...formData, published: checked })} />
-                  <Label htmlFor="published">Xuất bản</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="featured" checked={formData.featured} onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })} />
-                  <Label htmlFor="featured">Nổi bật</Label>
-                </div>
+                <div className="flex items-center space-x-2"><Switch id="published" checked={formData.published} onCheckedChange={(checked) => setFormData({ ...formData, published: checked })} /><Label htmlFor="published">Xuất bản</Label></div>
+                <div className="flex items-center space-x-2"><Switch id="featured" checked={formData.featured} onCheckedChange={(checked) => setFormData({ ...formData, featured: checked })} /><Label htmlFor="featured">Nổi bật</Label></div>
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>Hủy</Button>
@@ -140,6 +129,7 @@ export default function BlogManager() {
         <Table>
           <TableHeader>
             <TableRow>
+              <TableHead className="w-10" />
               <TableHead>Tiêu đề</TableHead>
               <TableHead>Slug</TableHead>
               <TableHead>Xuất bản</TableHead>
@@ -147,24 +137,26 @@ export default function BlogManager() {
               <TableHead>Thao tác</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
-            {posts.map((post) => (
-              <TableRow key={post.id}>
-                <TableCell className="font-medium">{post.title}</TableCell>
-                <TableCell className="text-muted-foreground text-xs font-mono">{post.slug}</TableCell>
-                <TableCell>
-                  <Switch checked={post.published || false} onCheckedChange={() => togglePublishedMutation.mutate({ id: post.id, published: !post.published })} />
-                </TableCell>
-                <TableCell>{post.featured ? '⭐' : '-'}</TableCell>
-                <TableCell>
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={() => handleOpenDialog(post)}><Pencil className="h-4 w-4" /></Button>
-                    <Button variant="destructive" size="sm" onClick={() => handleDelete(post.id)}><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis]}>
+            <SortableContext items={localItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+              <TableBody>
+                {localItems.map((post) => (
+                  <SortableRow key={post.id} id={post.id}>
+                    <TableCell className="font-medium">{post.title}</TableCell>
+                    <TableCell className="text-muted-foreground text-xs font-mono">{post.slug}</TableCell>
+                    <TableCell><Switch checked={post.published || false} onCheckedChange={() => togglePublishedMutation.mutate({ id: post.id, published: !post.published })} /></TableCell>
+                    <TableCell>{post.featured ? '⭐' : '-'}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => handleOpenDialog(post)}><Pencil className="h-4 w-4" /></Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleDelete(post.id)}><Trash2 className="h-4 w-4" /></Button>
+                      </div>
+                    </TableCell>
+                  </SortableRow>
+                ))}
+              </TableBody>
+            </SortableContext>
+          </DndContext>
         </Table>
       </div>
     </div>
