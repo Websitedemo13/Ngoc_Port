@@ -103,6 +103,10 @@ export default function SettingsManager() {
         site_name: map.site_name || '',
         footer_tagline: map.footer_tagline || '',
         footer_text: map.footer_text || '',
+        bank_name: map.bank_name || '',
+        bank_code: map.bank_code || '',
+        bank_account: map.bank_account || '',
+        bank_owner: map.bank_owner || '',
       });
       setColorTheme(map.color_theme || 'navy-gold');
       setFontTheme(map.font_theme || 'inter-lora');
