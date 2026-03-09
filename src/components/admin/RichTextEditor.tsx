@@ -365,7 +365,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
 
       {/* ═══ Footer status ═══ */}
       <div className="border-t border-border bg-muted/20 px-4 py-1.5 flex items-center justify-between text-xs text-muted-foreground">
-        <span>{editor.storage.characterCount?.characters?.() ?? editor.getText().length} ký tự</span>
+        <span>{editor.getText().length} ký tự</span>
         {uploading && (
           <span className="flex items-center gap-1 text-primary">
             <Loader2 size={12} className="animate-spin" /> Đang tải lên...

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import { useState, useRef, useEffect, useCallback } from 'react';
+import { MessageCircle, X, Send, Bot, User, Sparkles, RotateCcw, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useLanguage } from '@/lib/i18n';
@@ -72,21 +72,59 @@ async function streamChat({
   onDone();
 }
 
+const SUGGESTED_QUESTIONS = {
+  vi: [
+    '👤 Giới thiệu về bạn?',
+    '💼 Kinh nghiệm làm việc?',
+    '🚀 Dự án nổi bật?',
+    '🎓 Học vấn của bạn?',
+    '📬 Cách liên hệ?',
+    '⭐ Kỹ năng chính?',
+  ],
+  en: [
+    '👤 Tell me about yourself?',
+    '💼 Work experience?',
+    '🚀 Notable projects?',
+    '🎓 Education background?',
+    '📬 How to contact?',
+    '⭐ Key skills?',
+  ],
+};
+
 const ChatbotWidget = () => {
   const { language } = useLanguage();
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showScrollDown, setShowScrollDown] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const scrollToBottom = useCallback(() => {
+    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, loading]);
+    scrollToBottom();
+  }, [messages, loading, scrollToBottom]);
 
-  const handleSend = async () => {
-    if (!input.trim() || loading) return;
-    const userMsg: Message = { role: 'user', content: input.trim() };
+  // Detect if scrolled up
+  useEffect(() => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const { scrollTop, scrollHeight, clientHeight } = container;
+      setShowScrollDown(scrollHeight - scrollTop - clientHeight > 100);
+    };
+    container.addEventListener('scroll', handleScroll);
+    return () => container.removeEventListener('scroll', handleScroll);
+  }, [open]);
+
+  const handleSend = async (text?: string) => {
+    const msg = text || input.trim();
+    if (!msg || loading) return;
+    const userMsg: Message = { role: 'user', content: msg };
     const updatedMessages = [...messages, userMsg];
     setMessages(updatedMessages);
     setInput('');
@@ -122,63 +160,87 @@ const ChatbotWidget = () => {
     }
   };
 
-  const greeting = language === 'en'
-    ? "👋 Hi! I'm the AI portfolio assistant. Ask me anything about skills, experience, or projects!"
-    : "👋 Xin chào! Tôi là trợ lý AI portfolio. Hỏi tôi bất cứ điều gì về kỹ năng, kinh nghiệm hoặc dự án!";
+  const handleReset = () => {
+    setMessages([{ role: 'assistant', content: getGreeting() }]);
+  };
+
+  const getGreeting = () => language === 'en'
+    ? "👋 Hi! I'm the AI portfolio assistant. I know all about the portfolio owner's skills, experience, projects, and education. Ask me anything!"
+    : "👋 Xin chào! Tôi là trợ lý AI portfolio. Tôi biết rõ về kỹ năng, kinh nghiệm, dự án và học vấn của chủ portfolio. Hỏi tôi bất cứ điều gì!";
+
+  const showSuggestions = messages.length <= 1;
 
   return (
     <>
-      {/* FAB */}
+      {/* FAB with pulse animation */}
       <button
         onClick={() => {
           setOpen(true);
           if (messages.length === 0) {
-            setMessages([{ role: 'assistant', content: greeting }]);
+            setMessages([{ role: 'assistant', content: getGreeting() }]);
           }
         }}
-        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-secondary text-secondary-foreground shadow-gold flex items-center justify-center hover:scale-110 transition-all duration-300 ${open ? 'scale-0 pointer-events-none' : 'scale-100'}`}
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-secondary text-secondary-foreground shadow-gold flex items-center justify-center hover:scale-110 transition-all duration-300 group ${open ? 'scale-0 pointer-events-none' : 'scale-100'}`}
         aria-label="Open chat"
       >
-        <MessageCircle size={24} />
+        <MessageCircle size={24} className="group-hover:rotate-12 transition-transform" />
+        {/* Pulse ring */}
+        <span className="absolute inset-0 rounded-full bg-secondary/30 animate-ping pointer-events-none" />
       </button>
 
       {/* Chat Panel */}
       {open && (
-        <div className="fixed bottom-6 right-6 z-50 w-[380px] max-w-[calc(100vw-2rem)] h-[520px] max-h-[calc(100vh-6rem)] bg-card border border-border rounded-2xl shadow-xl flex flex-col overflow-hidden animate-scale-in">
+        <div className="fixed bottom-6 right-6 z-50 w-[400px] max-w-[calc(100vw-2rem)] h-[560px] max-h-[calc(100vh-6rem)] bg-card border border-border rounded-2xl shadow-xl flex flex-col overflow-hidden animate-scale-in">
           {/* Header */}
           <div className="bg-primary text-primary-foreground px-4 py-3 flex items-center justify-between shrink-0">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-secondary/20 flex items-center justify-center">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-full bg-secondary/20 flex items-center justify-center relative">
                 <Sparkles size={16} className="text-secondary" />
+                <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-400 rounded-full border-2 border-primary" />
               </div>
               <div>
                 <span className="font-semibold text-sm block leading-tight">
                   {language === 'en' ? 'AI Assistant' : 'Trợ lý AI'}
                 </span>
-                <span className="text-[10px] opacity-60">Powered by Lovable AI</span>
+                <span className="text-[10px] opacity-60">
+                  {loading ? (language === 'en' ? 'Typing...' : 'Đang trả lời...') : 'Online'}
+                </span>
               </div>
             </div>
-            <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity">
-              <X size={18} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={handleReset}
+                className="hover:opacity-70 transition-opacity p-1 rounded-md hover:bg-primary-foreground/10"
+                title={language === 'en' ? 'New conversation' : 'Cuộc trò chuyện mới'}
+              >
+                <RotateCcw size={14} />
+              </button>
+              <button onClick={() => setOpen(false)} className="hover:opacity-70 transition-opacity p-1 rounded-md hover:bg-primary-foreground/10">
+                <X size={18} />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-4 space-y-3 relative">
             {messages.map((msg, i) => (
-              <div key={i} className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              <div
+                key={i}
+                className={`flex gap-2 ${msg.role === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}
+                style={{ animationDelay: `${Math.min(i * 0.05, 0.3)}s`, animationFillMode: 'both' }}
+              >
                 {msg.role === 'assistant' && (
                   <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center shrink-0 mt-0.5">
                     <Bot size={14} className="text-secondary" />
                   </div>
                 )}
-                <div className={`max-w-[78%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
+                <div className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
                   msg.role === 'user'
                     ? 'bg-primary text-primary-foreground rounded-br-md'
                     : 'bg-muted text-foreground rounded-bl-md'
                 }`}>
                   {msg.role === 'assistant' ? (
-                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1 prose-ul:my-1 prose-li:my-0.5 prose-a:text-primary">
+                    <div className="prose prose-sm max-w-none prose-p:my-1 prose-headings:my-1 prose-ul:my-1 prose-li:my-0.5 prose-a:text-primary [&_p]:leading-relaxed [&_ul]:pl-4 [&_ol]:pl-4">
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
                   ) : msg.content}
@@ -190,8 +252,10 @@ const ChatbotWidget = () => {
                 )}
               </div>
             ))}
+
+            {/* Typing indicator */}
             {loading && messages[messages.length - 1]?.role !== 'assistant' && (
-              <div className="flex gap-2 items-start">
+              <div className="flex gap-2 items-start animate-fade-in">
                 <div className="w-7 h-7 rounded-full bg-secondary/20 flex items-center justify-center">
                   <Bot size={14} className="text-secondary" />
                 </div>
@@ -204,11 +268,42 @@ const ChatbotWidget = () => {
                 </div>
               </div>
             )}
+
+            {/* Suggested Questions */}
+            {showSuggestions && !loading && (
+              <div className="pt-2 animate-fade-in" style={{ animationDelay: '0.3s', animationFillMode: 'both' }}>
+                <p className="text-xs text-muted-foreground mb-2 font-medium">
+                  {language === 'en' ? '💡 Suggested questions:' : '💡 Câu hỏi gợi ý:'}
+                </p>
+                <div className="flex flex-wrap gap-1.5">
+                  {SUGGESTED_QUESTIONS[language].map((q, i) => (
+                    <button
+                      key={i}
+                      onClick={() => handleSend(q)}
+                      className="text-xs px-3 py-1.5 rounded-full bg-secondary/10 text-secondary-foreground hover:bg-secondary/20 border border-secondary/20 transition-all hover:scale-[1.02] active:scale-95"
+                    >
+                      {q}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div ref={bottomRef} />
           </div>
 
+          {/* Scroll to bottom button */}
+          {showScrollDown && (
+            <button
+              onClick={scrollToBottom}
+              className="absolute bottom-20 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground shadow-md flex items-center justify-center hover:scale-110 transition-transform z-10"
+            >
+              <ChevronDown size={16} />
+            </button>
+          )}
+
           {/* Input */}
-          <div className="border-t border-border p-3 shrink-0">
+          <div className="border-t border-border p-3 shrink-0 bg-card">
             <form onSubmit={(e) => { e.preventDefault(); handleSend(); }} className="flex gap-2">
               <Input
                 value={input}
@@ -221,6 +316,9 @@ const ChatbotWidget = () => {
                 <Send size={16} />
               </Button>
             </form>
+            <p className="text-[9px] text-muted-foreground text-center mt-1.5 opacity-50">
+              Powered by Lovable AI
+            </p>
           </div>
         </div>
       )}
