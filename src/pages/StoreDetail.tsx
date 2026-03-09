@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useProductBySlug } from '@/hooks/useStore';
 import { useLanguage } from '@/lib/i18n';
+import { useSettings } from '@/hooks/useSettings';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
