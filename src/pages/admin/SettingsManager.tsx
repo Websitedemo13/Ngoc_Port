@@ -87,6 +87,7 @@ export default function SettingsManager() {
     try {
       const allKeys = [
         'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme', 'page_heroes',
+        'bank_name', 'bank_code', 'bank_account', 'bank_owner',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
