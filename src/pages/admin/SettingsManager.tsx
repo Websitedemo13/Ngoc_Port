@@ -106,6 +106,9 @@ export default function SettingsManager() {
       if (map.saved_custom_themes) {
         try { setSavedThemes(JSON.parse(map.saved_custom_themes)); } catch { /* ignore */ }
       }
+      if (map.page_heroes) {
+        try { setPageHeroes({ ...DEFAULT_HEROES, ...JSON.parse(map.page_heroes) }); } catch { /* ignore */ }
+      }
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
       setPageVisibility(vis);
