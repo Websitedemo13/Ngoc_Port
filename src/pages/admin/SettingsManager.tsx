@@ -70,6 +70,7 @@ export default function SettingsManager() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
   const [newThemeName, setNewThemeName] = useState('');
+  const [pageHeroes, setPageHeroes] = useState<PageHeroes>({ ...DEFAULT_HEROES });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
