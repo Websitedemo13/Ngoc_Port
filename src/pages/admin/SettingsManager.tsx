@@ -7,13 +7,17 @@ import { MediaUpload } from '@/components/admin/MediaUpload';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type, LayoutTemplate } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
 import { FONT_THEMES, applyFontTheme } from '@/lib/fontThemes';
 import { useTheme } from '@/lib/theme';
 import { cn } from '@/lib/utils';
+import { PAGE_HERO_KEYS, DEFAULT_HEROES, type PageHeroes, type PageHeroConfig } from '@/hooks/usePageHeroes';
+
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 
 const PAGE_KEYS = [
   { key: 'page_about', label: 'Giới thiệu (About)', path: '/about' },
@@ -66,6 +70,7 @@ export default function SettingsManager() {
   const [socialLinks, setSocialLinks] = useState<SocialLink[]>([]);
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>([]);
   const [newThemeName, setNewThemeName] = useState('');
+  const [pageHeroes, setPageHeroes] = useState<PageHeroes>({ ...DEFAULT_HEROES });
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -76,7 +81,7 @@ export default function SettingsManager() {
   const loadSettings = async () => {
     try {
       const allKeys = [
-        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme',
+        'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme', 'page_heroes',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -100,6 +105,9 @@ export default function SettingsManager() {
       }
       if (map.saved_custom_themes) {
         try { setSavedThemes(JSON.parse(map.saved_custom_themes)); } catch { /* ignore */ }
+      }
+      if (map.page_heroes) {
+        try { setPageHeroes({ ...DEFAULT_HEROES, ...JSON.parse(map.page_heroes) }); } catch { /* ignore */ }
       }
       const vis: Record<string, boolean> = {};
       PAGE_KEYS.forEach(p => { vis[p.key] = map[p.key] !== 'hidden'; });
@@ -151,6 +159,11 @@ export default function SettingsManager() {
         const { error } = await supabase.from('settings').upsert({ key: 'font_theme', value: fontTheme }, { onConflict: 'key' });
         if (error) throw error;
       }
+      // Save page heroes
+      {
+        const { error } = await supabase.from('settings').upsert({ key: 'page_heroes', value: JSON.stringify(pageHeroes) }, { onConflict: 'key' });
+        if (error) throw error;
+      }
       // Save page visibility
       for (const [key, visible] of Object.entries(pageVisibility)) {
         const value = visible ? 'visible' : 'hidden';
@@ -185,6 +198,7 @@ export default function SettingsManager() {
       queryClient.invalidateQueries({ queryKey: ['site-settings'] });
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['social_links'] });
+      queryClient.invalidateQueries({ queryKey: ['page-heroes'] });
       toast.success('Đã lưu cài đặt');
     } catch (error: any) {
       toast.error(error.message || 'Lưu thất bại');
@@ -651,7 +665,152 @@ export default function SettingsManager() {
           </div>
         </div>
 
-        {/* Footer Settings */}
+        {/* Page Hero Settings */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <div className="flex items-center gap-2 mb-2">
+            <LayoutTemplate className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Hero Banner từng trang</h2>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            Tùy chỉnh tiêu đề, phụ đề, nhãn và ảnh nền cho hero banner của từng trang. Có thể ẩn hero nếu không cần.
+          </p>
+          <div className="space-y-3">
+            {PAGE_HERO_KEYS.map(({ key, label }) => {
+              const hero = pageHeroes[key] || DEFAULT_HEROES[key];
+              const updateHero = (field: keyof PageHeroConfig, value: string | boolean) => {
+                setPageHeroes(prev => ({
+                  ...prev,
+                  [key]: { ...(prev[key] || DEFAULT_HEROES[key]), [field]: value },
+                }));
+              };
+              return (
+                <Collapsible key={key}>
+                  <div className="border border-border rounded-xl overflow-hidden">
+                    <CollapsibleTrigger asChild>
+                      <button
+                        type="button"
+                        className="w-full flex items-center justify-between p-4 hover:bg-muted/30 transition-colors text-left"
+                      >
+                        <div className="flex items-center gap-3">
+                          {hero.visible !== false ? (
+                            <Eye className="h-4 w-4 text-primary" />
+                          ) : (
+                            <EyeOff className="h-4 w-4 text-muted-foreground" />
+                          )}
+                          <span className="font-medium text-sm">{label}</span>
+                          {hero.visible === false && (
+                            <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded-full">Đã ẩn</span>
+                          )}
+                        </div>
+                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                      </button>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <div className="px-4 pb-4 space-y-4 border-t border-border pt-4">
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm">Hiển thị Hero Banner</Label>
+                          <Switch
+                            checked={hero.visible !== false}
+                            onCheckedChange={(checked) => updateHero('visible', checked)}
+                          />
+                        </div>
+                        {hero.visible !== false && (
+                          <>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Nhãn (VI)</Label>
+                                <Input
+                                  value={hero.label_vi || ''}
+                                  onChange={(e) => updateHero('label_vi', e.target.value)}
+                                  placeholder="VD: Hành trình sự nghiệp"
+                                  className="text-sm"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Nhãn (EN)</Label>
+                                <Input
+                                  value={hero.label_en || ''}
+                                  onChange={(e) => updateHero('label_en', e.target.value)}
+                                  placeholder="e.g. Career Journey"
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Tiêu đề (VI)</Label>
+                                <Input
+                                  value={hero.title_vi || ''}
+                                  onChange={(e) => updateHero('title_vi', e.target.value)}
+                                  placeholder="Tiêu đề chính tiếng Việt"
+                                  className="text-sm"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Tiêu đề (EN)</Label>
+                                <Input
+                                  value={hero.title_en || ''}
+                                  onChange={(e) => updateHero('title_en', e.target.value)}
+                                  placeholder="Main title in English"
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Phụ đề (VI)</Label>
+                                <Input
+                                  value={hero.subtitle_vi || ''}
+                                  onChange={(e) => updateHero('subtitle_vi', e.target.value)}
+                                  placeholder="Mô tả ngắn tiếng Việt"
+                                  className="text-sm"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label className="text-xs font-medium">Phụ đề (EN)</Label>
+                                <Input
+                                  value={hero.subtitle_en || ''}
+                                  onChange={(e) => updateHero('subtitle_en', e.target.value)}
+                                  placeholder="Short description in English"
+                                  className="text-sm"
+                                />
+                              </div>
+                            </div>
+                            <div className="space-y-2">
+                              <Label className="text-xs font-medium">Ảnh nền Hero (tuỳ chọn)</Label>
+                              <MediaUpload
+                                value={hero.background_image_url || ''}
+                                onChange={(url) => updateHero('background_image_url', url)}
+                                label=""
+                                accept="image/*"
+                                maxSizeMB={5}
+                              />
+                              {hero.background_image_url && (
+                                <div className="relative group">
+                                  <img src={hero.background_image_url} alt="Hero bg" className="h-24 w-full object-cover rounded-lg" />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => updateHero('background_image_url', '')}
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </CollapsibleContent>
+                  </div>
+                </Collapsible>
+              );
+            })}
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <h2 className="font-semibold text-lg">Nội dung Footer</h2>
           <div>

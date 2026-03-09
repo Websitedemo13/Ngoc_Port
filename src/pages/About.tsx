@@ -3,6 +3,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
+import { usePageHeroes } from '@/hooks/usePageHeroes';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award } from 'lucide-react';
@@ -10,6 +11,8 @@ import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award } from 'l
 const About = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
+  const { heroes } = usePageHeroes();
+  const aboutHeroVisible = heroes?.about?.visible !== false;
 
   const { data: aboutSection } = useQuery({
     queryKey: ['about_section'],
@@ -81,6 +84,7 @@ const About = () => {
       <Navigation />
 
       {/* Hero Section with gradient */}
+      {aboutHeroVisible && (
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-navy-gradient opacity-[0.03]" />
         <div className="container mx-auto px-4 py-16 md:py-24">
@@ -161,6 +165,7 @@ const About = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* About Section */}
       {aboutSection && (

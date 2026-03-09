@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/lib/i18n';
 import { usePublishedPosts, useFeaturedPosts } from '@/hooks/useBlog';
+import PageHero from '@/components/PageHero';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,35 +30,22 @@ const Blog = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-20 w-96 h-96 bg-secondary rounded-full blur-3xl" />
+      <PageHero
+        pageKey="blog"
+        defaultTitle={{ en: 'Insights & Articles', vi: 'Bài viết & Chia sẻ' }}
+        defaultSubtitle={{ en: 'Thoughts on leadership, international relations, and professional development.', vi: 'Chia sẻ về lãnh đạo, quan hệ quốc tế và phát triển nghề nghiệp.' }}
+        defaultLabel={{ en: 'Blog', vi: 'Blog' }}
+      >
+        <div className="max-w-md mx-auto relative mt-8">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder={language === 'en' ? 'Search articles...' : 'Tìm kiếm bài viết...'}
+            className="pl-10 bg-background text-foreground rounded-full border-none shadow-lg"
+          />
         </div>
-        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
-          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">Blog</p>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
-            {language === 'en' ? 'Insights & Articles' : 'Bài viết & Chia sẻ'}
-          </h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto mb-8">
-            {language === 'en'
-              ? 'Thoughts on leadership, international relations, and professional development.'
-              : 'Chia sẻ về lãnh đạo, quan hệ quốc tế và phát triển nghề nghiệp.'}
-          </p>
-          <div className="max-w-md mx-auto relative">
-            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={language === 'en' ? 'Search articles...' : 'Tìm kiếm bài viết...'}
-              className="pl-10 bg-background text-foreground rounded-full border-none shadow-lg"
-            />
-          </div>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full"><path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" /></svg>
-        </div>
-      </section>
+      </PageHero>
 
       {/* Featured */}
       {!search && featuredPosts && featuredPosts.length > 0 && (
