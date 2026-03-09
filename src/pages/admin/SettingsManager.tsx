@@ -307,7 +307,7 @@ export default function SettingsManager() {
           <p className="text-sm text-muted-foreground">
             Chọn bảng màu chủ đạo cho toàn bộ website. Thay đổi sẽ áp dụng ngay sau khi lưu.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
             {COLOR_THEMES.map((t) => {
               const isActive = colorTheme === t.id;
               return (
@@ -534,7 +534,7 @@ export default function SettingsManager() {
           <p className="text-sm text-muted-foreground">
             Chọn cặp font chữ cho tiêu đề và nội dung. Thay đổi sẽ áp dụng ngay sau khi lưu.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {FONT_THEMES.map((ft) => {
               const isActive = fontTheme === ft.id;
               return (
