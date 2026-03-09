@@ -74,28 +74,12 @@ const Contact = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute bottom-0 right-10 w-80 h-80 bg-secondary rounded-full blur-3xl" />
-        </div>
-        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
-          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
-            {language === 'en' ? 'Contact' : 'Liên hệ'}
-          </p>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
-            {language === 'en' ? "Let's Connect" : 'Kết nối với tôi'}
-          </h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto">
-            {language === 'en'
-              ? "I'm always open to discussing new opportunities, collaborations, or just having a conversation."
-              : 'Tôi luôn sẵn sàng thảo luận về cơ hội mới, hợp tác hoặc chỉ để trò chuyện.'}
-          </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full"><path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" /></svg>
-        </div>
-      </section>
+      <PageHero
+        pageKey="contact"
+        defaultTitle={{ en: "Let's Connect", vi: 'Kết nối với tôi' }}
+        defaultSubtitle={{ en: "I'm always open to discussing new opportunities, collaborations, or just having a conversation.", vi: 'Tôi luôn sẵn sàng thảo luận về cơ hội mới, hợp tác hoặc chỉ để trò chuyện.' }}
+        defaultLabel={{ en: 'Contact', vi: 'Liên hệ' }}
+      />
 
       {/* Contact Content */}
       <section className="container mx-auto px-4 py-16 md:py-20">

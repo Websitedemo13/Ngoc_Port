@@ -14,31 +14,12 @@ const Education = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 left-20 w-64 h-64 bg-secondary rounded-full blur-3xl" />
-          <div className="absolute bottom-10 right-20 w-48 h-48 bg-accent rounded-full blur-3xl" />
-        </div>
-        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
-          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
-            {language === 'en' ? 'Academic Background' : 'Nền tảng học vấn'}
-          </p>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
-            {language === 'en' ? 'Education' : 'Học vấn'}
-          </h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto">
-            {language === 'en'
-              ? 'Academic qualifications, certifications, and continuous learning journey.'
-              : 'Bằng cấp, chứng chỉ và hành trình học tập không ngừng.'}
-          </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full">
-            <path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" />
-          </svg>
-        </div>
-      </section>
+      <PageHero
+        pageKey="education"
+        defaultTitle={{ en: 'Education', vi: 'Học vấn' }}
+        defaultSubtitle={{ en: 'Academic qualifications, certifications, and continuous learning journey.', vi: 'Bằng cấp, chứng chỉ và hành trình học tập không ngừng.' }}
+        defaultLabel={{ en: 'Academic Background', vi: 'Nền tảng học vấn' }}
+      />
 
       {/* Timeline */}
       <section className="container mx-auto px-4 py-16 md:py-20">

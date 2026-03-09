@@ -14,28 +14,12 @@ const Experience = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero */}
-      <section className="relative overflow-hidden bg-navy-gradient text-primary-foreground py-20 md:py-28">
-        <div className="absolute inset-0 opacity-10">
-          <div className="absolute top-10 right-20 w-64 h-64 bg-secondary rounded-full blur-3xl" />
-        </div>
-        <div className="container mx-auto px-4 text-center relative z-10 animate-fade-in">
-          <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-3">
-            {language === 'en' ? 'Career Journey' : 'Hành trình sự nghiệp'}
-          </p>
-          <h1 className="font-serif text-4xl md:text-6xl font-bold mb-6">
-            {language === 'en' ? 'Professional Experience' : 'Kinh nghiệm làm việc'}
-          </h1>
-          <p className="text-lg opacity-80 max-w-2xl mx-auto">
-            {language === 'en'
-              ? 'A journey of growth, leadership, and impactful contributions across various organizations.'
-              : 'Hành trình phát triển, lãnh đạo và đóng góp có ý nghĩa tại các tổ chức khác nhau.'}
-          </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0">
-          <svg viewBox="0 0 1440 60" fill="none" className="w-full"><path d="M0 60L1440 60L1440 0C1440 0 1080 60 720 60C360 60 0 0 0 0L0 60Z" fill="hsl(var(--background))" /></svg>
-        </div>
-      </section>
+      <PageHero
+        pageKey="experience"
+        defaultTitle={{ en: 'Professional Experience', vi: 'Kinh nghiệm làm việc' }}
+        defaultSubtitle={{ en: 'A journey of growth, leadership, and impactful contributions across various organizations.', vi: 'Hành trình phát triển, lãnh đạo và đóng góp có ý nghĩa tại các tổ chức khác nhau.' }}
+        defaultLabel={{ en: 'Career Journey', vi: 'Hành trình sự nghiệp' }}
+      />
 
       {/* Timeline */}
       <section className="container mx-auto px-4 py-16 md:py-20">
