@@ -414,6 +414,7 @@ const Home = () => {
         </RevealSection>
       </section>
 
+      <CustomSections page="home" />
       <Footer />
     </div>
   );
