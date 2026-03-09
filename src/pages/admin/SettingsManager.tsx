@@ -63,6 +63,10 @@ export default function SettingsManager() {
     site_name: '',
     footer_tagline: '',
     footer_text: '',
+    bank_name: '',
+    bank_code: '',
+    bank_account: '',
+    bank_owner: '',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
   const [fontTheme, setFontTheme] = useState('inter-lora');
