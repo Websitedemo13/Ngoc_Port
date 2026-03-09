@@ -6,6 +6,7 @@ import PageHero from '@/components/PageHero';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';

@@ -2,6 +2,7 @@ import { useLanguage } from '@/lib/i18n';
 import { usePublishedActivities } from '@/hooks/useActivities';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
+import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
