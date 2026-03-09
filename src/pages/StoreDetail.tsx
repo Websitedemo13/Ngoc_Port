@@ -381,7 +381,7 @@ export default function StoreDetail() {
 
             {/* Footer note */}
             <div className="flex items-start gap-2 text-xs text-muted-foreground">
-              <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5 text-green-500" />
+              <CheckCircle2 size={14} className="flex-shrink-0 mt-0.5 text-secondary" />
               <span>Sau khi chuyển khoản thành công, đơn hàng sẽ được xử lý trong vòng 24h. Liên hệ hotline nếu cần hỗ trợ.</span>
             </div>
           </div>
