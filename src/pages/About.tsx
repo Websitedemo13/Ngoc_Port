@@ -84,6 +84,7 @@ const About = () => {
       <Navigation />
 
       {/* Hero Section with gradient */}
+      {aboutHeroVisible && (
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-navy-gradient opacity-[0.03]" />
         <div className="container mx-auto px-4 py-16 md:py-24">
