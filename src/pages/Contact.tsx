@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useLanguage } from '@/lib/i18n';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import PageHero from '@/components/PageHero';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
