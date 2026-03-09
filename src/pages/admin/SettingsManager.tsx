@@ -842,6 +842,32 @@ export default function SettingsManager() {
           </div>
         </div>
 
+        {/* Bank Transfer Settings */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <h3 className="font-semibold text-lg flex items-center gap-2">
+            💳 Thanh toán chuyển khoản (Store)
+          </h3>
+          <p className="text-sm text-muted-foreground">Thông tin ngân hàng hiển thị khi khách mua hàng trên Store. Tra mã BIN tại <a href="https://www.vietqr.io/danh-sach-ngan-hang" target="_blank" rel="noopener" className="underline text-primary">vietqr.io</a></p>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label>Tên ngân hàng</Label>
+              <Input value={settings.bank_name} onChange={(e) => setSettings(prev => ({ ...prev, bank_name: e.target.value }))} placeholder="Ví dụ: MB Bank, Vietcombank..." />
+            </div>
+            <div>
+              <Label>Mã ngân hàng (BIN)</Label>
+              <Input value={settings.bank_code} onChange={(e) => setSettings(prev => ({ ...prev, bank_code: e.target.value }))} placeholder="Ví dụ: 970422 (MB), 970436 (VCB)" />
+            </div>
+            <div>
+              <Label>Số tài khoản</Label>
+              <Input value={settings.bank_account} onChange={(e) => setSettings(prev => ({ ...prev, bank_account: e.target.value }))} placeholder="Nhập số tài khoản ngân hàng" />
+            </div>
+            <div>
+              <Label>Tên chủ tài khoản</Label>
+              <Input value={settings.bank_owner} onChange={(e) => setSettings(prev => ({ ...prev, bank_owner: e.target.value }))} placeholder="NGUYEN VAN A (viết hoa, không dấu)" />
+            </div>
+          </div>
+        </div>
+
         <div className="bg-muted/50 border border-border rounded-2xl p-4">
           <p className="text-sm text-muted-foreground">
             <strong>Lưu ý:</strong> Các trang bị ẩn sẽ không xuất hiện trong menu điều hướng và footer, nhưng vẫn có thể truy cập trực tiếp bằng URL.
