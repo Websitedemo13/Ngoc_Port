@@ -97,6 +97,7 @@ const Experience = () => {
         </div>
       </section>
 
+      <CustomSections page="experience" />
       <Footer />
     </div>
   );

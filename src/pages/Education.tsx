@@ -102,6 +102,7 @@ const Education = () => {
         </div>
       </section>
 
+      <CustomSections page="education" />
       <Footer />
     </div>
   );

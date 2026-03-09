@@ -149,6 +149,7 @@ const Projects = () => {
         </div>
       </section>
 
+      <CustomSections page="projects" />
       <Footer />
     </div>
   );

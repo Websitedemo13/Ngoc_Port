@@ -254,6 +254,7 @@ const Contact = () => {
         </section>
       )}
 
+      <CustomSections page="contact" />
       <Footer />
     </div>
   );

@@ -248,6 +248,7 @@ const About = () => {
         </section>
       )}
 
+      <CustomSections page="about" />
       <Footer />
     </div>
   );

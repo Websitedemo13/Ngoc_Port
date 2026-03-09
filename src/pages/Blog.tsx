@@ -140,6 +140,7 @@ const Blog = () => {
         </div>
       </section>
 
+      <CustomSections page="blog" />
       <Footer />
     </div>
   );

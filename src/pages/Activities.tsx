@@ -72,6 +72,7 @@ const Activities = () => {
         </div>
       </section>
 
+      <CustomSections page="activities" />
       <Footer />
     </div>
   );
