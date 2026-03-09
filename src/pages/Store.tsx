@@ -46,7 +46,7 @@ export default function Store() {
   return (
     <div className="min-h-screen bg-background">
       <Navigation />
-      <PageHero pageKey="store" />
+      <PageHero pageKey="store" defaultTitle={{ en: 'Store', vi: 'Cửa hàng' }} defaultSubtitle={{ en: 'Products, courses & resources', vi: 'Sản phẩm, khóa học & tài liệu' }} />
 
       <div className="container mx-auto px-4 py-12">
         <div className="max-w-7xl mx-auto">
