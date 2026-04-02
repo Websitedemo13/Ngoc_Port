@@ -34,6 +34,9 @@ export default function StoreDetail() {
   const [quantity, setQuantity] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null);
+  const [voucherLoading, setVoucherLoading] = useState(false);
 
   if (isLoading) {
     return (
