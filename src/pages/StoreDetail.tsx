@@ -229,9 +229,49 @@ export default function StoreDetail() {
               </div>
             </div>
 
+            {/* Voucher */}
+            <div>
+              <p className="text-sm font-medium mb-2 flex items-center gap-1"><Ticket size={14} /> Mã giảm giá</p>
+              {appliedVoucher ? (
+                <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Ticket size={16} className="text-primary" />
+                  <div className="flex-1">
+                    <span className="font-mono font-bold text-primary">{appliedVoucher.code}</span>
+                    <span className="text-sm text-muted-foreground ml-2">-{formatPrice(voucherDiscountAmount)}</span>
+                  </div>
+                  <Button size="icon" variant="ghost" onClick={handleRemoveVoucher}><X size={14} /></Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nhập mã giảm giá..."
+                    value={voucherCode}
+                    onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+                    className="font-mono"
+                    onKeyDown={e => e.key === 'Enter' && handleApplyVoucher()}
+                  />
+                  <Button variant="outline" onClick={handleApplyVoucher} disabled={voucherLoading}>
+                    {voucherLoading ? '...' : 'Áp dụng'}
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Total + Buy */}
             <Card className="bg-muted/50">
               <CardContent className="p-4">
+                {appliedVoucher && (
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Tạm tính:</span>
+                    <span className="text-muted-foreground">{formatPrice(subtotal)}</span>
+                  </div>
+                )}
+                {appliedVoucher && (
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-primary flex items-center gap-1"><Ticket size={12} /> Voucher:</span>
+                    <span className="text-primary">-{formatPrice(voucherDiscountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-muted-foreground">Tổng cộng:</span>
                   <span className="text-2xl font-bold text-primary">{formatPrice(totalPrice)}</span>
