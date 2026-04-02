@@ -4,12 +4,14 @@ import { useProductBySlug } from '@/hooks/useStore';
 import { useLanguage } from '@/lib/i18n';
 import { useSettings } from '@/hooks/useSettings';
 import { getBankByCode } from '@/lib/vietqrBanks';
+import { vouchersAPI, validateVoucher, calculateDiscount, Voucher } from '@/lib/supabase/vouchers';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard, Ticket, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
@@ -32,6 +34,9 @@ export default function StoreDetail() {
   const [quantity, setQuantity] = useState(1);
   const [showPayment, setShowPayment] = useState(false);
   const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [voucherCode, setVoucherCode] = useState('');
+  const [appliedVoucher, setAppliedVoucher] = useState<Voucher | null>(null);
+  const [voucherLoading, setVoucherLoading] = useState(false);
 
   if (isLoading) {
     return (
@@ -66,8 +71,33 @@ export default function StoreDetail() {
     ? product.price * (1 - product.discount_percent / 100)
     : product.price;
 
-  const totalPrice = discountedPrice * quantity;
+  const subtotal = discountedPrice * quantity;
+  const voucherDiscountAmount = appliedVoucher ? calculateDiscount(appliedVoucher, subtotal) : 0;
+  const totalPrice = subtotal - voucherDiscountAmount;
   const transferContent = `${product.name.slice(0, 30)} x${quantity}`;
+
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) return;
+    setVoucherLoading(true);
+    try {
+      const voucher = await vouchersAPI.getByCode(voucherCode);
+      const result = validateVoucher(voucher, subtotal, product.product_type);
+      if (!result.valid) {
+        toast.error(result.error);
+      } else {
+        setAppliedVoucher(voucher);
+        toast.success(`Áp dụng mã "${voucher.code}" thành công!`);
+      }
+    } catch {
+      toast.error('Mã không hợp lệ hoặc không tồn tại');
+    }
+    setVoucherLoading(false);
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherCode('');
+  };
 
   const allImages = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
 
@@ -199,9 +229,49 @@ export default function StoreDetail() {
               </div>
             </div>
 
+            {/* Voucher */}
+            <div>
+              <p className="text-sm font-medium mb-2 flex items-center gap-1"><Ticket size={14} /> Mã giảm giá</p>
+              {appliedVoucher ? (
+                <div className="flex items-center gap-2 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                  <Ticket size={16} className="text-primary" />
+                  <div className="flex-1">
+                    <span className="font-mono font-bold text-primary">{appliedVoucher.code}</span>
+                    <span className="text-sm text-muted-foreground ml-2">-{formatPrice(voucherDiscountAmount)}</span>
+                  </div>
+                  <Button size="icon" variant="ghost" onClick={handleRemoveVoucher}><X size={14} /></Button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Nhập mã giảm giá..."
+                    value={voucherCode}
+                    onChange={e => setVoucherCode(e.target.value.toUpperCase())}
+                    className="font-mono"
+                    onKeyDown={e => e.key === 'Enter' && handleApplyVoucher()}
+                  />
+                  <Button variant="outline" onClick={handleApplyVoucher} disabled={voucherLoading}>
+                    {voucherLoading ? '...' : 'Áp dụng'}
+                  </Button>
+                </div>
+              )}
+            </div>
+
             {/* Total + Buy */}
             <Card className="bg-muted/50">
               <CardContent className="p-4">
+                {appliedVoucher && (
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-muted-foreground">Tạm tính:</span>
+                    <span className="text-muted-foreground">{formatPrice(subtotal)}</span>
+                  </div>
+                )}
+                {appliedVoucher && (
+                  <div className="flex items-center justify-between text-sm mb-2">
+                    <span className="text-primary flex items-center gap-1"><Ticket size={12} /> Voucher:</span>
+                    <span className="text-primary">-{formatPrice(voucherDiscountAmount)}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-muted-foreground">Tổng cộng:</span>
                   <span className="text-2xl font-bold text-primary">{formatPrice(totalPrice)}</span>

@@ -29,6 +29,7 @@ import BlogManager from "./pages/admin/BlogManager";
 import MediaLibrary from "./pages/admin/MediaLibrary";
 import CustomSectionsManager from "./pages/admin/CustomSectionsManager";
 import StoreManager from "./pages/admin/StoreManager";
+import VouchersManager from "./pages/admin/VouchersManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="media" element={<MediaLibrary />} />
             <Route path="custom-sections" element={<CustomSectionsManager />} />
             <Route path="store" element={<StoreManager />} />
+            <Route path="vouchers" element={<VouchersManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
