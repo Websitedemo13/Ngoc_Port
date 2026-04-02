@@ -71,8 +71,33 @@ export default function StoreDetail() {
     ? product.price * (1 - product.discount_percent / 100)
     : product.price;
 
-  const totalPrice = discountedPrice * quantity;
+  const subtotal = discountedPrice * quantity;
+  const voucherDiscountAmount = appliedVoucher ? calculateDiscount(appliedVoucher, subtotal) : 0;
+  const totalPrice = subtotal - voucherDiscountAmount;
   const transferContent = `${product.name.slice(0, 30)} x${quantity}`;
+
+  const handleApplyVoucher = async () => {
+    if (!voucherCode.trim()) return;
+    setVoucherLoading(true);
+    try {
+      const voucher = await vouchersAPI.getByCode(voucherCode);
+      const result = validateVoucher(voucher, subtotal, product.product_type);
+      if (!result.valid) {
+        toast.error(result.error);
+      } else {
+        setAppliedVoucher(voucher);
+        toast.success(`Áp dụng mã "${voucher.code}" thành công!`);
+      }
+    } catch {
+      toast.error('Mã không hợp lệ hoặc không tồn tại');
+    }
+    setVoucherLoading(false);
+  };
+
+  const handleRemoveVoucher = () => {
+    setAppliedVoucher(null);
+    setVoucherCode('');
+  };
 
   const allImages = [product.image_url, ...(product.images || [])].filter(Boolean) as string[];
 
