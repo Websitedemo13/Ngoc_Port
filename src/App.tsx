@@ -73,6 +73,7 @@ const App = () => (
             <Route path="media" element={<MediaLibrary />} />
             <Route path="custom-sections" element={<CustomSectionsManager />} />
             <Route path="store" element={<StoreManager />} />
+            <Route path="vouchers" element={<VouchersManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
