@@ -4,12 +4,14 @@ import { useProductBySlug } from '@/hooks/useStore';
 import { useLanguage } from '@/lib/i18n';
 import { useSettings } from '@/hooks/useSettings';
 import { getBankByCode } from '@/lib/vietqrBanks';
+import { vouchersAPI, validateVoucher, calculateDiscount, Voucher } from '@/lib/supabase/vouchers';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard, Ticket, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { toast } from 'sonner';
 
