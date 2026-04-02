@@ -7,7 +7,7 @@ import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, GraduationCap,
-  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag
+  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag, Ticket
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
