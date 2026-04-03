@@ -1,5 +1,7 @@
 import { useLanguage } from '@/lib/i18n';
 import { useProfile } from '@/hooks/useProfile';
+import { usePublishedExperiences } from '@/hooks/useExperiences';
+import { usePublishedActivities } from '@/hooks/useActivities';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
@@ -7,13 +9,15 @@ import { usePageHeroes } from '@/hooks/usePageHeroes';
 import Footer from '@/components/Footer';
 import CustomSections from '@/components/CustomSections';
 import { Card, CardContent } from '@/components/ui/card';
-import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award } from 'lucide-react';
+import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award, Briefcase, Calendar, ChevronRight, Activity } from 'lucide-react';
 
 const About = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
   const { heroes } = usePageHeroes();
   const aboutHeroVisible = heroes?.about?.visible !== false;
+  const { data: experiences } = usePublishedExperiences();
+  const { data: activities } = usePublishedActivities();
 
   const { data: aboutSection } = useQuery({
     queryKey: ['about_section'],
@@ -84,63 +88,45 @@ const About = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section with gradient */}
+      {/* Hero Section */}
       {aboutHeroVisible && (
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-navy-gradient opacity-[0.03]" />
         <div className="container mx-auto px-4 py-16 md:py-24">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
-              {/* Profile Image */}
               <div className="md:col-span-1 flex justify-center">
                 {profile.profile_image_url ? (
                   <div className="relative">
-                    <img
-                      src={profile.profile_image_url}
-                      alt={profile.name}
-                      className="w-56 h-56 md:w-full md:h-auto md:aspect-square object-cover rounded-2xl shadow-navy"
-                    />
+                    <img src={profile.profile_image_url} alt={profile.name}
+                      className="w-56 h-56 md:w-full md:h-auto md:aspect-square object-cover rounded-2xl shadow-navy" />
                     <div className="absolute -bottom-3 -right-3 w-24 h-24 bg-secondary/20 rounded-2xl -z-10" />
                   </div>
                 ) : (
                   <div className="w-56 h-56 bg-muted rounded-2xl" />
                 )}
               </div>
-
-              {/* Profile Info */}
               <div className="md:col-span-2 space-y-6 animate-fade-in">
                 <div>
                   <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
                     {language === 'en' ? 'About Me' : 'Giới thiệu'}
                   </p>
-                  <h1 className="font-serif text-4xl md:text-5xl font-bold mb-3">
-                    {profile.name}
-                  </h1>
-                  <p className="text-xl text-secondary font-medium mb-4">
-                    {profile.title}
-                  </p>
-                  <p className="text-lg text-muted-foreground leading-relaxed">
-                    {profile.quote}
-                  </p>
+                  <h1 className="font-serif text-4xl md:text-5xl font-bold mb-3">{profile.name}</h1>
+                  <p className="text-xl text-secondary font-medium mb-4">{profile.title}</p>
+                  <p className="text-lg text-muted-foreground leading-relaxed">{profile.quote}</p>
                 </div>
-
-                {/* Contact Info */}
                 <div className="flex flex-wrap gap-6 pt-4">
                   {contact?.email && (
                     <a href={`mailto:${contact.email}`} className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                      <Mail size={16} className="text-secondary" />
-                      {contact.email}
+                      <Mail size={16} className="text-secondary" />{contact.email}
                     </a>
                   )}
                   {contact?.location && (
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <MapPin size={16} className="text-secondary" />
-                      {contact.location}
+                      <MapPin size={16} className="text-secondary" />{contact.location}
                     </div>
                   )}
                 </div>
-
-                {/* Social Links */}
                 <div className="flex gap-3 pt-2">
                   {getSocialUrl('linkedin') && (
                     <a href={getSocialUrl('linkedin')} target="_blank" rel="noopener noreferrer"
@@ -168,17 +154,13 @@ const About = () => {
       </section>
       )}
 
-      {/* About Section */}
+      {/* About Description */}
       {aboutSection && (
         <section className="bg-muted/30 py-16 md:py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <h2 className="font-serif text-3xl font-bold mb-8">
-                {aboutSection.headline}
-              </h2>
-              <p className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">
-                {aboutSection.description}
-              </p>
+              <h2 className="font-serif text-3xl font-bold mb-8">{aboutSection.headline}</h2>
+              <p className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">{aboutSection.description}</p>
             </div>
           </div>
         </section>
@@ -205,20 +187,80 @@ const About = () => {
         </section>
       )}
 
-      {/* Education */}
-      {education && education.length > 0 && (
+      {/* Experience Timeline */}
+      {experiences && experiences.length > 0 && (
         <section className="bg-muted/30 py-16 md:py-20">
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
-              <div className="flex items-center gap-3 mb-8">
+              <div className="flex items-center gap-3 mb-10">
+                <Briefcase size={24} className="text-secondary" />
+                <h2 className="font-serif text-3xl font-bold">
+                  {language === 'en' ? 'Professional Experience' : 'Kinh nghiệm làm việc'}
+                </h2>
+              </div>
+              <div className="relative">
+                <div className="absolute left-6 md:left-8 top-0 bottom-0 w-px bg-border hidden md:block" />
+                <div className="space-y-8">
+                  {experiences.map((exp, index) => (
+                    <div key={exp.id} className="relative flex gap-6 md:gap-10 animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
+                      <div className="hidden md:flex flex-col items-center">
+                        <div className="w-4 h-4 rounded-full bg-secondary border-4 border-background shadow-sm z-10" />
+                      </div>
+                      <Card className="flex-1 card-premium border-0 shadow-md hover:shadow-lg transition-shadow">
+                        <CardContent className="p-6 md:p-8">
+                          <div className="flex flex-wrap items-center gap-3 mb-4">
+                            <span className="inline-flex items-center gap-1.5 text-xs font-medium bg-secondary/10 text-secondary px-3 py-1 rounded-full">
+                              <Calendar size={12} />{exp.year}
+                            </span>
+                            {exp.location && (
+                              <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                                <MapPin size={12} />{exp.location}
+                              </span>
+                            )}
+                          </div>
+                          <h3 className="font-serif text-2xl font-bold mb-1">{exp.title}</h3>
+                          <p className="text-secondary font-medium mb-4">{exp.company}</p>
+                          {exp.description && <p className="text-muted-foreground leading-relaxed mb-4">{exp.description}</p>}
+                          {exp.achievements && exp.achievements.length > 0 && (
+                            <div className="pt-4 border-t border-border">
+                              <h4 className="text-sm font-semibold mb-3 text-foreground">
+                                {language === 'en' ? 'Key Achievements' : 'Thành tựu nổi bật'}
+                              </h4>
+                              <ul className="space-y-2">
+                                {exp.achievements.map((achievement, i) => (
+                                  <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
+                                    <ChevronRight size={14} className="text-secondary mt-0.5 shrink-0" />
+                                    <span>{achievement}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Education */}
+      {education && education.length > 0 && (
+        <section className="py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-4xl mx-auto">
+              <div className="flex items-center gap-3 mb-10">
                 <GraduationCap size={24} className="text-secondary" />
                 <h2 className="font-serif text-3xl font-bold">
                   {language === 'en' ? 'Education' : 'Học vấn'}
                 </h2>
               </div>
               <div className="space-y-6">
-                {education.map((edu) => (
-                  <Card key={edu.id} className="card-premium border-0 shadow-sm">
+                {education.map((edu, index) => (
+                  <Card key={edu.id} className="card-premium border-0 shadow-sm animate-fade-in" style={{ animationDelay: `${index * 100}ms` }}>
                     <CardContent className="p-6 md:p-8">
                       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-2 mb-3">
                         <div>
@@ -228,16 +270,56 @@ const About = () => {
                         </div>
                         <span className="text-sm text-muted-foreground font-medium bg-muted px-3 py-1 rounded-full w-fit">{edu.year}</span>
                       </div>
-                      {edu.description && <p className="text-muted-foreground mt-3">{edu.description}</p>}
+                      {edu.description && (
+                        <div className="text-muted-foreground leading-relaxed mt-3 prose prose-sm max-w-none dark:prose-invert"
+                          dangerouslySetInnerHTML={{ __html: edu.description }} />
+                      )}
                       {edu.achievements && edu.achievements.length > 0 && (
                         <ul className="mt-4 space-y-2">
                           {edu.achievements.map((a, i) => (
                             <li key={i} className="flex items-start gap-2 text-sm text-muted-foreground">
-                              <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />
-                              {a}
+                              <span className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5 shrink-0" />{a}
                             </li>
                           ))}
                         </ul>
+                      )}
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Activities */}
+      {activities && activities.length > 0 && (
+        <section className="bg-muted/30 py-16 md:py-20">
+          <div className="container mx-auto px-4">
+            <div className="max-w-6xl mx-auto">
+              <div className="flex items-center gap-3 mb-10">
+                <Activity size={24} className="text-secondary" />
+                <h2 className="font-serif text-3xl font-bold">
+                  {language === 'en' ? 'Activities & Leadership' : 'Hoạt động & Lãnh đạo'}
+                </h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {activities.map((activity, index) => (
+                  <Card key={activity.id} className="card-premium overflow-hidden group border-0 shadow-md animate-fade-in" style={{ animationDelay: `${index * 80}ms` }}>
+                    {activity.image_url ? (
+                      <div className="aspect-video overflow-hidden">
+                        <img src={activity.image_url} alt={activity.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                      </div>
+                    ) : (
+                      <div className="aspect-video bg-navy-gradient flex items-center justify-center">
+                        <Activity size={48} className="text-secondary opacity-50" />
+                      </div>
+                    )}
+                    <CardContent className="p-6 space-y-3">
+                      <h3 className="font-serif text-xl font-bold group-hover:text-primary transition-colors">{activity.title}</h3>
+                      {activity.description && (
+                        <p className="text-muted-foreground text-sm leading-relaxed">{activity.description}</p>
                       )}
                     </CardContent>
                   </Card>
