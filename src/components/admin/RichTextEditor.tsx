@@ -75,12 +75,12 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-      }),
+      }) as any,
       Image.configure({ inline: false, allowBase64: false }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Underline,
-      Placeholder.configure({ placeholder }),
+      Placeholder.configure({ placeholder }) as any,
       Youtube.configure({ width: 640, height: 360, HTMLAttributes: { class: 'rounded-lg overflow-hidden my-4' } }),
       TextStyle,
       Color,
