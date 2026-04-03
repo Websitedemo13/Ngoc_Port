@@ -87,7 +87,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
-    ] as any[],
+    ],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
