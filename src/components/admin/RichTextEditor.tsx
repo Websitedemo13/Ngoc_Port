@@ -73,7 +73,6 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
   const editor = useEditor({
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
