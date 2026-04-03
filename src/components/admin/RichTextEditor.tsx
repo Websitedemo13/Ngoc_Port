@@ -71,21 +71,22 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
   const [linkUrl, setLinkUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
+  // @ts-ignore - tiptap version mismatch between starter-kit and core
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
-      }) as any,
+      }),
       Image.configure({ inline: false, allowBase64: false }),
       Link.configure({ openOnClick: false, HTMLAttributes: { class: 'text-primary underline' } }),
       TextAlign.configure({ types: ['heading', 'paragraph'] }),
       Underline,
-      Placeholder.configure({ placeholder }) as any,
+      Placeholder.configure({ placeholder }),
       Youtube.configure({ width: 640, height: 360, HTMLAttributes: { class: 'rounded-lg overflow-hidden my-4' } }),
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
-    ],
+    ] as any,
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
