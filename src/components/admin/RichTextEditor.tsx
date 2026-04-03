@@ -71,8 +71,8 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
   const [linkUrl, setLinkUrl] = useState('');
   const [youtubeUrl, setYoutubeUrl] = useState('');
 
-  // @ts-ignore - tiptap version mismatch between starter-kit and core
   const editor = useEditor({
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     extensions: [
       StarterKit.configure({
         heading: { levels: [1, 2, 3] },
@@ -86,7 +86,7 @@ const RichTextEditor = ({ content, onChange, placeholder = 'Bắt đầu viết 
       TextStyle,
       Color,
       Highlight.configure({ multicolor: true }),
-    ] as any,
+    ] as any[],
     content,
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
