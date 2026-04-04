@@ -9,6 +9,8 @@ import { usePublishedExperiences } from '@/hooks/useExperiences';
 import { useFeaturedProjects } from '@/hooks/useProjects';
 import { useFeaturedPosts } from '@/hooks/useBlog';
 import { useScrollReveal } from '@/hooks/useScrollReveal';
+import { usePublishedTestimonials } from '@/hooks/useTestimonials';
+import { useSetting } from '@/hooks/useSettings';
 import CountUp from '@/components/CountUp';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
