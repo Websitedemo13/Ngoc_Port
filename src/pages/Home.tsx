@@ -246,54 +246,56 @@ const Home = () => {
       )}
 
       {/* ═══════════════ TESTIMONIALS ═══════════════ */}
-      <section className="py-24 relative overflow-hidden">
-        {/* Subtle background */}
-        <div className="absolute inset-0 bg-muted/30" />
-        <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold-main)/0.3)] to-transparent" />
+      {showTestimonials && testimonials && testimonials.length > 0 && (
+        <section className="py-24 relative overflow-hidden">
+          <div className="absolute inset-0 bg-muted/30" />
+          <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold-main)/0.3)] to-transparent" />
 
-        <div className="container mx-auto px-4 relative z-10">
-          <div className="max-w-6xl mx-auto">
-            <RevealSection>
-              <div className="text-center mb-14">
-                <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
-                  {language === 'en' ? 'Testimonials' : 'Nhận xét'}
-                </p>
-                <h2 className="font-serif text-3xl md:text-4xl font-bold">
-                  {language === 'en' ? 'What People Say' : 'Mọi người nói gì'}
-                </h2>
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="max-w-6xl mx-auto">
+              <RevealSection>
+                <div className="text-center mb-14">
+                  <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
+                    {language === 'en' ? 'Testimonials' : 'Nhận xét'}
+                  </p>
+                  <h2 className="font-serif text-3xl md:text-4xl font-bold">
+                    {language === 'en' ? 'What People Say' : 'Mọi người nói gì'}
+                  </h2>
+                </div>
+              </RevealSection>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {testimonials.map((t, i) => (
+                  <RevealSection key={t.id} delay={i * 0.15}>
+                    <Card className="card-premium border-0 shadow-md h-full relative overflow-hidden group">
+                      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(var(--gold-dark))] via-[hsl(var(--gold-main))] to-[hsl(var(--gold-light))] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
+                      <CardContent className="p-8">
+                        <Quote size={32} className="text-secondary/30 mb-4" />
+                        <p className="text-foreground/80 leading-relaxed mb-6 italic">
+                          "{language === 'en' ? (t.quote_en || t.quote_vi) : t.quote_vi}"
+                        </p>
+                        <div className="flex items-center gap-3">
+                          {t.avatar_url ? (
+                            <img src={t.avatar_url} alt={t.name} className="w-12 h-12 rounded-full object-cover border-2 border-secondary/20" />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">👤</div>
+                          )}
+                          <div>
+                            <p className="font-serif font-bold text-sm">{t.name}</p>
+                            <p className="text-xs text-muted-foreground">{language === 'en' ? (t.role_en || t.role_vi) : t.role_vi}</p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </RevealSection>
+                ))}
               </div>
-            </RevealSection>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {testimonials.map((t, i) => (
-                <RevealSection key={i} delay={i * 0.15}>
-                  <Card className="card-premium border-0 shadow-md h-full relative overflow-hidden group">
-                    {/* Gold top border */}
-                    <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-[hsl(var(--gold-dark))] via-[hsl(var(--gold-main))] to-[hsl(var(--gold-light))] opacity-60 group-hover:opacity-100 transition-opacity duration-500" />
-                    <CardContent className="p-8">
-                      <Quote size={32} className="text-secondary/30 mb-4" />
-                      <p className="text-foreground/80 leading-relaxed mb-6 italic">
-                        "{language === 'en' ? t.quote.en : t.quote.vi}"
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center text-2xl">
-                          {t.avatar}
-                        </div>
-                        <div>
-                          <p className="font-serif font-bold text-sm">{t.name}</p>
-                          <p className="text-xs text-muted-foreground">{language === 'en' ? t.role.en : t.role.vi}</p>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </RevealSection>
-              ))}
             </div>
           </div>
-        </div>
 
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold-main)/0.3)] to-transparent" />
-      </section>
+          <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[hsl(var(--gold-main)/0.3)] to-transparent" />
+        </section>
+      )}
 
       {/* ═══════════════ LATEST BLOG POSTS ═══════════════ */}
       {featuredPosts && featuredPosts.length > 0 && (
