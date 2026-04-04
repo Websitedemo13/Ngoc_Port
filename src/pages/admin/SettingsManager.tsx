@@ -8,7 +8,7 @@ import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type, LayoutTemplate } from 'lucide-react';
+import { Save, Eye, EyeOff, Image, Globe, Plus, Trash2, GripVertical, Palette, Check, Monitor, BookmarkPlus, Bookmark, X, Type, LayoutTemplate, PanelTop, PanelBottom } from 'lucide-react';
 import ThemePreview from '@/components/admin/ThemePreview';
 import { useQueryClient } from '@tanstack/react-query';
 import { COLOR_THEMES, applyColorTheme, type CustomColors } from '@/lib/colorThemes';
@@ -23,13 +23,22 @@ import { ChevronDown } from 'lucide-react';
 
 const PAGE_KEYS = [
   { key: 'page_about', label: 'Giới thiệu (About)', path: '/about' },
-  { key: 'page_experience', label: 'Kinh nghiệm (Experience)', path: '/experience' },
-  { key: 'page_education', label: 'Học vấn (Education)', path: '/education' },
   { key: 'page_projects', label: 'Dự án (Projects)', path: '/projects' },
-  { key: 'page_activities', label: 'Hoạt động (Activities)', path: '/activities' },
   { key: 'page_blog', label: 'Blog', path: '/blog' },
   { key: 'page_contact', label: 'Liên hệ (Contact)', path: '/contact' },
   { key: 'page_store', label: 'Cửa hàng (Store)', path: '/store' },
+];
+
+const HEADER_STYLES = [
+  { id: 'default' as const, label: 'Mặc định', desc: 'Logo trái, menu phải' },
+  { id: 'centered' as const, label: 'Centered', desc: 'Menu dàn giữa, không logo' },
+  { id: 'minimal' as const, label: 'Tối giản', desc: 'Logo + hamburger menu' },
+];
+
+const FOOTER_STYLES = [
+  { id: 'default' as const, label: 'Mặc định', desc: 'Grid 4 cột đầy đủ' },
+  { id: 'centered' as const, label: 'Centered', desc: 'Nội dung căn giữa' },
+  { id: 'minimal' as const, label: 'Tối giản', desc: 'Một dòng gọn nhẹ' },
 ];
 
 const SOCIAL_PROVIDERS = [
@@ -69,6 +78,8 @@ export default function SettingsManager() {
     bank_code: '',
     bank_account: '',
     bank_owner: '',
+    header_style: 'default',
+    footer_style: 'default',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
   const [fontTheme, setFontTheme] = useState('inter-lora');
@@ -89,7 +100,7 @@ export default function SettingsManager() {
     try {
       const allKeys = [
         'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme', 'page_heroes',
-        'bank_name', 'bank_code', 'bank_account', 'bank_owner',
+        'bank_name', 'bank_code', 'bank_account', 'bank_owner', 'header_style', 'footer_style',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -109,6 +120,8 @@ export default function SettingsManager() {
         bank_code: map.bank_code || '',
         bank_account: map.bank_account || '',
         bank_owner: map.bank_owner || '',
+        header_style: map.header_style || 'default',
+        footer_style: map.footer_style || 'default',
       });
       setColorTheme(map.color_theme || 'navy-gold');
       setFontTheme(map.font_theme || 'inter-lora');
@@ -211,6 +224,8 @@ export default function SettingsManager() {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['social_links'] });
       queryClient.invalidateQueries({ queryKey: ['page-heroes'] });
+      queryClient.invalidateQueries({ queryKey: ['layout-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['page_visibility'] });
       toast.success('Đã lưu cài đặt');
     } catch (error: any) {
       toast.error(error.message || 'Lưu thất bại');
@@ -599,7 +614,68 @@ export default function SettingsManager() {
           </div>
         </div>
 
-        {/* Social Links */}
+        {/* Header & Footer Style */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+          <div className="flex items-center gap-2 mb-2">
+            <PanelTop className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Kiểu Header & Footer</h2>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2"><PanelTop className="h-4 w-4" /> Kiểu Header</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {HEADER_STYLES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSettings(prev => ({ ...prev, header_style: s.id }))}
+                  className={cn(
+                    "text-left p-4 rounded-xl border-2 transition-all",
+                    settings.header_style === s.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {settings.header_style === s.id && (
+                    <div className="float-right w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2"><PanelBottom className="h-4 w-4" /> Kiểu Footer</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {FOOTER_STYLES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSettings(prev => ({ ...prev, footer_style: s.id }))}
+                  className={cn(
+                    "text-left p-4 rounded-xl border-2 transition-all",
+                    settings.footer_style === s.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {settings.footer_style === s.id && (
+                    <div className="float-right w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
