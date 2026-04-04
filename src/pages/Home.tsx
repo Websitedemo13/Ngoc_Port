@@ -30,36 +30,6 @@ const RevealSection = ({ children, className = '', delay = 0 }: { children: Reac
   );
 };
 
-/* ── Testimonials data ── */
-const testimonials = [
-  {
-    name: 'Nguyễn Minh Tuấn',
-    role: { en: 'CEO, Tech Solutions', vi: 'CEO, Tech Solutions' },
-    quote: {
-      en: 'Outstanding professionalism and strategic vision. The results exceeded our expectations significantly.',
-      vi: 'Chuyên nghiệp và tầm nhìn chiến lược xuất sắc. Kết quả vượt xa mong đợi của chúng tôi.',
-    },
-    avatar: '🧑‍💼',
-  },
-  {
-    name: 'Trần Thị Mai',
-    role: { en: 'Marketing Director, VN Corp', vi: 'Giám đốc Marketing, VN Corp' },
-    quote: {
-      en: 'A true partner in growth. Their insights transformed our entire go-to-market strategy.',
-      vi: 'Một đối tác phát triển thực sự. Những hiểu biết sâu sắc đã thay đổi hoàn toàn chiến lược tiếp cận thị trường.',
-    },
-    avatar: '👩‍💻',
-  },
-  {
-    name: 'Lê Hoàng Phúc',
-    role: { en: 'Founder, StartUp Hub', vi: 'Nhà sáng lập, StartUp Hub' },
-    quote: {
-      en: 'Incredible attention to detail and commitment to delivering exceptional value every single time.',
-      vi: 'Sự chú ý đến chi tiết đáng kinh ngạc và cam kết mang lại giá trị vượt trội mỗi lần hợp tác.',
-    },
-    avatar: '👨‍🚀',
-  },
-];
 
 const Home = () => {
   const { language } = useLanguage();
