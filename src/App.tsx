@@ -27,6 +27,7 @@ import MediaLibrary from "./pages/admin/MediaLibrary";
 import CustomSectionsManager from "./pages/admin/CustomSectionsManager";
 import StoreManager from "./pages/admin/StoreManager";
 import VouchersManager from "./pages/admin/VouchersManager";
+import TestimonialsManager from "./pages/admin/TestimonialsManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
@@ -68,6 +69,7 @@ const App = () => (
             <Route path="custom-sections" element={<CustomSectionsManager />} />
             <Route path="store" element={<StoreManager />} />
             <Route path="vouchers" element={<VouchersManager />} />
+            <Route path="testimonials" element={<TestimonialsManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
