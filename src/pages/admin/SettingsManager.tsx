@@ -78,6 +78,8 @@ export default function SettingsManager() {
     bank_code: '',
     bank_account: '',
     bank_owner: '',
+    header_style: 'default',
+    footer_style: 'default',
   });
   const [colorTheme, setColorTheme] = useState('navy-gold');
   const [fontTheme, setFontTheme] = useState('inter-lora');
