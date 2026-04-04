@@ -23,13 +23,22 @@ import { ChevronDown } from 'lucide-react';
 
 const PAGE_KEYS = [
   { key: 'page_about', label: 'Giới thiệu (About)', path: '/about' },
-  { key: 'page_experience', label: 'Kinh nghiệm (Experience)', path: '/experience' },
-  { key: 'page_education', label: 'Học vấn (Education)', path: '/education' },
   { key: 'page_projects', label: 'Dự án (Projects)', path: '/projects' },
-  { key: 'page_activities', label: 'Hoạt động (Activities)', path: '/activities' },
   { key: 'page_blog', label: 'Blog', path: '/blog' },
   { key: 'page_contact', label: 'Liên hệ (Contact)', path: '/contact' },
   { key: 'page_store', label: 'Cửa hàng (Store)', path: '/store' },
+];
+
+const HEADER_STYLES = [
+  { id: 'default' as const, label: 'Mặc định', desc: 'Logo trái, menu phải' },
+  { id: 'centered' as const, label: 'Centered', desc: 'Menu dàn giữa, không logo' },
+  { id: 'minimal' as const, label: 'Tối giản', desc: 'Logo + hamburger menu' },
+];
+
+const FOOTER_STYLES = [
+  { id: 'default' as const, label: 'Mặc định', desc: 'Grid 4 cột đầy đủ' },
+  { id: 'centered' as const, label: 'Centered', desc: 'Nội dung căn giữa' },
+  { id: 'minimal' as const, label: 'Tối giản', desc: 'Một dòng gọn nhẹ' },
 ];
 
 const SOCIAL_PROVIDERS = [
