@@ -224,6 +224,8 @@ export default function SettingsManager() {
       queryClient.invalidateQueries({ queryKey: ['settings'] });
       queryClient.invalidateQueries({ queryKey: ['social_links'] });
       queryClient.invalidateQueries({ queryKey: ['page-heroes'] });
+      queryClient.invalidateQueries({ queryKey: ['layout-settings'] });
+      queryClient.invalidateQueries({ queryKey: ['page_visibility'] });
       toast.success('Đã lưu cài đặt');
     } catch (error: any) {
       toast.error(error.message || 'Lưu thất bại');
