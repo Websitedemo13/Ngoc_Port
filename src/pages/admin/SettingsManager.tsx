@@ -612,7 +612,68 @@ export default function SettingsManager() {
           </div>
         </div>
 
-        {/* Social Links */}
+        {/* Header & Footer Style */}
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-6">
+          <div className="flex items-center gap-2 mb-2">
+            <PanelTop className="h-5 w-5 text-primary" />
+            <h2 className="font-semibold text-lg">Kiểu Header & Footer</h2>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2"><PanelTop className="h-4 w-4" /> Kiểu Header</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {HEADER_STYLES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSettings(prev => ({ ...prev, header_style: s.id }))}
+                  className={cn(
+                    "text-left p-4 rounded-xl border-2 transition-all",
+                    settings.header_style === s.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {settings.header_style === s.id && (
+                    <div className="float-right w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            <Label className="text-sm font-medium flex items-center gap-2"><PanelBottom className="h-4 w-4" /> Kiểu Footer</Label>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              {FOOTER_STYLES.map((s) => (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setSettings(prev => ({ ...prev, footer_style: s.id }))}
+                  className={cn(
+                    "text-left p-4 rounded-xl border-2 transition-all",
+                    settings.footer_style === s.id
+                      ? "border-primary ring-2 ring-primary/20"
+                      : "border-border hover:border-muted-foreground/30"
+                  )}
+                >
+                  {settings.footer_style === s.id && (
+                    <div className="float-right w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                      <Check className="h-3 w-3 text-primary-foreground" />
+                    </div>
+                  )}
+                  <p className="font-semibold text-sm">{s.label}</p>
+                  <p className="text-xs text-muted-foreground mt-1">{s.desc}</p>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
