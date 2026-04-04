@@ -100,7 +100,7 @@ export default function SettingsManager() {
     try {
       const allKeys = [
         'logo_url', 'favicon_url', 'site_name', 'footer_tagline', 'footer_text', 'color_theme', 'custom_theme_colors', 'saved_custom_themes', 'font_theme', 'page_heroes',
-        'bank_name', 'bank_code', 'bank_account', 'bank_owner',
+        'bank_name', 'bank_code', 'bank_account', 'bank_owner', 'header_style', 'footer_style',
         ...PAGE_KEYS.map(p => p.key),
       ];
       const { data, error } = await supabase
@@ -120,6 +120,8 @@ export default function SettingsManager() {
         bank_code: map.bank_code || '',
         bank_account: map.bank_account || '',
         bank_owner: map.bank_owner || '',
+        header_style: map.header_style || 'default',
+        footer_style: map.footer_style || 'default',
       });
       setColorTheme(map.color_theme || 'navy-gold');
       setFontTheme(map.font_theme || 'inter-lora');
