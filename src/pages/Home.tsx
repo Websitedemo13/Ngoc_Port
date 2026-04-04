@@ -37,6 +37,9 @@ const Home = () => {
   const { data: experiences } = usePublishedExperiences();
   const { data: featuredProjects } = useFeaturedProjects();
   const { data: featuredPosts } = useFeaturedPosts();
+  const { data: testimonials } = usePublishedTestimonials();
+  const { data: showTestimonialsSetting } = useSetting('show_testimonials');
+  const showTestimonials = showTestimonialsSetting?.value !== 'false';
 
   /* ── Parallax state ── */
   const [scrollY, setScrollY] = useState(0);
