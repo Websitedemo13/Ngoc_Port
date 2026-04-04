@@ -2,15 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 const PAGE_KEYS = [
-  'page_about', 'page_experience', 'page_projects',
-  'page_activities', 'page_blog', 'page_contact', 'page_store',
+  'page_about', 'page_projects',
+  'page_blog', 'page_contact', 'page_store',
 ];
 
 const KEY_TO_PATH: Record<string, string> = {
   page_about: '/about',
-  page_experience: '/experience',
   page_projects: '/projects',
-  page_activities: '/activities',
   page_blog: '/blog',
   page_contact: '/contact',
   page_store: '/store',
