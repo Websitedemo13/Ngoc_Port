@@ -15,8 +15,6 @@ import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award, Briefcas
 const About = () => {
   const { language } = useLanguage();
   const { data: profile } = useProfile();
-  const { heroes } = usePageHeroes();
-  const aboutHeroVisible = heroes?.about?.visible !== false;
   const { data: experiences } = usePublishedExperiences();
   const { data: activities } = usePublishedActivities();
 
