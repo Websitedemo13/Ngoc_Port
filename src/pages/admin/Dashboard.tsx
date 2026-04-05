@@ -6,7 +6,7 @@ import { useAllMedia } from '@/hooks/useMedia';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, BookOpen, Award, Layers, ShoppingBag, Blocks,
-  GraduationCap, Ticket, Quote, ArrowUpRight, Sparkles
+  GraduationCap, Ticket, Quote, ArrowUpRight, Sparkles, MessageCircle
 } from 'lucide-react';
 
 const SECTION_GROUPS = [
@@ -35,6 +35,7 @@ const SECTION_GROUPS = [
     desc: 'Giao diện, thư viện ảnh và cài đặt',
     items: [
       { path: '/admin/testimonials', icon: Quote, label: 'Testimonials', desc: 'Lời nhận xét khách hàng', color: 'from-fuchsia-500 to-pink-600' },
+      { path: '/admin/contacts', icon: MessageCircle, label: 'Liên hệ', desc: 'Tin nhắn & thông tin liên hệ', color: 'from-indigo-500 to-blue-600' },
       { path: '/admin/custom-sections', icon: Blocks, label: 'Custom Sections', desc: 'Section tùy chỉnh', color: 'from-teal-500 to-cyan-600' },
       { path: '/admin/media', icon: Image, label: 'Thư viện', desc: 'Hình ảnh & tệp tin', color: 'from-cyan-500 to-blue-600' },
       { path: '/admin/settings', icon: Settings, label: 'Cài đặt', desc: 'Logo, theme & hiển thị', color: 'from-slate-500 to-gray-600' },
