@@ -5,6 +5,7 @@ import { usePublishedActivities } from '@/hooks/useActivities';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
 import Navigation from '@/components/Navigation';
+import PageHero from '@/components/PageHero';
 import { usePageHeroes } from '@/hooks/usePageHeroes';
 import Footer from '@/components/Footer';
 import CustomSections from '@/components/CustomSections';
