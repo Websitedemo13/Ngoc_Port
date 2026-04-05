@@ -87,11 +87,17 @@ const About = () => {
     <div className="min-h-screen bg-background">
       <Navigation />
 
-      {/* Hero Section */}
-      {aboutHeroVisible && (
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-navy-gradient opacity-[0.03]" />
-        <div className="container mx-auto px-4 py-16 md:py-24">
+      {/* Page Hero Banner — toggleable from admin like other pages */}
+      <PageHero
+        pageKey="about"
+        defaultTitle={{ en: 'About Me', vi: 'Về tôi' }}
+        defaultSubtitle={{ en: 'Get to know my story, skills, and journey', vi: 'Tìm hiểu về câu chuyện, kỹ năng và hành trình của tôi' }}
+        defaultLabel={{ en: 'Introduction', vi: 'Giới thiệu' }}
+      />
+
+      {/* Profile Card */}
+      <section className="relative py-16 md:py-20">
+        <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-12 items-center">
               <div className="md:col-span-1 flex justify-center">
@@ -107,10 +113,7 @@ const About = () => {
               </div>
               <div className="md:col-span-2 space-y-6 animate-fade-in">
                 <div>
-                  <p className="text-sm font-medium text-secondary uppercase tracking-wider mb-2">
-                    {language === 'en' ? 'About Me' : 'Giới thiệu'}
-                  </p>
-                  <h1 className="font-serif text-4xl md:text-5xl font-bold mb-3">{profile.name}</h1>
+                  <h2 className="font-serif text-4xl md:text-5xl font-bold mb-3">{profile.name}</h2>
                   <p className="text-xl text-secondary font-medium mb-4">{profile.title}</p>
                   <p className="text-lg text-muted-foreground leading-relaxed">{profile.quote}</p>
                 </div>
@@ -151,7 +154,6 @@ const About = () => {
           </div>
         </div>
       </section>
-      )}
 
       {/* About Description */}
       {aboutSection && (
