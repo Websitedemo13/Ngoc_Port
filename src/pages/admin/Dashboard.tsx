@@ -6,7 +6,7 @@ import { useAllMedia } from '@/hooks/useMedia';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, BookOpen, Award, Layers, ShoppingBag, Blocks,
-  GraduationCap, Ticket, Quote, ArrowUpRight, Sparkles
+  GraduationCap, Ticket, Quote, ArrowUpRight, Sparkles, MessageCircle
 } from 'lucide-react';
 
 const SECTION_GROUPS = [
