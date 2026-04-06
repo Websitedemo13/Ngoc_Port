@@ -115,7 +115,7 @@ const About = () => {
                 <div>
                   <h2 className="font-serif text-4xl md:text-5xl font-bold mb-3">{profile.name}</h2>
                   <p className="text-xl text-secondary font-medium mb-4">{profile.title}</p>
-                  <p className="text-lg text-muted-foreground leading-relaxed">{profile.quote}</p>
+                  <div className="text-lg text-muted-foreground leading-relaxed prose prose-lg max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: profile.quote }} />
                 </div>
                 <div className="flex flex-wrap gap-6 pt-4">
                   {contact?.email && (

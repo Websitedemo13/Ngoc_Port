@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { slugify } from '@/lib/slugify';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { useAllProjects, useCreateProject, useUpdateProject, useDeleteProject, useToggleProjectFeatured } from '@/hooks/useProjects';
 import { useReorderItems } from '@/hooks/useReorder';
@@ -138,8 +139,8 @@ export default function ProjectsManager() {
                 <div className="mt-2"><MediaUpload label="" value={formData.image_url} onChange={(url) => setFormData(p => ({ ...p, image_url: url }))} accept="image/*" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => setFormData(p => ({ ...p, title: e.target.value }))} required /></div>
-                <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} /></div>
+                <div><Label>Tiêu đề *</Label><Input value={formData.title} onChange={(e) => { const title = e.target.value; setFormData(p => ({ ...p, title, slug: editingProject ? p.slug : slugify(title) })); }} required /></div>
+                <div><Label>Slug</Label><Input value={formData.slug} onChange={(e) => setFormData(p => ({ ...p, slug: e.target.value }))} placeholder="tu-dong-tao-tu-tieu-de" /></div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div><Label>Danh mục *</Label><Input value={formData.category} onChange={(e) => setFormData(p => ({ ...p, category: e.target.value }))} required /></div>

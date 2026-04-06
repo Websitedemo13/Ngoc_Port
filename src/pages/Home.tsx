@@ -116,12 +116,11 @@ const Home = () => {
               {profile?.title || ''}
             </p>
 
-            <p
-              className="text-lg opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in"
+            <div
+              className="text-lg opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in prose prose-lg prose-invert max-w-none [&_p]:m-0"
               style={{ animationDuration: '0.8s', animationDelay: '0.7s', animationFillMode: 'both' }}
-            >
-              {profile?.quote || ''}
-            </p>
+              dangerouslySetInnerHTML={{ __html: profile?.quote || '' }}
+            />
 
             <div
               className="flex gap-4 justify-center flex-wrap animate-fade-in"
