@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,11 @@ export const MediaUpload = ({
 }: MediaUploadProps) => {
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview] = useState<string | null>(value || null);
+
+  // Sync preview with value prop changes (e.g. when data loads from DB)
+  React.useEffect(() => {
+    setPreview(value || null);
+  }, [value]);
 
   const handleUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {

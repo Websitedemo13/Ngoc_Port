@@ -161,7 +161,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="font-serif text-3xl font-bold mb-8">{aboutSection.headline}</h2>
-              <p className="text-muted-foreground text-lg leading-relaxed whitespace-pre-wrap">{aboutSection.description}</p>
+              <div className="text-muted-foreground text-lg leading-relaxed prose prose-lg max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: aboutSection.description }} />
             </div>
           </div>
         </section>
@@ -221,7 +221,7 @@ const About = () => {
                           </div>
                           <h3 className="font-serif text-2xl font-bold mb-1">{exp.title}</h3>
                           <p className="text-secondary font-medium mb-4">{exp.company}</p>
-                          {exp.description && <p className="text-muted-foreground leading-relaxed mb-4">{exp.description}</p>}
+                          {exp.description && <div className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: exp.description }} />}
                           {exp.achievements && exp.achievements.length > 0 && (
                             <div className="pt-4 border-t border-border">
                               <h4 className="text-sm font-semibold mb-3 text-foreground">
