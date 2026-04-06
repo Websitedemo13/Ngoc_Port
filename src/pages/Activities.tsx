@@ -56,9 +56,7 @@ const Activities = () => {
                       {activity.title}
                     </h3>
                     {activity.description && (
-                      <p className="text-muted-foreground text-sm leading-relaxed">
-                        {activity.description}
-                      </p>
+                      <div className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: activity.description }} />
                     )}
                   </CardContent>
                 </Card>

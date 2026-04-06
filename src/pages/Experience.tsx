@@ -65,7 +65,7 @@ const Experience = () => {
                         <p className="text-secondary font-medium mb-4">{exp.company}</p>
 
                         {exp.description && (
-                          <p className="text-muted-foreground leading-relaxed mb-4">{exp.description}</p>
+                          <div className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: exp.description }} />
                         )}
 
                         {exp.achievements && exp.achievements.length > 0 && (
