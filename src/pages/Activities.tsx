@@ -6,6 +6,7 @@ import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Activity } from 'lucide-react';
+import RichContent from '@/components/RichContent';
 
 const Activities = () => {
   const { language } = useLanguage();
@@ -56,7 +57,7 @@ const Activities = () => {
                       {activity.title}
                     </h3>
                     {activity.description && (
-                      <div className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: activity.description }} />
+                      <RichContent html={activity.description} className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert" />
                     )}
                   </CardContent>
                 </Card>

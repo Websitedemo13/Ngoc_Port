@@ -1,5 +1,6 @@
 import { useCustomSectionsByPage } from '@/hooks/useCustomSections';
 import { cn } from '@/lib/utils';
+import RichContent from './RichContent';
 
 interface Props {
   page: string;
@@ -49,9 +50,9 @@ export default function CustomSections({ page }: Props) {
               )}
 
               {section.content && (
-                <div
+                <RichContent
+                  html={section.content}
                   className="prose prose-lg max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{ __html: section.content }}
                 />
               )}
             </div>

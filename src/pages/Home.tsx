@@ -15,6 +15,7 @@ import CountUp from '@/components/CountUp';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CustomSections from '@/components/CustomSections';
+import RichContent from '@/components/RichContent';
 
 /* ── Scroll Reveal wrapper ── */
 const RevealSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {
@@ -116,10 +117,9 @@ const Home = () => {
               {profile?.title || ''}
             </p>
 
-            <div
+            <RichContent
+              html={profile?.quote || ''}
               className="text-lg opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in prose prose-lg prose-invert max-w-none [&_p]:m-0"
-              style={{ animationDuration: '0.8s', animationDelay: '0.7s', animationFillMode: 'both' }}
-              dangerouslySetInnerHTML={{ __html: profile?.quote || '' }}
             />
 
             <div
