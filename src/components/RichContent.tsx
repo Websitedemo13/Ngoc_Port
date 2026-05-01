@@ -1,37 +1,69 @@
 import { useEffect, useRef } from 'react';
-import { ImageOff } from 'lucide-react';
-import { createRoot } from 'react-dom/client';
 
 interface RichContentProps {
-  html: string;
+  html: string | null | undefined;
   className?: string;
   id?: string;
 }
 
 /**
- * Renders HTML safely and handles broken images gracefully.
- * - Adds loading="lazy" to all images
- * - Replaces broken images with a styled placeholder instead of an ugly alt text
- * - Removes empty <p> tags only containing broken alt text from copy-pasted content
+ * Sanitizes & renders rich HTML content from the TipTap editor.
+ * - If the value is plain text containing escaped/literal HTML markup
+ *   (e.g. "<p>Hello</p>" stored as text), render it as text wrapped in <p>
+ * - If it's real HTML, render it via dangerouslySetInnerHTML
+ * - Strips leftover Facebook/markdown rubbish (![alt], [text](url) image refs,
+ *   "No photo description available", emoji-only image alts, etc.)
+ * - Replaces broken <img> with a styled placeholder (no ugly alt text)
  */
+
+const looksLikeHtml = (s: string) => /<\/?[a-z][\s\S]*>/i.test(s);
+
+const escapeHtml = (s: string) =>
+  s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+
+const stripRubbish = (s: string) =>
+  s
+    // Markdown image refs left over from copy-paste
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    // Bare alt-text leftovers like "![No photo description available.]"
+    .replace(/!\[[^\]]*\]/g, '')
+    // Common Facebook fallback strings
+    .replace(/No photo description available\.?/gi, '')
+    .replace(/May be an image of[^.<]*\.?/gi, '')
+    // Empty paragraphs / brs left behind
+    .replace(/<p>\s*(<br\s*\/?>)?\s*<\/p>/gi, '');
+
 const RichContent = ({ html, className, id }: RichContentProps) => {
   const ref = useRef<HTMLDivElement>(null);
+
+  const raw = (html ?? '').trim();
+  let processed = raw;
+
+  if (raw && !looksLikeHtml(raw)) {
+    // Plain text, possibly with literal "<p>...</p>" — escape so the tags show as text? No.
+    // The user wants tags to NOT show. So strip them and present as text.
+    const stripped = raw
+      .replace(/<\/?[a-z][^>]*>/gi, '')
+      .replace(/&nbsp;/g, ' ');
+    processed = `<p>${escapeHtml(stripped).replace(/\n/g, '<br/>')}</p>`;
+  }
+
+  processed = stripRubbish(processed);
 
   useEffect(() => {
     if (!ref.current) return;
     const container = ref.current;
-
-    // Strip broken Facebook-style alt text leftovers like "![No photo description available.]"
-    container.innerHTML = container.innerHTML
-      .replace(/!\[[^\]]*?(No photo description available|May be an image[^\]]*?)\]/gi, '')
-      .replace(/!\[[^\]]*\]\([^)]*\)/g, ''); // any markdown img leftover
 
     const imgs = container.querySelectorAll('img');
     imgs.forEach((img) => {
       img.loading = 'lazy';
       img.referrerPolicy = 'no-referrer';
       const handleError = () => {
-        // Replace broken image with a styled placeholder div
         const placeholder = document.createElement('div');
         placeholder.className =
           'flex items-center justify-center w-full aspect-[16/9] my-6 rounded-2xl bg-muted text-muted-foreground border border-dashed border-border';
@@ -40,17 +72,18 @@ const RichContent = ({ html, className, id }: RichContentProps) => {
         img.replaceWith(placeholder);
       };
       img.addEventListener('error', handleError);
-      // If already errored before we attached handler
       if (img.complete && img.naturalWidth === 0) handleError();
     });
-  }, [html]);
+  }, [processed]);
+
+  if (!processed) return null;
 
   return (
     <div
       ref={ref}
       id={id}
       className={className}
-      dangerouslySetInnerHTML={{ __html: html }}
+      dangerouslySetInnerHTML={{ __html: processed }}
     />
   );
 };
