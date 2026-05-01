@@ -15,6 +15,7 @@ import CountUp from '@/components/CountUp';
 import Navigation from '@/components/Navigation';
 import Footer from '@/components/Footer';
 import CustomSections from '@/components/CustomSections';
+import RichContent from '@/components/RichContent';
 
 /* ── Scroll Reveal wrapper ── */
 const RevealSection = ({ children, className = '', delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) => {

@@ -9,6 +9,7 @@ import PageHero from '@/components/PageHero';
 import { usePageHeroes } from '@/hooks/usePageHeroes';
 import Footer from '@/components/Footer';
 import CustomSections from '@/components/CustomSections';
+import RichContent from '@/components/RichContent';
 import { Card, CardContent } from '@/components/ui/card';
 import { Mail, MapPin, Linkedin, Github, Twitter, GraduationCap, Award, Briefcase, Calendar, ChevronRight, Activity } from 'lucide-react';
 
@@ -115,7 +116,7 @@ const About = () => {
                 <div>
                   <h2 className="font-serif text-4xl md:text-5xl font-bold mb-3">{profile.name}</h2>
                   <p className="text-xl text-secondary font-medium mb-4">{profile.title}</p>
-                  <div className="text-lg text-muted-foreground leading-relaxed prose prose-lg max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: profile.quote }} />
+                  <RichContent html={profile.quote} className="text-lg text-muted-foreground leading-relaxed prose prose-lg max-w-none dark:prose-invert" />
                 </div>
                 <div className="flex flex-wrap gap-6 pt-4">
                   {contact?.email && (
@@ -161,7 +162,7 @@ const About = () => {
           <div className="container mx-auto px-4">
             <div className="max-w-4xl mx-auto">
               <h2 className="font-serif text-3xl font-bold mb-8">{aboutSection.headline}</h2>
-              <div className="text-muted-foreground text-lg leading-relaxed prose prose-lg max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: aboutSection.description }} />
+              <RichContent html={aboutSection.description} className="text-muted-foreground text-lg leading-relaxed prose prose-lg max-w-none dark:prose-invert" />
             </div>
           </div>
         </section>
@@ -221,7 +222,7 @@ const About = () => {
                           </div>
                           <h3 className="font-serif text-2xl font-bold mb-1">{exp.title}</h3>
                           <p className="text-secondary font-medium mb-4">{exp.company}</p>
-                          {exp.description && <div className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: exp.description }} />}
+                          {exp.description && <RichContent html={exp.description} className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" />}
                           {exp.achievements && exp.achievements.length > 0 && (
                             <div className="pt-4 border-t border-border">
                               <h4 className="text-sm font-semibold mb-3 text-foreground">
@@ -272,8 +273,7 @@ const About = () => {
                         <span className="text-sm text-muted-foreground font-medium bg-muted px-3 py-1 rounded-full w-fit">{edu.year}</span>
                       </div>
                       {edu.description && (
-                        <div className="text-muted-foreground leading-relaxed mt-3 prose prose-sm max-w-none dark:prose-invert"
-                          dangerouslySetInnerHTML={{ __html: edu.description }} />
+                        <RichContent html={edu.description} className="text-muted-foreground leading-relaxed mt-3 prose prose-sm max-w-none dark:prose-invert" />
                       )}
                       {edu.achievements && edu.achievements.length > 0 && (
                         <ul className="mt-4 space-y-2">
@@ -320,7 +320,7 @@ const About = () => {
                     <CardContent className="p-6 space-y-3">
                       <h3 className="font-serif text-xl font-bold group-hover:text-primary transition-colors">{activity.title}</h3>
                       {activity.description && (
-                        <div className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: activity.description }} />
+                        <RichContent html={activity.description} className="text-muted-foreground text-sm leading-relaxed prose prose-sm max-w-none dark:prose-invert" />
                       )}
                     </CardContent>
                   </Card>

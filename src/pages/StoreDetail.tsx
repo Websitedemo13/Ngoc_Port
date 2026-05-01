@@ -13,6 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ArrowLeft, ShoppingBag, Package, BookOpen, FileText, QrCode, Copy, Check, Minus, Plus, CheckCircle2, Smartphone, CreditCard, Ticket, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import RichContent from '@/components/RichContent';
 import { toast } from 'sonner';
 
 export default function StoreDetail() {
@@ -298,7 +299,7 @@ export default function StoreDetail() {
         {product.full_description && (
           <div className="max-w-4xl mx-auto mt-16">
             <h2 className="font-serif text-2xl font-bold mb-6">Chi tiết sản phẩm</h2>
-            <div className="prose prose-lg max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: product.full_description }} />
+            <RichContent html={product.full_description} className="prose prose-lg max-w-none dark:prose-invert" />
           </div>
         )}
       </div>
