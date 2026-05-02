@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { useSetting } from '@/hooks/useSettings';
+import { useQueryClient } from '@tanstack/react-query';
+import { settingsAPI } from '@/lib/supabase/settings';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { MediaUpload } from '@/components/admin/MediaUpload';
@@ -12,6 +16,13 @@ import { Save, Loader2 } from 'lucide-react';
 export default function ProfileManager() {
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
+  const { data: heroBtnsSetting } = useSetting('show_hero_buttons');
+  const qc = useQueryClient();
+  const [showHeroButtons, setShowHeroButtons] = useState(true);
+
+  useEffect(() => {
+    if (heroBtnsSetting) setShowHeroButtons(heroBtnsSetting.value !== 'false');
+  }, [heroBtnsSetting]);
 
   const [formData, setFormData] = useState({
     name: '',
