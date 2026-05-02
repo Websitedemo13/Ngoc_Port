@@ -29,6 +29,7 @@ import StoreManager from "./pages/admin/StoreManager";
 import VouchersManager from "./pages/admin/VouchersManager";
 import TestimonialsManager from "./pages/admin/TestimonialsManager";
 import ContactManager from "./pages/admin/ContactManager";
+import Guide from "./pages/admin/Guide";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
@@ -72,6 +73,7 @@ const App = () => (
             <Route path="vouchers" element={<VouchersManager />} />
             <Route path="testimonials" element={<TestimonialsManager />} />
             <Route path="contacts" element={<ContactManager />} />
+            <Route path="guide" element={<Guide />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>

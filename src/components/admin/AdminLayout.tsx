@@ -7,7 +7,7 @@ import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, GraduationCap,
-  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag, Ticket, Quote, MessageCircle
+  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag, Ticket, Quote, MessageCircle, BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,6 +16,7 @@ const menuGroups = [
     label: 'Tổng quan',
     items: [
       { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { path: '/admin/guide', icon: BookOpen, label: 'Hướng dẫn' },
     ],
   },
   {
