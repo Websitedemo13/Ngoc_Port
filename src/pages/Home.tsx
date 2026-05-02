@@ -41,6 +41,8 @@ const Home = () => {
   const { data: testimonials } = usePublishedTestimonials();
   const { data: showTestimonialsSetting } = useSetting('show_testimonials');
   const showTestimonials = showTestimonialsSetting?.value !== 'false';
+  const { data: showHeroButtonsSetting } = useSetting('show_hero_buttons');
+  const showHeroButtons = showHeroButtonsSetting?.value !== 'false';
 
   /* ── Parallax state ── */
   const [scrollY, setScrollY] = useState(0);
@@ -64,6 +66,18 @@ const Home = () => {
 
       {/* ═══════════════ HERO ═══════════════ */}
       <section ref={heroRef} className="relative overflow-hidden bg-navy-gradient text-primary-foreground">
+        {/* Custom background image */}
+        {profile?.background_image_url && (
+          <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
+            <img
+              src={profile.background_image_url}
+              alt=""
+              className="w-full h-full object-cover"
+              style={{ transform: `translateY(${scrollY * 0.2}px) scale(1.1)` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-b from-primary/80 via-primary/70 to-primary/90" />
+          </div>
+        )}
         {/* Parallax orbs */}
         <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
           <div
@@ -122,22 +136,24 @@ const Home = () => {
               className="text-lg opacity-60 mb-12 max-w-2xl mx-auto leading-relaxed animate-fade-in prose prose-lg prose-invert max-w-none [&_p]:m-0"
             />
 
-            <div
-              className="flex gap-4 justify-center flex-wrap animate-fade-in"
-              style={{ animationDuration: '0.8s', animationDelay: '0.9s', animationFillMode: 'both' }}
-            >
-              <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-gold gold-shine rounded-full px-8 text-base" asChild>
-                <Link to="/about">
-                  {language === 'en' ? 'About Me' : 'Về tôi'}
-                  <ArrowRight className="ml-2" size={20} />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" className="border-[hsl(var(--gold-main)/0.3)] text-primary-foreground hover:bg-[hsl(var(--gold-main)/0.1)] rounded-full px-8 text-base" asChild>
-                <Link to="/contact">
-                  {language === 'en' ? 'Get in Touch' : 'Liên hệ'}
-                </Link>
-              </Button>
-            </div>
+            {showHeroButtons && (
+              <div
+                className="flex gap-4 justify-center flex-wrap animate-fade-in"
+                style={{ animationDuration: '0.8s', animationDelay: '0.9s', animationFillMode: 'both' }}
+              >
+                <Button size="lg" className="bg-secondary text-secondary-foreground hover:bg-secondary/90 shadow-gold gold-shine rounded-full px-8 text-base" asChild>
+                  <Link to="/about">
+                    {language === 'en' ? 'About Me' : 'Về tôi'}
+                    <ArrowRight className="ml-2" size={20} />
+                  </Link>
+                </Button>
+                <Button size="lg" variant="outline" className="border-[hsl(var(--gold-main)/0.3)] text-primary-foreground hover:bg-[hsl(var(--gold-main)/0.1)] rounded-full px-8 text-base" asChild>
+                  <Link to="/contact">
+                    {language === 'en' ? 'Get in Touch' : 'Liên hệ'}
+                  </Link>
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
