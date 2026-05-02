@@ -58,6 +58,8 @@ export default function ProfileManager() {
         if (error) throw error;
         toast.success('Profile created');
       }
+      await settingsAPI.upsertSetting({ key: 'show_hero_buttons', value: showHeroButtons ? 'true' : 'false' });
+      qc.invalidateQueries({ queryKey: ['settings'] });
     } catch (error: any) {
       toast.error(error.message || 'Failed to save');
     }
