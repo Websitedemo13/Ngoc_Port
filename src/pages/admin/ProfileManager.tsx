@@ -102,7 +102,19 @@ export default function ProfileManager() {
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <h2 className="font-semibold text-lg">Hình ảnh</h2>
           <MediaUpload label="Ảnh đại diện" value={formData.profile_image_url} onChange={(url) => handleInputChange('profile_image_url', url)} accept="image/*" />
-          <MediaUpload label="Ảnh nền" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+          <MediaUpload label="Ảnh bìa (nền hero trang chủ)" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+          <p className="text-xs text-muted-foreground">Ảnh bìa hiển thị làm nền cho phần hero của trang chủ. Khuyến nghị: 1920×1080, định dạng JPG.</p>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-lg">Tùy chỉnh hero trang chủ</h2>
+          <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-muted/40 border border-border">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">Hiển thị nút CTA trên hero</Label>
+              <p className="text-xs text-muted-foreground">Bật/tắt 2 nút "Về tôi" và "Liên hệ" ở phần đầu trang chủ.</p>
+            </div>
+            <Switch checked={showHeroButtons} onCheckedChange={setShowHeroButtons} />
+          </div>
         </div>
       </form>
     </div>
