@@ -12,38 +12,34 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    checkAdminAccess();
+    let mounted = true;
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      checkAdminAccess();
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkAdminAccess = async () => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      
-      if (!session) {
-        setIsAdmin(false);
-        setLoading(false);
+    const verify = async (userId: string | undefined) => {
+      if (!userId) {
+        if (mounted) { setIsAdmin(false); setLoading(false); }
         return;
       }
+      try {
+        const { data } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+        if (mounted) { setIsAdmin(!!data); setLoading(false); }
+      } catch {
+        if (mounted) { setIsAdmin(false); setLoading(false); }
+      }
+    };
 
-      const { data: hasAdmin } = await supabase.rpc('has_role', {
-        _user_id: session.user.id,
-        _role: 'admin'
-      });
+    // Subscribe FIRST to avoid race
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      // Defer to avoid running supabase calls inside the callback synchronously
+      setTimeout(() => verify(session?.user?.id), 0);
+    });
 
-      setIsAdmin(hasAdmin || false);
-    } catch (error) {
-      console.error('Error checking admin access:', error);
-      setIsAdmin(false);
-    } finally {
-      setLoading(false);
-    }
-  };
+    // Then check existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      verify(session?.user?.id);
+    });
+
+    return () => { mounted = false; subscription.unsubscribe(); };
+  }, []);
 
   if (loading) {
     return (
@@ -53,9 +49,6 @@ export default function ProtectedRoute({ children }: ProtectedRouteProps) {
     );
   }
 
-  if (!isAdmin) {
-    return <Navigate to="/admin" replace />;
-  }
-
+  if (!isAdmin) return <Navigate to="/admin" replace />;
   return <>{children}</>;
 }
