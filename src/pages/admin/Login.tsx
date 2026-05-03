@@ -25,20 +25,24 @@ export default function AdminLogin() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    checkAdminAccess();
-  }, []);
+    let mounted = true;
+    const check = async (userId?: string) => {
+      if (!userId) return;
+      const { data: hasAdmin } = await supabase.rpc('has_role', { _user_id: userId, _role: 'admin' });
+      if (mounted && hasAdmin) navigate('/admin/dashboard');
+    };
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
+      setTimeout(() => check(session?.user?.id), 0);
+    });
+    supabase.auth.getSession().then(({ data: { session } }) => check(session?.user?.id));
+    return () => { mounted = false; subscription.unsubscribe(); };
+  }, [navigate]);
 
-  const checkAdminAccess = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    if (session) {
-      const { data: hasAdmin } = await supabase.rpc('has_role', {
-        _user_id: session.user.id,
-        _role: 'admin'
-      });
-      if (hasAdmin) {
-        navigate('/admin/dashboard');
-      }
-    }
+  const friendlyError = (msg: string) => {
+    if (/invalid login credentials/i.test(msg)) return 'Email hoặc mật khẩu không đúng';
+    if (/email not confirmed/i.test(msg)) return 'Email chưa được xác nhận';
+    if (/rate limit/i.test(msg)) return 'Quá nhiều lần thử, vui lòng đợi vài phút';
+    return msg;
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -71,7 +75,7 @@ export default function AdminLogin() {
         navigate('/admin/dashboard');
       }
     } catch (error: any) {
-      toast.error(error.message || 'Login failed');
+      toast.error(friendlyError(error?.message || 'Đăng nhập thất bại'));
     } finally {
       setLoading(false);
     }
