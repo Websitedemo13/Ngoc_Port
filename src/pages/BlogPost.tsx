@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Calendar, Clock, Share2, Tag, ArrowRight, BookOpen, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { useEffect, useState } from 'react';
+import RichContent from '@/components/RichContent';
 
 const readingTime = (content: string) => Math.max(1, Math.ceil(content.split(/\s+/).length / 200));
 
@@ -191,24 +192,26 @@ const BlogPost = () => {
             </div>
 
             {/* Content */}
-            <div id="blog-content" className="prose prose-lg max-w-none pb-16
-              prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground prose-headings:tracking-tight
-              prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
-              prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
-              prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:mb-6
-              prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:font-medium
-              prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-8
-              prose-blockquote:border-l-4 prose-blockquote:border-secondary prose-blockquote:bg-secondary/5 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:my-8
-              prose-strong:text-foreground prose-strong:font-semibold
-              prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-code:font-mono
-              prose-pre:bg-muted prose-pre:rounded-xl prose-pre:shadow-inner
-              prose-li:text-muted-foreground prose-li:leading-relaxed
-              prose-ul:my-4 prose-ol:my-4
-              prose-hr:border-border prose-hr:my-10
-              dark:prose-invert
-            ">
-              <div dangerouslySetInnerHTML={{ __html: post.content }} />
-            </div>
+            <RichContent
+              id="blog-content"
+              html={post.content}
+              className="prose prose-lg max-w-none pb-16
+                prose-headings:font-serif prose-headings:font-bold prose-headings:text-foreground prose-headings:tracking-tight
+                prose-h2:text-2xl prose-h2:mt-12 prose-h2:mb-4
+                prose-h3:text-xl prose-h3:mt-8 prose-h3:mb-3
+                prose-p:text-muted-foreground prose-p:leading-[1.8] prose-p:mb-6
+                prose-a:text-primary prose-a:no-underline hover:prose-a:underline prose-a:font-medium
+                prose-img:rounded-2xl prose-img:shadow-xl prose-img:my-8 prose-img:mx-auto
+                prose-blockquote:border-l-4 prose-blockquote:border-secondary prose-blockquote:bg-secondary/5 prose-blockquote:py-4 prose-blockquote:px-6 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:my-8
+                prose-strong:text-foreground prose-strong:font-semibold
+                prose-code:bg-muted prose-code:px-2 prose-code:py-1 prose-code:rounded-md prose-code:text-sm prose-code:font-mono
+                prose-pre:bg-muted prose-pre:rounded-xl prose-pre:shadow-inner
+                prose-li:text-muted-foreground prose-li:leading-relaxed
+                prose-ul:my-4 prose-ol:my-4
+                prose-hr:border-border prose-hr:my-10
+                dark:prose-invert
+              "
+            />
 
             {/* Tags / Category footer */}
             {category && (

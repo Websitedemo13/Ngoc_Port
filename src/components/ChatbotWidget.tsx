@@ -317,7 +317,7 @@ const ChatbotWidget = () => {
               </Button>
             </form>
             <p className="text-[9px] text-muted-foreground text-center mt-1.5 opacity-50">
-              Powered by Lovable AI
+              AI Assistant
             </p>
           </div>
         </div>

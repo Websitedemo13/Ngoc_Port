@@ -6,6 +6,7 @@ import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, MapPin, ChevronRight } from 'lucide-react';
+import RichContent from '@/components/RichContent';
 
 const Experience = () => {
   const { language } = useLanguage();
@@ -65,7 +66,7 @@ const Experience = () => {
                         <p className="text-secondary font-medium mb-4">{exp.company}</p>
 
                         {exp.description && (
-                          <div className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" dangerouslySetInnerHTML={{ __html: exp.description }} />
+                          <RichContent html={exp.description} className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert" />
                         )}
 
                         {exp.achievements && exp.achievements.length > 0 && (

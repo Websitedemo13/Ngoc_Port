@@ -6,6 +6,7 @@ import CustomSections from '@/components/CustomSections';
 import PageHero from '@/components/PageHero';
 import { Card, CardContent } from '@/components/ui/card';
 import { Calendar, GraduationCap, ChevronRight, BookOpen } from 'lucide-react';
+import RichContent from '@/components/RichContent';
 
 const Education = () => {
   const { language } = useLanguage();
@@ -68,9 +69,9 @@ const Education = () => {
                         <p className="text-secondary font-medium mb-4 ml-8">{edu.institution}</p>
 
                         {edu.description && (
-                          <div
+                          <RichContent
+                            html={edu.description}
                             className="text-muted-foreground leading-relaxed mb-4 prose prose-sm max-w-none dark:prose-invert"
-                            dangerouslySetInnerHTML={{ __html: edu.description }}
                           />
                         )}
 

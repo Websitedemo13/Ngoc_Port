@@ -7,7 +7,8 @@ import { useTheme } from '@/lib/theme';
 import {
   User, Briefcase, FolderOpen, Activity, FileText,
   Image, Settings, LogOut, LayoutDashboard, GraduationCap,
-  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag, Ticket, Quote, MessageCircle
+  Sun, Moon, Menu, X, ChevronRight, Blocks, ShoppingBag, Ticket, Quote, MessageCircle, BookOpen,
+  Sparkles, Package, Tags, Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -16,12 +17,14 @@ const menuGroups = [
     label: 'Tổng quan',
     items: [
       { path: '/admin/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+      { path: '/admin/guide', icon: BookOpen, label: 'Hướng dẫn' },
     ],
   },
   {
     label: 'Nội dung',
     items: [
       { path: '/admin/profile', icon: User, label: 'Hồ sơ' },
+      { path: '/admin/branding', icon: Sparkles, label: 'Trang & Branding' },
       { path: '/admin/experiences', icon: Briefcase, label: 'Kinh nghiệm' },
       { path: '/admin/education', icon: GraduationCap, label: 'Học vấn' },
       { path: '/admin/projects', icon: FolderOpen, label: 'Dự án' },
@@ -33,6 +36,8 @@ const menuGroups = [
     items: [
       { path: '/admin/blog', icon: FileText, label: 'Blog' },
       { path: '/admin/store', icon: ShoppingBag, label: 'Cửa hàng' },
+      { path: '/admin/orders', icon: Package, label: 'Đơn hàng' },
+      { path: '/admin/categories', icon: Tags, label: 'Danh mục' },
       { path: '/admin/vouchers', icon: Ticket, label: 'Voucher' },
       { path: '/admin/testimonials', icon: Quote, label: 'Testimonials' },
     ],
@@ -41,6 +46,7 @@ const menuGroups = [
     label: 'Hệ thống',
     items: [
       { path: '/admin/contacts', icon: MessageCircle, label: 'Liên hệ' },
+      { path: '/admin/chatbot', icon: Bot, label: 'Chatbot' },
       { path: '/admin/custom-sections', icon: Blocks, label: 'Custom Sections' },
       { path: '/admin/media', icon: Image, label: 'Thư viện' },
       { path: '/admin/settings', icon: Settings, label: 'Cài đặt' },

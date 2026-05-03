@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useProfile, useUpdateProfile } from '@/hooks/useProfile';
+import { useSetting } from '@/hooks/useSettings';
+import { useQueryClient } from '@tanstack/react-query';
+import { settingsAPI } from '@/lib/supabase/settings';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
 import RichTextEditor from '@/components/admin/RichTextEditor';
 import { Label } from '@/components/ui/label';
 import { MediaUpload } from '@/components/admin/MediaUpload';
@@ -12,6 +16,13 @@ import { Save, Loader2 } from 'lucide-react';
 export default function ProfileManager() {
   const { data: profile, isLoading } = useProfile();
   const updateProfile = useUpdateProfile();
+  const { data: heroBtnsSetting } = useSetting('show_hero_buttons');
+  const qc = useQueryClient();
+  const [showHeroButtons, setShowHeroButtons] = useState(true);
+
+  useEffect(() => {
+    if (heroBtnsSetting) setShowHeroButtons(heroBtnsSetting.value !== 'false');
+  }, [heroBtnsSetting]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -47,6 +58,8 @@ export default function ProfileManager() {
         if (error) throw error;
         toast.success('Profile created');
       }
+      await settingsAPI.upsertSetting({ key: 'show_hero_buttons', value: showHeroButtons ? 'true' : 'false' });
+      qc.invalidateQueries({ queryKey: ['settings'] });
     } catch (error: any) {
       toast.error(error.message || 'Failed to save');
     }
@@ -89,7 +102,19 @@ export default function ProfileManager() {
         <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
           <h2 className="font-semibold text-lg">Hình ảnh</h2>
           <MediaUpload label="Ảnh đại diện" value={formData.profile_image_url} onChange={(url) => handleInputChange('profile_image_url', url)} accept="image/*" />
-          <MediaUpload label="Ảnh nền" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+          <MediaUpload label="Ảnh bìa (nền hero trang chủ)" value={formData.background_image_url} onChange={(url) => handleInputChange('background_image_url', url)} accept="image/*" />
+          <p className="text-xs text-muted-foreground">Ảnh bìa hiển thị làm nền cho phần hero của trang chủ. Khuyến nghị: 1920×1080, định dạng JPG.</p>
+        </div>
+
+        <div className="bg-card border border-border rounded-2xl p-6 space-y-4">
+          <h2 className="font-semibold text-lg">Tùy chỉnh hero trang chủ</h2>
+          <div className="flex items-center justify-between gap-4 p-4 rounded-xl bg-muted/40 border border-border">
+            <div className="space-y-0.5">
+              <Label className="text-sm font-medium">Hiển thị nút CTA trên hero</Label>
+              <p className="text-xs text-muted-foreground">Bật/tắt 2 nút "Về tôi" và "Liên hệ" ở phần đầu trang chủ.</p>
+            </div>
+            <Switch checked={showHeroButtons} onCheckedChange={setShowHeroButtons} />
+          </div>
         </div>
       </form>
     </div>

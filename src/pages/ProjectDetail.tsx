@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { ArrowLeft, ExternalLink } from 'lucide-react';
+import RichContent from '@/components/RichContent';
 
 const ProjectDetail = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -109,7 +110,7 @@ const ProjectDetail = () => {
                 <h2 className="font-serif text-2xl font-bold mb-4 text-foreground">
                   {language === 'en' ? 'The Challenge' : 'Thách thức'}
                 </h2>
-                <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" dangerouslySetInnerHTML={{ __html: project.challenge }} />
+                <RichContent html={project.challenge} className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" />
               </CardContent>
             </Card>
           )}
@@ -119,14 +120,12 @@ const ProjectDetail = () => {
               <h2 className="font-serif text-2xl font-bold mb-4">
                 {language === 'en' ? 'Solution' : 'Giải pháp'}
               </h2>
-              <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" dangerouslySetInnerHTML={{ __html: project.solution }} />
+              <RichContent html={project.solution} className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" />
             </div>
           )}
 
           {project.full_description && (
-            <div className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary">
-              <div dangerouslySetInnerHTML={{ __html: project.full_description }} />
-            </div>
+            <RichContent html={project.full_description} className="prose prose-lg max-w-none prose-headings:font-serif prose-headings:text-foreground prose-p:text-muted-foreground prose-a:text-primary" />
           )}
         </div>
       </section>
