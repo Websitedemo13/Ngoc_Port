@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { Plus, Trash2, FileText, Package } from 'lucide-react';
-import { generateSlug } from '@/lib/slugify';
+import { slugify } from '@/lib/slugify';
 
 export default function CategoriesManager() {
   return (
@@ -42,7 +42,7 @@ function BlogCats() {
   const [form, setForm] = useState({ name: '', slug: '', description: '', color: '#3B82F6' });
   const add = async () => {
     if (!form.name.trim()) return;
-    const slug = form.slug.trim() || generateSlug(form.name);
+    const slug = form.slug.trim() || slugify(form.name);
     const { error } = await supabase.from('blog_categories').insert({ ...form, slug, sort_order: data.length });
     if (error) return toast.error(error.message);
     setForm({ name: '', slug: '', description: '', color: '#3B82F6' });
@@ -93,7 +93,7 @@ function ProductCats() {
   const [form, setForm] = useState({ name: '', slug: '', description: '' });
   const add = async () => {
     if (!form.name.trim()) return;
-    const slug = form.slug.trim() || generateSlug(form.name);
+    const slug = form.slug.trim() || slugify(form.name);
     const { error } = await supabase.from('product_categories').insert({ ...form, slug, sort_order: data.length });
     if (error) return toast.error(error.message);
     setForm({ name: '', slug: '', description: '' });
