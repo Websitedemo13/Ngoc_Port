@@ -30,6 +30,10 @@ import VouchersManager from "./pages/admin/VouchersManager";
 import TestimonialsManager from "./pages/admin/TestimonialsManager";
 import ContactManager from "./pages/admin/ContactManager";
 import Guide from "./pages/admin/Guide";
+import BrandingManager from "./pages/admin/BrandingManager";
+import OrdersManager from "./pages/admin/OrdersManager";
+import CategoriesManager from "./pages/admin/CategoriesManager";
+import ChatbotManager from "./pages/admin/ChatbotManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AdminLayout from "./components/admin/AdminLayout";
 import BackToTop from "./components/BackToTop";
@@ -74,6 +78,10 @@ const App = () => (
             <Route path="testimonials" element={<TestimonialsManager />} />
             <Route path="contacts" element={<ContactManager />} />
             <Route path="guide" element={<Guide />} />
+            <Route path="branding" element={<BrandingManager />} />
+            <Route path="orders" element={<OrdersManager />} />
+            <Route path="categories" element={<CategoriesManager />} />
+            <Route path="chatbot" element={<ChatbotManager />} />
           </Route>
           <Route path="*" element={<NotFound />} />
         </Routes>
